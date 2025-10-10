@@ -161,18 +161,11 @@ class StrategyManager:
                 self._weighted_vote_aggregation(strategy_results)
             )
 
-        # Apply minimum confidence threshold
-        if final_confidence < self.min_confidence:
-            logging.info(
-                f"[StrategyManager] Confidence {final_confidence:.2f} below threshold {self.min_confidence}, converting to HOLD"
-            )
-            return "HOLD", final_confidence, f"Low confidence: {final_reason}"
-
         logging.info(
             f"[StrategyManager] Final signal for {symbol}: {final_signal} (conf: {final_confidence:.2f})"
         )
 
-        # Log signal details for analysis
+        # Log signal details for analysis (BEFORE confidence check)
         current_price = context.get("price", 0.0)
         if current_price > 0 and strategy_results:
             try:
@@ -202,6 +195,13 @@ class StrategyManager:
             except Exception as e:
                 # Never let logging errors crash trading
                 logging.warning(f"⚠️  Signal logging failed: {e}")
+
+        # Apply minimum confidence threshold
+        if final_confidence < self.min_confidence:
+            logging.info(
+                f"[StrategyManager] Confidence {final_confidence:.2f} below threshold {self.min_confidence}, converting to HOLD"
+            )
+            return "HOLD", final_confidence, f"Low confidence: {final_reason}"
 
         return final_signal, final_confidence, final_reason
 
