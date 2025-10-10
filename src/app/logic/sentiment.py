@@ -7,12 +7,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 class SentimentSignal:
     def __init__(self):
         self.model = "gpt-4o-mini"
+        # Initialize client lazily
+        self._client = None
+    
+    @property
+    def client(self):
+        """Lazy load OpenAI client."""
+        if self._client is None:
+            api_key = os.getenv("OPENAI_API_KEY")
+            if api_key:
+                self._client = openai.OpenAI(api_key=api_key)
+            else:
+                # For testing without API key
+                self._client = openai.OpenAI(api_key="dummy-key-for-testing")
+        return self._client
 
     # ---------- Fallback quick sentiment ----------
     def _fallback_parse(self, headline: str):
@@ -54,7 +66,7 @@ class SentimentSignal:
                 f'{{\"signal\": \"BUY\", \"reason\": \"High interest and positive news.\"}}'
             )
 
-            response = client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.2,
@@ -105,7 +117,7 @@ class SentimentSignal:
 
             logging.info(f"[SentimentSignal] Sending {len(headlines)} headlines for {symbol} to GPT")
 
-            response = client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.2,

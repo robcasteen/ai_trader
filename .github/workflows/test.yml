@@ -37,6 +37,9 @@ jobs:
       env:
         PYTHONPATH: ${{ github.workspace }}/src
         PYTEST_CURRENT_TEST: true
+        OPENAI_API_KEY: dummy-key-for-testing
+        KRAKEN_API_KEY: dummy-key-for-testing
+        KRAKEN_API_SECRET: dummy-key-for-testing
       run: |
         pytest -v --cov=app --cov-report=xml --cov-report=term
     
