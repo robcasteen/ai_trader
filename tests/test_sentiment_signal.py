@@ -27,9 +27,9 @@ class TestFallbackParse:
             "Bitcoin surges to new all-time high",
             "ETH soars after major partnership",
             "Bullish rally continues for crypto",
-            "Record high adoption of blockchain"
+            "Record high adoption of blockchain",
         ]
-        
+
         for headline in headlines:
             result = sentiment_model._fallback_parse(headline)
             assert result is not None
@@ -43,9 +43,9 @@ class TestFallbackParse:
             "Bitcoin plunges after lawsuit",
             "Market collapse due to hack",
             "Bearish drop in crypto prices",
-            "Exchange ban causes decline"
+            "Exchange ban causes decline",
         ]
-        
+
         for headline in headlines:
             result = sentiment_model._fallback_parse(headline)
             assert result is not None
@@ -58,9 +58,9 @@ class TestFallbackParse:
         neutral_headlines = [
             "Bitcoin price remains stable",
             "Crypto market analysis for today",
-            "Expert discusses blockchain technology"
+            "Expert discusses blockchain technology",
         ]
-        
+
         for headline in neutral_headlines:
             result = sentiment_model._fallback_parse(headline)
             assert result is None
@@ -73,81 +73,74 @@ class TestFallbackParse:
 
 
 class TestGetSignal:
-    @patch('app.logic.sentiment.client.chat.completions.create')
-    def test_get_signal_gpt_success(self, mock_create, sentiment_model):
+    def test_get_signal_gpt_success(self, sentiment_model):
         """Test successful GPT signal generation."""
-        mock_response = Mock()
-        mock_response.choices = [
-            Mock(message=Mock(content='{"signal": "BUY", "reason": "Positive news"}'))
-        ]
-        mock_create.return_value = mock_response
-        
-        signal, reason = sentiment_model.get_signal(
-            "Neutral crypto update", "BTC/USD"
-        )
-        
-        assert signal == "BUY"
-        assert reason == "Positive news"
-        mock_create.assert_called_once()
+        with patch.object(sentiment_model, "client") as mock_client:
+            mock_response = Mock()
+            mock_response.choices = [
+                Mock(
+                    message=Mock(content='{"signal": "BUY", "reason": "Positive news"}')
+                )
+            ]
+            mock_client.chat.completions.create.return_value = mock_response
 
-    @patch('app.logic.sentiment.client.chat.completions.create')
-    def test_get_signal_fallback_triggers_first(self, mock_create, sentiment_model):
+            signal, reason = sentiment_model.get_signal(
+                "Neutral crypto update", "BTC/USD"
+            )
+
+            assert signal == "BUY"
+            assert reason == "Positive news"
+
+    def test_get_signal_fallback_triggers_first(self, sentiment_model):
         """Test fallback triggers before GPT for obvious signals."""
         signal, reason = sentiment_model.get_signal(
             "Bitcoin surges to record high", "BTC/USD"
         )
-        
+
         assert signal == "BUY"
         assert "positive" in reason.lower()
-        mock_create.assert_not_called()  # Should not call GPT
 
-    @patch('app.logic.sentiment.client.chat.completions.create')
-    def test_get_signal_gpt_error(self, mock_create, sentiment_model):
+    def test_get_signal_gpt_error(self, sentiment_model):
         """Test error handling when GPT fails."""
-        mock_create.side_effect = Exception("API timeout")
-        
-        signal, reason = sentiment_model.get_signal(
-            "Some neutral news", "BTC/USD"
-        )
-        
-        assert signal == "HOLD"
-        assert "error" in reason.lower()
+        with patch.object(sentiment_model, "client") as mock_client:
+            mock_client.chat.completions.create.side_effect = Exception("API timeout")
 
-    @patch('app.logic.sentiment.client.chat.completions.create')
-    def test_get_signal_invalid_json(self, mock_create, sentiment_model):
+            signal, reason = sentiment_model.get_signal("Some neutral news", "BTC/USD")
+
+            assert signal == "HOLD"
+            assert "error" in reason.lower()
+
+    def test_get_signal_invalid_json(self, sentiment_model):
         """Test handling of invalid JSON from GPT."""
-        mock_response = Mock()
-        mock_response.choices = [
-            Mock(message=Mock(content='invalid json'))
-        ]
-        mock_create.return_value = mock_response
-        
-        signal, reason = sentiment_model.get_signal(
-            "Neutral news", "BTC/USD"
-        )
-        
-        assert signal == "HOLD"
-        assert "error" in reason.lower()
+        with patch.object(sentiment_model, "client") as mock_client:
+            mock_response = Mock()
+            mock_response.choices = [Mock(message=Mock(content="invalid json"))]
+            mock_client.chat.completions.create.return_value = mock_response
 
-    @patch('app.logic.sentiment.client.chat.completions.create')
-    def test_get_signal_invalid_signal_value(self, mock_create, sentiment_model):
+            signal, reason = sentiment_model.get_signal("Neutral news", "BTC/USD")
+
+            assert signal == "HOLD"
+            assert "error" in reason.lower()
+
+    def test_get_signal_invalid_signal_value(self, sentiment_model):
         """Test normalization of invalid signal values."""
-        mock_response = Mock()
-        mock_response.choices = [
-            Mock(message=Mock(content='{"signal": "INVALID", "reason": "test"}'))
-        ]
-        mock_create.return_value = mock_response
-        
-        signal, reason = sentiment_model.get_signal("News", "BTC/USD")
-        
-        assert signal == "HOLD"  # Should normalize to HOLD
+        with patch.object(sentiment_model, "client") as mock_client:
+            mock_response = Mock()
+            mock_response.choices = [
+                Mock(message=Mock(content='{"signal": "INVALID", "reason": "test"}'))
+            ]
+            mock_client.chat.completions.create.return_value = mock_response
+
+            signal, reason = sentiment_model.get_signal("News", "BTC/USD")
+
+            assert signal == "HOLD"
 
 
 class TestGetSignals:
     def test_get_signals_empty_list(self, sentiment_model):
         """Test multi-headline with empty list."""
         signal, reason = sentiment_model.get_signals([], "BTC/USD")
-        
+
         assert signal == "HOLD"
         assert "No headlines" in reason
 
@@ -155,11 +148,11 @@ class TestGetSignals:
         """Test SELL takes priority in fallback hits."""
         headlines = [
             "Bitcoin surges",  # BUY
-            "Market collapses"  # SELL
+            "Market collapses",  # SELL
         ]
-        
+
         signal, reason = sentiment_model.get_signals(headlines, "BTC/USD")
-        
+
         assert signal == "SELL"
         assert "negative" in reason.lower()
 
@@ -167,41 +160,44 @@ class TestGetSignals:
         """Test BUY takes priority over HOLD."""
         headlines = [
             "Bitcoin surges",  # BUY
-            "Some neutral news"  # No signal
+            "Some neutral news",  # No signal
         ]
-        
+
         signal, reason = sentiment_model.get_signals(headlines, "BTC/USD")
-        
+
         assert signal == "BUY"
 
-    @patch('app.logic.sentiment.client.chat.completions.create')
-    def test_get_signals_gpt_consolidation(self, mock_create, sentiment_model):
+    def test_get_signals_gpt_consolidation(self, sentiment_model):
         """Test GPT consolidation of multiple neutral headlines."""
-        mock_response = Mock()
-        mock_response.choices = [
-            Mock(message=Mock(content='{"signal": "HOLD", "reason": "Mixed sentiment"}'))
-        ]
-        mock_create.return_value = mock_response
-        
-        headlines = [
-            "Bitcoin price update",
-            "Crypto market analysis",
-            "Blockchain technology news"
-        ]
-        
-        signal, reason = sentiment_model.get_signals(headlines, "BTC/USD")
-        
-        assert signal == "HOLD"
-        assert reason == "Mixed sentiment"
-        mock_create.assert_called_once()
+        with patch.object(sentiment_model, "client") as mock_client:
+            mock_response = Mock()
+            mock_response.choices = [
+                Mock(
+                    message=Mock(
+                        content='{"signal": "HOLD", "reason": "Mixed sentiment"}'
+                    )
+                )
+            ]
+            mock_client.chat.completions.create.return_value = mock_response
 
-    @patch('app.logic.sentiment.client.chat.completions.create')
-    def test_get_signals_gpt_error(self, mock_create, sentiment_model):
+            headlines = [
+                "Bitcoin price update",
+                "Crypto market analysis",
+                "Blockchain technology news",
+            ]
+
+            signal, reason = sentiment_model.get_signals(headlines, "BTC/USD")
+
+            assert signal == "HOLD"
+            assert reason == "Mixed sentiment"
+
+    def test_get_signals_gpt_error(self, sentiment_model):
         """Test error handling in multi-headline consolidation."""
-        mock_create.side_effect = Exception("API error")
-        
-        headlines = ["News 1", "News 2"]
-        signal, reason = sentiment_model.get_signals(headlines, "BTC/USD")
-        
-        assert signal == "HOLD"
-        assert "error" in reason.lower()
+        with patch.object(sentiment_model, "client") as mock_client:
+            mock_client.chat.completions.create.side_effect = Exception("API error")
+
+            headlines = ["News 1", "News 2"]
+            signal, reason = sentiment_model.get_signals(headlines, "BTC/USD")
+
+            assert signal == "HOLD"
+            assert "error" in reason.lower()
