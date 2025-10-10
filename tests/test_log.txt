@@ -26,14 +26,14 @@ DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
 INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
 DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
 INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
-INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
-INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
-INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
-INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
-INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
-INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
-INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
-INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD', 'SOL/USD', 'LTC/USD', 'LINK/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, 37.02, -0.34, 0.0, 0.0, 0.02, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD', 'SOL/USD', 'LTC/USD', 'LINK/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, 37.02, -0.34, 0.0, 0.0, 0.02, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD', 'SOL/USD', 'LTC/USD', 'LINK/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, 37.02, -0.34, 0.0, 0.0, 0.02, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD', 'SOL/USD', 'LTC/USD', 'LINK/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, 37.02, -0.34, 0.0, 0.0, 0.02, 0.0, 0.0]
 INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
 INFO     root:dashboard.py:117 [PnL] Data: [2000.0]
 INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
@@ -59,7 +59,7 @@ INFO     root:dashboard.py:117 [PnL] Data: [0.0]
 INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
 INFO     root:dashboard.py:117 [PnL] Data: [0.0]
 INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
-INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-10 14:13:22 ===
 INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
 INFO     root:main.py:105 [Scanner] Top 1 symbols: ['BTC/USD']
 INFO     root:main.py:106 [News] Retrieved 1 symbol groups with unseen headlines
@@ -68,14 +68,14 @@ INFO     root:main.py:129 [BTC/USD] Current price: 50000.0
 INFO     root:main.py:130 [BTC/USD] Current USD balance: 10000.0
 INFO     root:main.py:140 [BTC/USD] Headline: Bitcoin surges to new all-time high
 INFO     root:main.py:143 [BTC/USD] Signal: BUY | Reason: Positive sentiment
-INFO     root:main.py:146 [BTC/USD] Trade result: {'timestamp': '2025-10-09T17:24:57.389810', 'action': 'BUY', 'symbol': 'BTC/USD', 'price': 50000.0, 'amount': 0.01, 'value': 500.0, 'reason': 'Positive sentiment'}
+INFO     root:main.py:146 [BTC/USD] Trade result: {'timestamp': '2025-10-10T14:13:22.125084', 'action': 'BUY', 'symbol': 'BTC/USD', 'price': 50000.0, 'amount': 0.01, 'value': 500.0, 'reason': 'Positive sentiment'}
 INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Positive sentiment
 INFO     root:main.py:149 [BTC/USD] Notified result.
 INFO     root:main.py:162 [BTC/USD] Marked 1 headlines as seen.
-INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-09 17:24:57 ===
-INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-09 17:24:57', 'message': 'Completed trade cycle successfully.', 'next_run': '2025-10-09 17:24:57'}
-INFO     root:main.py:184 [Scheduler] Next run scheduled at 2025-10-09 17:24:57
-INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-10 14:13:22 ===
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-10 14:13:22', 'message': 'Completed trade cycle successfully.', 'next_run': '2025-10-10 14:13:22'}
+INFO     root:main.py:184 [Scheduler] Next run scheduled at 2025-10-10 14:13:22
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-10 14:13:22 ===
 INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
 INFO     root:main.py:105 [Scanner] Top 2 symbols: ['BTC/USD', 'ETH/USD']
 INFO     root:main.py:106 [News] Retrieved 2 symbol groups with unseen headlines
@@ -84,7 +84,7 @@ INFO     root:main.py:129 [BTC/USD] Current price: 50000.0
 INFO     root:main.py:130 [BTC/USD] Current USD balance: 10000.0
 INFO     root:main.py:140 [BTC/USD] Headline: Bitcoin surges
 INFO     root:main.py:143 [BTC/USD] Signal: BUY | Reason: Positive
-INFO     root:main.py:146 [BTC/USD] Trade result: {'timestamp': '2025-10-09T17:24:57.439988', 'action': 'BUY', 'symbol': 'BTC/USD', 'price': 50000.0, 'amount': 0.01, 'value': 500.0, 'reason': 'Positive'}
+INFO     root:main.py:146 [BTC/USD] Trade result: {'timestamp': '2025-10-10T14:13:22.131181', 'action': 'BUY', 'symbol': 'BTC/USD', 'price': 50000.0, 'amount': 0.01, 'value': 500.0, 'reason': 'Positive'}
 INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Positive
 INFO     root:main.py:149 [BTC/USD] Notified result.
 INFO     root:main.py:162 [BTC/USD] Marked 1 headlines as seen.
@@ -93,23 +93,23 @@ INFO     root:main.py:129 [ETH/USD] Current price: 3000.0
 INFO     root:main.py:130 [ETH/USD] Current USD balance: 10000.0
 INFO     root:main.py:140 [ETH/USD] Headline: Ethereum drops
 INFO     root:main.py:143 [ETH/USD] Signal: SELL | Reason: Negative
-INFO     root:main.py:146 [ETH/USD] Trade result: {'timestamp': '2025-10-09T17:24:57.441528', 'action': 'SELL', 'symbol': 'ETH/USD', 'price': 3000.0, 'amount': 0.01, 'value': 30.0, 'reason': 'Negative'}
+INFO     root:main.py:146 [ETH/USD] Trade result: {'timestamp': '2025-10-10T14:13:22.132905', 'action': 'SELL', 'symbol': 'ETH/USD', 'price': 3000.0, 'amount': 0.01, 'value': 30.0, 'reason': 'Negative'}
 INFO     root:notifier.py:14 [ALERT] [ETH/USD] SELL @ 3000.0 — Negative
 INFO     root:main.py:149 [ETH/USD] Notified result.
 INFO     root:main.py:162 [ETH/USD] Marked 1 headlines as seen.
-INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-09 17:24:57 ===
-INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-09 17:24:57', 'message': 'Completed trade cycle successfully.', 'next_run': '2025-10-09 17:24:57'}
-INFO     root:main.py:184 [Scheduler] Next run scheduled at 2025-10-09 17:24:57
+INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-10 14:13:22 ===
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-10 14:13:22', 'message': 'Completed trade cycle successfully.', 'next_run': '2025-10-10 14:13:22'}
+INFO     root:main.py:184 [Scheduler] Next run scheduled at 2025-10-10 14:13:22
 DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
 INFO     root:main.py:228 [Manual] Trade cycle triggered via /run-now endpoint
 INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/run-now "HTTP/1.1 200 OK"
 DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
-INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
-INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
-INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
-INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD', 'SOL/USD', 'LTC/USD', 'LINK/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, 37.02, -0.34, 0.0, 0.0, 0.02, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD', 'SOL/USD', 'LTC/USD', 'LINK/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, 37.02, -0.34, 0.0, 0.0, 0.02, 0.0, 0.0]
 INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
-INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-10 14:13:22 ===
 INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
 INFO     root:main.py:105 [Scanner] Top 2 symbols: ['BTC/USD', 'ETH/USD']
 INFO     root:main.py:106 [News] Retrieved 2 symbol groups with unseen headlines
@@ -123,7 +123,7 @@ INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP
 INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-01-01 00:00:00', 'message': 'ok', 'next_run': 'soon'}
 DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
 INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
-INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-10 14:13:22 ===
 INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
 INFO     root:main.py:105 [Scanner] Top 1 symbols: ['BTC/USD']
 INFO     root:main.py:106 [News] Retrieved 1 symbol groups with unseen headlines
@@ -135,18 +135,30 @@ INFO     root:main.py:143 [BTC/USD] Signal: BUY | Reason: Positive news
 INFO     root:main.py:146 [BTC/USD] Trade result: {'trade': 'executed'}
 INFO     root:main.py:149 [BTC/USD] Notified result.
 INFO     root:main.py:162 [BTC/USD] Marked 1 headlines as seen.
-INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-09 17:24:57 ===
-INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-09 17:24:57', 'message': 'Completed trade cycle successfully.', 'next_run': 'Unknown'}
+INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-10 14:13:22 ===
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-10 14:13:22', 'message': 'Completed trade cycle successfully.', 'next_run': 'Unknown'}
 DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
 INFO     root:main.py:228 [Manual] Trade cycle triggered via /run-now endpoint
-INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-10 14:13:22 ===
 INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
 DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): api.kraken.com:443
 DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=all HTTP/1.1" 200 39
 INFO     root:main.py:105 [Scanner] Top 0 symbols: []
-INFO     root:main.py:106 [News] Retrieved 0 symbol groups with unseen headlines
-INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-09 17:24:59 ===
-INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-09 17:24:59', 'message': 'No actionable headlines or symbols.', 'next_run': 'Unknown'}
+INFO     root:main.py:106 [News] Retrieved 1 symbol groups with unseen headlines
+INFO     root:main.py:118 [ETH/USD] Checking...
+DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): api.kraken.com:443
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=ETH%2FUSD HTTP/1.1" 200 None
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "POST /0/private/Balance HTTP/1.1" 200 41
+INFO     root:main.py:129 [ETH/USD] Current price: 4040.74
+INFO     root:main.py:130 [ETH/USD] Current USD balance: 200.0
+INFO     root:main.py:140 [ETH/USD] Headline: Ether's 7% Plunge Leads Crypto Liquidations in $600M Carnage
+INFO     root:main.py:143 [ETH/USD] Signal: SELL | Reason: Keyword match (negative): Ether's 7% Plunge Leads Crypto Liquidations in $600M Carnage
+INFO     root:main.py:146 [ETH/USD] Trade result: {'timestamp': '2025-10-10T14:13:24.897569', 'action': 'SELL', 'symbol': 'ETH/USD', 'price': 4040.74, 'amount': 0.01, 'value': 40.41, 'reason': "Keyword match (negative): Ether's 7% Plunge Leads Crypto Liquidations in $600M Carnage"}
+INFO     root:notifier.py:14 [ALERT] [ETH/USD] SELL @ 4040.74 — Keyword match (negative): Ether's 7% Plunge Leads Crypto Liquidations in $600M Carnage
+INFO     root:main.py:149 [ETH/USD] Notified result.
+INFO     root:main.py:162 [ETH/USD] Marked 1 headlines as seen.
+INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-10 14:13:24 ===
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-10 14:13:24', 'message': 'Completed trade cycle successfully.', 'next_run': 'Unknown'}
 INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/run-now "HTTP/1.1 200 OK"
 INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Positive sentiment detected
 INFO     root:notifier.py:14 [ALERT] [ETH/USD] SELL @ 3000.0 — Negative news
@@ -161,9 +173,316 @@ INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Test
 INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Buy signal
 INFO     root:notifier.py:14 [ALERT] [ETH/USD] SELL @ 3000.0 — Sell signal
 INFO     root:notifier.py:14 [ALERT] [SOL/USD] HOLD @ 100.0 — Hold signal
-ERROR    root:sentiment.py:75 [SentimentSignal] GPT error for BTC/USD: API timeout
-ERROR    root:sentiment.py:75 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
-INFO     root:sentiment.py:106 [SentimentSignal] Sending 3 headlines for BTC/USD to GPT
-INFO     root:sentiment.py:123 [SentimentSignal] BTC/USD consolidated signal: HOLD — Mixed sentiment
-INFO     root:sentiment.py:106 [SentimentSignal] Sending 2 headlines for BTC/USD to GPT
-ERROR    root:sentiment.py:127 [SentimentSignal] GPT error for BTC/USD: API error
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for BTC/USD: API timeout
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:sentiment.py:118 [SentimentSignal] Sending 3 headlines for BTC/USD to GPT
+INFO     root:sentiment.py:135 [SentimentSignal] BTC/USD consolidated signal: HOLD — Mixed sentiment
+INFO     root:sentiment.py:118 [SentimentSignal] Sending 2 headlines for BTC/USD to GPT
+ERROR    root:sentiment.py:139 [SentimentSignal] GPT error for BTC/USD: API error
+INFO     root:sentiment.py:118 [SentimentSignal] Sending 3 headlines for BTC/USD to GPT
+INFO     root:sentiment.py:135 [SentimentSignal] BTC/USD consolidated signal: BUY — Positive overall
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: custom
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: custom
+INFO     root:strategy_manager.py:72 [StrategyManager] Removed strategy: custom
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: test
+INFO     root:strategy_manager.py:88 [StrategyManager] Disabled strategy: test
+INFO     root:strategy_manager.py:79 [StrategyManager] Enabled strategy: test
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s1
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s2
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s3
+INFO     root:strategy_manager.py:134 [s1] BTC/USD: BUY (conf: 0.80) - s1 signal
+INFO     root:strategy_manager.py:134 [s2] BTC/USD: BUY (conf: 0.70) - s2 signal
+INFO     root:strategy_manager.py:134 [s3] BTC/USD: BUY (conf: 0.90) - s3 signal
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: BUY (conf: 0.80)
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s1
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s2
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s3
+INFO     root:strategy_manager.py:134 [s1] BTC/USD: BUY (conf: 0.80) - s1 signal
+INFO     root:strategy_manager.py:134 [s2] BTC/USD: SELL (conf: 0.70) - s2 signal
+INFO     root:strategy_manager.py:134 [s3] BTC/USD: BUY (conf: 0.90) - s3 signal
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: BUY (conf: 0.57)
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s1
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s2
+INFO     root:strategy_manager.py:134 [s1] BTC/USD: BUY (conf: 0.50) - s1 signal
+INFO     root:strategy_manager.py:134 [s2] BTC/USD: BUY (conf: 0.40) - s2 signal
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: BUY (conf: 0.45)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.45 below threshold 0.7, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s1
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s2
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s3
+INFO     root:strategy_manager.py:134 [s1] BTC/USD: BUY (conf: 0.60) - s1 signal
+INFO     root:strategy_manager.py:134 [s2] BTC/USD: SELL (conf: 0.90) - s2 signal
+INFO     root:strategy_manager.py:134 [s3] BTC/USD: HOLD (conf: 0.50) - s3 signal
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: SELL (conf: 0.90)
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s1
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s2
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s3
+INFO     root:strategy_manager.py:134 [s1] BTC/USD: BUY (conf: 0.70) - s1 signal
+INFO     root:strategy_manager.py:134 [s2] BTC/USD: BUY (conf: 0.80) - s2 signal
+INFO     root:strategy_manager.py:134 [s3] BTC/USD: BUY (conf: 0.90) - s3 signal
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: BUY (conf: 0.80)
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s1
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s2
+INFO     root:strategy_manager.py:67 [StrategyManager] Added strategy: s3
+INFO     root:strategy_manager.py:134 [s1] BTC/USD: BUY (conf: 0.80) - s1 signal
+INFO     root:strategy_manager.py:134 [s2] BTC/USD: SELL (conf: 0.70) - s2 signal
+INFO     root:strategy_manager.py:134 [s3] BTC/USD: BUY (conf: 0.90) - s3 signal
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: HOLD (conf: 0.30)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.30 below threshold 0.5, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 1 strategies
+INFO     root:strategy_manager.py:319 [StrategyManager] Configuration updated
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+INFO     root:strategy_manager.py:134 [sentiment] BTC/USD: BUY (conf: 0.60) - Sentiment: Keyword match (positive): Bitcoin adoption growing
+INFO     root:strategy_manager.py:134 [technical] BTC/USD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:134 [volume] BTC/USD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: BUY (conf: 0.27)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.27 below threshold 0.5, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+INFO     root:strategy_manager.py:134 [sentiment] BTC/USD: BUY (conf: 0.80) - Sentiment: Keyword match (positive): Bitcoin bullish
+INFO     root:strategy_manager.py:134 [technical] BTC/USD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:134 [volume] BTC/USD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: BUY (conf: 0.34)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.34 below threshold 0.5, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-ebe39fed-6f1f-451f-96b1-924399afa89b', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test headline" and the crypto symbol BTC/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922a5580>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x79b193082a50> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1923add30>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:26 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'1269'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1330'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9999'), (b'x-ratelimit-remaining-tokens', b'199927'), (b'x-ratelimit-reset-requests', b'8.64s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_74af0dfc6e48450c8691106380e22dd4'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=oqrF3GpVLzD47ipGQx6Gs5o8cnRYqRQ7NT4xyCMqT7A-1760123606-1.0.1.1-Fm9pfHqYqIxJIhqgrSdI_BJNAmk4vb2.bVfdz0rekKANQlMPk_uVs_yrM7fUKxY9I8QHEhz.OGPQbFH_fbVeil.97jUvjxuaEa.._RkzEPM; path=/; expires=Fri, 10-Oct-25 19:43:26 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=_0ow4u4e0J0aJhbneiPILl9gGQIA7f_WsVQtZ.pwqxQ-1760123606970-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f56be496c66-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Fri, 10 Oct 2025 19:13:26 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '1269'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '1330'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9999'), ('x-ratelimit-remaining-tokens', '199927'), ('x-ratelimit-reset-requests', '8.64s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_74af0dfc6e48450c8691106380e22dd4'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=oqrF3GpVLzD47ipGQx6Gs5o8cnRYqRQ7NT4xyCMqT7A-1760123606-1.0.1.1-Fm9pfHqYqIxJIhqgrSdI_BJNAmk4vb2.bVfdz0rekKANQlMPk_uVs_yrM7fUKxY9I8QHEhz.OGPQbFH_fbVeil.97jUvjxuaEa.._RkzEPM; path=/; expires=Fri, 10-Oct-25 19:43:26 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=_0ow4u4e0J0aJhbneiPILl9gGQIA7f_WsVQtZ.pwqxQ-1760123606970-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '98c86f56be496c66-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_74af0dfc6e48450c8691106380e22dd4
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [sentiment] BTC/USD: HOLD (conf: 0.30) - Sentiment: GPT error: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [technical] BTC/USD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:134 [volume] BTC/USD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-73336bb4-adb5-413f-a395-b3d7f25b5ab7', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol SYMBOL0/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922a7680>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x79b1922cf6d0> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922a71d0>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:28 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'834'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1060'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9999'), (b'x-ratelimit-remaining-tokens', b'199928'), (b'x-ratelimit-reset-requests', b'8.64s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_58b12bf91fdd437aac98e038c0a71640'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=D0211gX6K.V6cNeASNLOgVpqAlK1ad0IjA1UHBD_nhk-1760123608-1.0.1.1-kj.NndeAZ0f5BmTFex8JWCRiqDJIqZ79lLPZsyWMOYriu3E7X5SjAyZ4ESh8qeBBc3or0Q9AAdX81IxhvJnjnxpygOO7gZU2AREvnyy7VQk; path=/; expires=Fri, 10-Oct-25 19:43:28 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=.Zcut.INjSLpyqn5iqmgj6rO6OhxomhbksJ9fUS9mKg-1760123608266-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f609e0b479c-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Fri, 10 Oct 2025 19:13:28 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '834'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '1060'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9999'), ('x-ratelimit-remaining-tokens', '199928'), ('x-ratelimit-reset-requests', '8.64s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_58b12bf91fdd437aac98e038c0a71640'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=D0211gX6K.V6cNeASNLOgVpqAlK1ad0IjA1UHBD_nhk-1760123608-1.0.1.1-kj.NndeAZ0f5BmTFex8JWCRiqDJIqZ79lLPZsyWMOYriu3E7X5SjAyZ4ESh8qeBBc3or0Q9AAdX81IxhvJnjnxpygOO7gZU2AREvnyy7VQk; path=/; expires=Fri, 10-Oct-25 19:43:28 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=.Zcut.INjSLpyqn5iqmgj6rO6OhxomhbksJ9fUS9mKg-1760123608266-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '98c86f609e0b479c-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_58b12bf91fdd437aac98e038c0a71640
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for SYMBOL0/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [sentiment] SYMBOL0/USD: HOLD (conf: 0.30) - Sentiment: GPT error: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [technical] SYMBOL0/USD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:134 [volume] SYMBOL0/USD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for SYMBOL0/USD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-9733f7bb-61a0-4eba-b938-dda1dba3e4a8', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol SYMBOL1/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:29 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'891'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'916'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9999'), (b'x-ratelimit-remaining-tokens', b'199928'), (b'x-ratelimit-reset-requests', b'8.64s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_647047549cb04708bdb0cc05c0f8fdfa'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f67ef45479c-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers({'date': 'Fri, 10 Oct 2025 19:13:29 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'user-6mwxkngxge9likbrzlxbfa92', 'openai-processing-ms': '891', 'openai-project': 'proj_3jfjrR4jauJSvtuUZKgvj2Vp', 'openai-version': '2020-10-01', 'x-envoy-upstream-service-time': '916', 'x-ratelimit-limit-requests': '10000', 'x-ratelimit-limit-tokens': '200000', 'x-ratelimit-remaining-requests': '9999', 'x-ratelimit-remaining-tokens': '199928', 'x-ratelimit-reset-requests': '8.64s', 'x-ratelimit-reset-tokens': '21ms', 'x-request-id': 'req_647047549cb04708bdb0cc05c0f8fdfa', 'x-openai-proxy-wasm': 'v0.1', 'cf-cache-status': 'DYNAMIC', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '98c86f67ef45479c-DFW', 'content-encoding': 'gzip', 'alt-svc': 'h3=":443"; ma=86400'})
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_647047549cb04708bdb0cc05c0f8fdfa
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for SYMBOL1/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [sentiment] SYMBOL1/USD: HOLD (conf: 0.30) - Sentiment: GPT error: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [technical] SYMBOL1/USD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:134 [volume] SYMBOL1/USD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for SYMBOL1/USD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-67a61aa4-ed2f-4836-b2bb-73b7b8257685', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol SYMBOL2/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:30 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'1214'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1228'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9997'), (b'x-ratelimit-remaining-tokens', b'199928'), (b'x-ratelimit-reset-requests', b'24.843s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_1fffa8c890ed4250b45eb8a17b4eafd3'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f6e2f36479c-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers({'date': 'Fri, 10 Oct 2025 19:13:30 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'user-6mwxkngxge9likbrzlxbfa92', 'openai-processing-ms': '1214', 'openai-project': 'proj_3jfjrR4jauJSvtuUZKgvj2Vp', 'openai-version': '2020-10-01', 'x-envoy-upstream-service-time': '1228', 'x-ratelimit-limit-requests': '10000', 'x-ratelimit-limit-tokens': '200000', 'x-ratelimit-remaining-requests': '9997', 'x-ratelimit-remaining-tokens': '199928', 'x-ratelimit-reset-requests': '24.843s', 'x-ratelimit-reset-tokens': '21ms', 'x-request-id': 'req_1fffa8c890ed4250b45eb8a17b4eafd3', 'x-openai-proxy-wasm': 'v0.1', 'cf-cache-status': 'DYNAMIC', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '98c86f6e2f36479c-DFW', 'content-encoding': 'gzip', 'alt-svc': 'h3=":443"; ma=86400'})
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_1fffa8c890ed4250b45eb8a17b4eafd3
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for SYMBOL2/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [sentiment] SYMBOL2/USD: HOLD (conf: 0.30) - Sentiment: GPT error: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [technical] SYMBOL2/USD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:134 [volume] SYMBOL2/USD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for SYMBOL2/USD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-f957dfd0-5ffe-4d53-b214-3fd2a8d63fd2', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Bitcoin positive news" and the crypto symbol BTC/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922d2150>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x79b1922cf2d0> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922d26f0>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:31 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'914'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'929'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9996'), (b'x-ratelimit-remaining-tokens', b'199925'), (b'x-ratelimit-reset-requests', b'31.062s'), (b'x-ratelimit-reset-tokens', b'22ms'), (b'x-request-id', b'req_43e393b7a24744138a91867815c3c4ad'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=Z8I6SfppC8Wxna0jkxOYwqJfmPKru5YKRJpB.lC6jCc-1760123611-1.0.1.1-A2foFGWLIQ_gZlggahmY4Q23N2i9nAHg_2FAKpvBUZP.I6fD3I.ZopOae74e3.aYH6fl8sn0oREVyBfIWXuGZwqvFChFO2eDuWlpjrzIKfg; path=/; expires=Fri, 10-Oct-25 19:43:31 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=A_I_a3NDpYzUO8MQgNxpt7u0rzHdbSpGc9VOK2oqtJk-1760123611828-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f77ba45f789-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Fri, 10 Oct 2025 19:13:31 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '914'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '929'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9996'), ('x-ratelimit-remaining-tokens', '199925'), ('x-ratelimit-reset-requests', '31.062s'), ('x-ratelimit-reset-tokens', '22ms'), ('x-request-id', 'req_43e393b7a24744138a91867815c3c4ad'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=Z8I6SfppC8Wxna0jkxOYwqJfmPKru5YKRJpB.lC6jCc-1760123611-1.0.1.1-A2foFGWLIQ_gZlggahmY4Q23N2i9nAHg_2FAKpvBUZP.I6fD3I.ZopOae74e3.aYH6fl8sn0oREVyBfIWXuGZwqvFChFO2eDuWlpjrzIKfg; path=/; expires=Fri, 10-Oct-25 19:43:31 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=A_I_a3NDpYzUO8MQgNxpt7u0rzHdbSpGc9VOK2oqtJk-1760123611828-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '98c86f77ba45f789-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_43e393b7a24744138a91867815c3c4ad
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [sentiment] BTC/USD: HOLD (conf: 0.30) - Sentiment: GPT error: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [technical] BTC/USD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:134 [volume] BTC/USD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: SELL (conf: 0.17)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.17 below threshold 0.5, converting to HOLD
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-fcfdec41-0afc-46d0-9f4a-266b09e5ca62', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Bitcoin positive news" and the crypto symbol BTC/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    httpcore.connection:_trace.py:47 close.started
+DEBUG    httpcore.connection:_trace.py:47 close.complete
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:32 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'722'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'738'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9996'), (b'x-ratelimit-remaining-tokens', b'199925'), (b'x-ratelimit-reset-requests', b'30.03s'), (b'x-ratelimit-reset-tokens', b'22ms'), (b'x-request-id', b'req_6aea8eec49a54ede82117f493e4d0f53'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f7e29b4f789-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers({'date': 'Fri, 10 Oct 2025 19:13:32 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'user-6mwxkngxge9likbrzlxbfa92', 'openai-processing-ms': '722', 'openai-project': 'proj_3jfjrR4jauJSvtuUZKgvj2Vp', 'openai-version': '2020-10-01', 'x-envoy-upstream-service-time': '738', 'x-ratelimit-limit-requests': '10000', 'x-ratelimit-limit-tokens': '200000', 'x-ratelimit-remaining-requests': '9996', 'x-ratelimit-remaining-tokens': '199925', 'x-ratelimit-reset-requests': '30.03s', 'x-ratelimit-reset-tokens': '22ms', 'x-request-id': 'req_6aea8eec49a54ede82117f493e4d0f53', 'x-openai-proxy-wasm': 'v0.1', 'cf-cache-status': 'DYNAMIC', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '98c86f7e29b4f789-DFW', 'content-encoding': 'gzip', 'alt-svc': 'h3=":443"; ma=86400'})
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_6aea8eec49a54ede82117f493e4d0f53
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [sentiment] BTC/USD: HOLD (conf: 0.30) - Sentiment: GPT error: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [technical] BTC/USD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:134 [volume] BTC/USD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: SELL (conf: 0.17)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.17 below threshold 0.5, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
+WARNING  root:strategy_manager.py:197 ⚠️  Signal logging failed: Simulated logging failure
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-55d9a8a6-7659-4f09-a069-a3d60a29a3de', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol BTC/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922a71a0>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x79b1922cfdd0> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922a76b0>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:35 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'1391'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1417'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9995'), (b'x-ratelimit-remaining-tokens', b'199929'), (b'x-ratelimit-reset-requests', b'37.524s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_3970aa5456804a61bb32cd03a0ec9e32'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=8ExDXcyY5pRJAit5q11A3NQNxPTD5_kxo5ijNFkr2pY-1760123615-1.0.1.1-xeWNHOsSyxfs6atQvJXLyMIhgr7IZkV0hHBdFYE1ID0CPemyvdHLyCrK_p4p7gauip8CKMiGJsn2u9NMzkm8E3_YamJ3c5ehn2DKJuI6mxE; path=/; expires=Fri, 10-Oct-25 19:43:35 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=OacGrNHlavBZFmLgmmoiylWeDIS_yhgRF41xggM5erI-1760123615442-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f8b5af97e14-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Fri, 10 Oct 2025 19:13:35 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '1391'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '1417'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9995'), ('x-ratelimit-remaining-tokens', '199929'), ('x-ratelimit-reset-requests', '37.524s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_3970aa5456804a61bb32cd03a0ec9e32'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=8ExDXcyY5pRJAit5q11A3NQNxPTD5_kxo5ijNFkr2pY-1760123615-1.0.1.1-xeWNHOsSyxfs6atQvJXLyMIhgr7IZkV0hHBdFYE1ID0CPemyvdHLyCrK_p4p7gauip8CKMiGJsn2u9NMzkm8E3_YamJ3c5ehn2DKJuI6mxE; path=/; expires=Fri, 10-Oct-25 19:43:35 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=OacGrNHlavBZFmLgmmoiylWeDIS_yhgRF41xggM5erI-1760123615442-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '98c86f8b5af97e14-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_3970aa5456804a61bb32cd03a0ec9e32
+INFO     root:strategy_manager.py:134 [sentiment] BTC/USD: HOLD (conf: 0.30) - Sentiment: Market conditions are uncertain, and there are no strong indicators for a significant price movement.
+INFO     root:strategy_manager.py:134 [technical] BTC/USD: HOLD (conf: 0.00) - No price data available
+INFO     root:strategy_manager.py:134 [volume] BTC/USD: HOLD (conf: 0.00) - No volume data available
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: HOLD (conf: 0.11)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.11 below threshold 0.5, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-40dcddda-e01d-4ba3-bac0-463beeedc336', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Bitcoin is rising" and the crypto symbol BTC/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922f1190>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x79b193c13ed0> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922f0fe0>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:36 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'1058'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1075'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9994'), (b'x-ratelimit-remaining-tokens', b'199926'), (b'x-ratelimit-reset-requests', b'44.392s'), (b'x-ratelimit-reset-tokens', b'22ms'), (b'x-request-id', b'req_7350e606c40340ce96d8de68f2428cef'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=hcWEJnU1k_2h03n_6l4.qpzSsAt6PRpTJNuipSdNZ7Y-1760123616-1.0.1.1-g2rIbvqIKHlTwF85xsTM9OiN3eZOBojhn56XXWAL39ENVYpUOW9nREsqYGknngYd6mjh2ZbZx4MeOm9tKw6fWN5n4svIHmEQru6X01sp7W0; path=/; expires=Fri, 10-Oct-25 19:43:36 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=6JQRohBHWx_8AW5xz3.LLOwFiaDsuA2BjctzK57L5bk-1760123616889-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f959e4dfc87-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Fri, 10 Oct 2025 19:13:36 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '1058'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '1075'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9994'), ('x-ratelimit-remaining-tokens', '199926'), ('x-ratelimit-reset-requests', '44.392s'), ('x-ratelimit-reset-tokens', '22ms'), ('x-request-id', 'req_7350e606c40340ce96d8de68f2428cef'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=hcWEJnU1k_2h03n_6l4.qpzSsAt6PRpTJNuipSdNZ7Y-1760123616-1.0.1.1-g2rIbvqIKHlTwF85xsTM9OiN3eZOBojhn56XXWAL39ENVYpUOW9nREsqYGknngYd6mjh2ZbZx4MeOm9tKw6fWN5n4svIHmEQru6X01sp7W0; path=/; expires=Fri, 10-Oct-25 19:43:36 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=6JQRohBHWx_8AW5xz3.LLOwFiaDsuA2BjctzK57L5bk-1760123616889-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '98c86f959e4dfc87-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_7350e606c40340ce96d8de68f2428cef
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [sentiment] BTC/USD: HOLD (conf: 0.30) - Sentiment: GPT error: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [technical] BTC/USD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:134 [volume] BTC/USD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: SELL (conf: 0.17)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.17 below threshold 0.5, converting to HOLD
+INFO     root:strategy_manager.py:38 [StrategyManager] Initialized with 3 strategies
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-f3165dfd-742e-4e98-9094-62854c134e5c', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol BTC/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922f30e0>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x79b1922cfcd0> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x79b1922f2f60>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Fri, 10 Oct 2025 19:13:38 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'1010'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1036'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9994'), (b'x-ratelimit-remaining-tokens', b'199929'), (b'x-ratelimit-reset-requests', b'50.753s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_62422202c55d410fb1448059373d0736'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=0d338CNMw44iuOFuPX9slh9khdG4xQgIQKrMXDRhLsw-1760123618-1.0.1.1-d.gjzRsmc6tbDUrPKiJcYg6RZpfsMB3jZRiLCT4RSH_Rp_wuHi_6oW3.t24lBpsYkyVcaiLMKgBdeUb9yGeVEI5XxBZQT9u5tNcrgEnV5L0; path=/; expires=Fri, 10-Oct-25 19:43:38 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=9c2iFKBdprd0SIys05Q2oy3TCv.9UKfFV5fX3RRtuWU-1760123618154-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'98c86f9ebb996c69-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Fri, 10 Oct 2025 19:13:38 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '1010'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '1036'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9994'), ('x-ratelimit-remaining-tokens', '199929'), ('x-ratelimit-reset-requests', '50.753s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_62422202c55d410fb1448059373d0736'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=0d338CNMw44iuOFuPX9slh9khdG4xQgIQKrMXDRhLsw-1760123618-1.0.1.1-d.gjzRsmc6tbDUrPKiJcYg6RZpfsMB3jZRiLCT4RSH_Rp_wuHi_6oW3.t24lBpsYkyVcaiLMKgBdeUb9yGeVEI5XxBZQT9u5tNcrgEnV5L0; path=/; expires=Fri, 10-Oct-25 19:43:38 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=9c2iFKBdprd0SIys05Q2oy3TCv.9UKfFV5fX3RRtuWU-1760123618154-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '98c86f9ebb996c69-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_62422202c55d410fb1448059373d0736
+ERROR    root:sentiment.py:87 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [sentiment] BTC/USD: HOLD (conf: 0.30) - Sentiment: GPT error: Expecting value: line 1 column 1 (char 0)
+INFO     root:strategy_manager.py:134 [technical] BTC/USD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:134 [volume] BTC/USD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:164 [StrategyManager] Final signal for BTC/USD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:201 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+DEBUG    httpcore.connection:_trace.py:47 close.started
+DEBUG    httpcore.connection:_trace.py:47 close.complete
+DEBUG    httpcore.connection:_trace.py:47 close.started
+DEBUG    httpcore.connection:_trace.py:47 close.complete
+DEBUG    httpcore.connection:_trace.py:47 close.started
+DEBUG    httpcore.connection:_trace.py:47 close.complete
+DEBUG    httpcore.connection:_trace.py:47 close.started
+DEBUG    httpcore.connection:_trace.py:47 close.complete
