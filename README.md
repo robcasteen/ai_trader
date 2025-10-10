@@ -1,7 +1,7 @@
 # 🤖 AI Trader - Crypto Trading Bot
 
-[![Test Suite](https://github.com/YOUR_USERNAME/ai_trader/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR_USERNAME/ai_trader/actions/workflows/test.yml)
-[![Coverage](https://codecov.io/gh/YOUR_USERNAME/ai_trader/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/ai_trader)
+[![Test Suite](https://github.com/robcasteen/ai_trader/actions/workflows/test.yml/badge.svg)](https://github.com/robcasteen/ai_trader/actions/workflows/test.yml)
+[![Coverage](https://codecov.io/gh/robcasteen/ai_trader/branch/main/graph/badge.svg)](https://codecov.io/gh/robcasteen/ai_trader)
 
 AI-Powered Sentiment Trading System for cryptocurrency markets.
 
