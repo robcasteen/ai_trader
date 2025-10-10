@@ -1,0 +1,15 @@
+openai
+feedparser
+requests
+python-dotenv
+fastapi
+jinja2
+uvicorn
+apscheduler
+python-multipart
+openai
+python-dotenv
+krakenex
+feedparser
+fastapi
+python-multipart

@@ -1,0 +1,4 @@
+{
+  "strategy": "gpt-sentiment",
+  "interval_minutes": 10
+}

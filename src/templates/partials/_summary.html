@@ -1,0 +1,7 @@
+<div class="bg-gray-800 rounded-xl shadow-md p-4 mt-4">
+  <h3 class="text-md font-semibold mb-2">PnL by Symbol</h3>
+  <canvas id="pnlChart"
+          height="120"
+          data-labels='{{ labels | tojson }}'
+          data-values='{{ pnl_data | tojson }}'></canvas>
+</div>

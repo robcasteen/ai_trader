@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🤖 Crypto Trading Bot Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #0f172a;
+        color: #e2e8f0;
+      }
+
+      @keyframes pulse-glow {
+        0%,
+        100% {
+          opacity: 1;
+          box-shadow: 0 0 10px currentColor;
+        }
+        50% {
+          opacity: 0.6;
+          box-shadow: 0 0 20px currentColor;
+        }
+      }
+
+      .pulse-green {
+        animation: pulse-glow 2s ease-in-out infinite;
+        color: #10b981;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .slide-in {
+        animation: slideIn 0.3s ease-out;
+      }
+
+      .gradient-header {
+        background: linear-gradient(
+          135deg,
+          #1e40af 0%,
+          #7c3aed 50%,
+          #db2777 100%
+        );
+      }
+
+      .card {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+      }
+
+      .card-hover {
+        transition: all 0.2s ease;
+      }
+
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        border-color: #475569;
+      }
+
+      .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      .status-active {
+        background-color: #10b981;
+        box-shadow: 0 0 10px #10b981;
+      }
+
+      .status-idle {
+        background-color: #f59e0b;
+        box-shadow: 0 0 6px #f59e0b;
+      }
+
+      .status-error {
+        background-color: #ef4444;
+        box-shadow: 0 0 10px #ef4444;
+      }
+
+      .metric-card {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-left: 4px solid;
+      }
+
+      .metric-card.blue {
+        border-left-color: #3b82f6;
+      }
+      .metric-card.green {
+        border-left-color: #10b981;
+      }
+      .metric-card.red {
+        border-left-color: #ef4444;
+      }
+      .metric-card.yellow {
+        border-left-color: #f59e0b;
+      }
+
+      .signal-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+
+      .signal-buy {
+        background-color: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border: 1px solid #10b981;
+      }
+
+      .signal-sell {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid #ef4444;
+      }
+
+      .signal-hold {
+        background-color: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+        border: 1px solid #f59e0b;
+      }
+
+      .scrollbar-dark::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .scrollbar-dark::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+
+      .scrollbar-dark::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 4px;
+      }
+
+      .scrollbar-dark::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <!-- Header -->
+    <header class="gradient-header shadow-2xl">
+      <div class="container mx-auto px-4 py-6">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        >
+          <div class="flex items-center gap-3">
+            <h1
+              class="text-3xl sm:text-4xl font-bold text-white flex items-center gap-3"
+            >
+              🤖 Crypto Trading Bot
+              <span id="statusDot" class="status-dot status-idle"></span>
+            </h1>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              id="runNowBtn"
+              class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg transition-all hover:scale-105 flex items-center gap-2 text-sm sm:text-base"
+            >
+              <span>🚀</span>
+              <span>Run Now</span>
+            </button>
+            <button
+              id="refreshBtn"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg transition-all hover:scale-105 text-sm sm:text-base"
+            >
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+        <p class="text-blue-200 mt-2 text-sm">
+          AI-Powered Sentiment Trading System
+        </p>
+      </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-6">
+      <!-- Bot Status Card -->
+      <div class="mb-6 card rounded-xl p-6 shadow-xl card-hover slide-in">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-start gap-4"
+        >
+          <div class="flex-1">
+            <h2
+              class="text-xl sm:text-2xl font-bold mb-3 flex items-center gap-2 text-white"
+            >
+              <span>⚡</span> Bot Status
+            </h2>
+            <div class="space-y-2">
+              <p id="lastRun" class="text-base sm:text-lg text-gray-300">
+                <span class="text-gray-500">Last run:</span>
+                <span class="text-white font-semibold">N/A</span>
+              </p>
+              <p id="lastMessage" class="text-sm text-gray-400">
+                Waiting for first run...
+              </p>
+            </div>
+          </div>
+          <div class="text-left sm:text-right">
+            <p class="text-gray-500 text-sm mb-1">Next Scheduled Run</p>
+            <p
+              id="nextRun"
+              class="text-xl sm:text-2xl font-bold text-green-400"
+            >
+              ...
+            </p>
+            <p id="countdown" class="text-xs text-gray-500 mt-1">
+              calculating...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Summary Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div
+          class="metric-card blue rounded-xl p-4 sm:p-6 shadow-xl card-hover slide-in"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p
+                class="text-gray-400 text-xs sm:text-sm uppercase tracking-wide"
+              >
+                Total Trades
+              </p>
+              <p
+                id="totalTrades"
+                class="text-2xl sm:text-4xl font-bold mt-2 text-white"
+              >
+                0
+              </p>
+            </div>
+            <div class="text-3xl sm:text-5xl opacity-50">📊</div>
+          </div>
+        </div>
+
+        <div
+          class="metric-card green rounded-xl p-4 sm:p-6 shadow-xl card-hover slide-in"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p
+                class="text-gray-400 text-xs sm:text-sm uppercase tracking-wide"
+              >
+                Buys
+              </p>
+              <p
+                id="buyCount"
+                class="text-2xl sm:text-4xl font-bold mt-2 text-green-400"
+              >
+                0
+              </p>
+            </div>
+            <div class="text-3xl sm:text-5xl opacity-50">📈</div>
+          </div>
+        </div>
+
+        <div
+          class="metric-card red rounded-xl p-4 sm:p-6 shadow-xl card-hover slide-in"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p
+                class="text-gray-400 text-xs sm:text-sm uppercase tracking-wide"
+              >
+                Sells
+              </p>
+              <p
+                id="sellCount"
+                class="text-2xl sm:text-4xl font-bold mt-2 text-red-400"
+              >
+                0
+              </p>
+            </div>
+            <div class="text-3xl sm:text-5xl opacity-50">📉</div>
+          </div>
+        </div>
+
+        <div
+          class="metric-card yellow rounded-xl p-4 sm:p-6 shadow-xl card-hover slide-in"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p
+                class="text-gray-400 text-xs sm:text-sm uppercase tracking-wide"
+              >
+                Holds
+              </p>
+              <p
+                id="holdCount"
+                class="text-2xl sm:text-4xl font-bold mt-2 text-yellow-400"
+              >
+                0
+              </p>
+            </div>
+            <div class="text-3xl sm:text-5xl opacity-50">⏸️</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Charts & Table -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- PnL Chart -->
+          <div class="card rounded-xl p-6 shadow-xl card-hover slide-in">
+            <h2
+              class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2 text-white"
+            >
+              <span>💰</span> Profit & Loss by Symbol
+            </h2>
+            <div class="relative" style="height: 300px">
+              <canvas id="pnlChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Symbol Performance Table -->
+          <div class="card rounded-xl p-6 shadow-xl card-hover slide-in">
+            <h2
+              class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2 text-white"
+            >
+              <span>📊</span> Symbol Performance
+            </h2>
+            <div id="symbolsTable" class="overflow-x-auto scrollbar-dark">
+              <p class="text-gray-500 text-center py-8">
+                No trading activity yet
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Sentiment & Activity -->
+        <div class="space-y-6">
+          <!-- AI Sentiment Signals -->
+          <div class="card rounded-xl p-6 shadow-xl card-hover slide-in">
+            <h2
+              class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2 text-white"
+            >
+              <span>🧠</span> AI Signals
+            </h2>
+            <div
+              id="sentimentContainer"
+              class="space-y-3 scrollbar-dark"
+              style="max-height: 400px; overflow-y: auto"
+            >
+              <p class="text-gray-500 text-center py-4">Loading signals...</p>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card rounded-xl p-6 shadow-xl card-hover slide-in">
+            <h2
+              class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2 text-white"
+            >
+              <span>🕒</span> Recent Activity
+            </h2>
+            <div
+              id="recentTrades"
+              class="space-y-2 scrollbar-dark"
+              style="max-height: 400px; overflow-y: auto"
+            >
+              <p class="text-gray-500 text-center py-4">No recent trades</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- External JavaScript -->
+    <script src="/static/js/dashboard.js"></script>
+  </body>
+</html>

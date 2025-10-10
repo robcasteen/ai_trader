@@ -1,0 +1,155 @@
+<!-- Performance Summary -->
+<div id="perf-summary" class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+  <h2 class="text-xl font-bold mb-3">Performance Summary</h2>
+  <div id="perf-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- GPT Sentiment Summary -->
+<div id="sentiment-summary" class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+  <h2 class="text-xl font-bold mb-3">Latest GPT Sentiment Signals</h2>
+  <div id="sentiment-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- Per-Symbol Performance -->
+<div id="symbol-performance" class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+  <h2 class="text-xl font-bold mb-3">📈 Per-Symbol Performance</h2>
+  <table class="min-w-full table-auto text-left text-sm bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+    <thead class="bg-gray-700 text-gray-200">
+      <tr>
+        <th class="px-4 py-2">Symbol</th>
+        <th class="px-4 py-2">Trades</th>
+        <th class="px-4 py-2">Wins</th>
+        <th class="px-4 py-2">Losses</th>
+        <th class="px-4 py-2">Win Rate</th>
+        <th class="px-4 py-2">PnL</th>
+        <th class="px-4 py-2">Volume</th>
+      </tr>
+    </thead>
+    <tbody id="symbol-rows">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<!-- PnL Chart -->
+<div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+  <h2 class="text-xl font-bold mb-3">📉 PnL by Symbol</h2>
+  <canvas id="pnlChart" height="120"></canvas>
+</div>
+
+<!-- Trade Log -->
+<h2 class="text-xl font-bold mb-4">Recent Trades</h2>
+<table class="min-w-full table-auto text-left text-sm bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+  <thead class="bg-gray-700 text-gray-200">
+    <tr>
+      <th class="px-4 py-2">Time</th>
+      <th class="px-4 py-2">Action</th>
+      <th class="px-4 py-2">Symbol</th>
+      <th class="px-4 py-2">Amount</th>
+      <th class="px-4 py-2">Price</th>
+      <th class="px-4 py-2">Total</th>
+    </tr>
+  </thead>
+  <tbody id="trade-rows">
+    <!-- Populated by JS -->
+  </tbody>
+</table>
+
+<script>
+async function refreshPartial() {
+  try {
+    const resp = await fetch("/partial");
+    const { summary, labels, pnl_data, sentiment } = await resp.json();
+
+    // --- Performance summary ---
+    const perf = document.getElementById("perf-grid");
+    perf.innerHTML = `
+      <div>Total Trades: <strong>${summary.total_trades}</strong></div>
+      <div>Buy Count: <strong>${summary.buy_count}</strong></div>
+      <div>Sell Count: <strong>${summary.sell_count}</strong></div>
+      <div>Hold Count: <strong>${summary.hold_count}</strong></div>
+    `;
+
+    // --- Sentiment cards ---
+    const cards = document.getElementById("sentiment-cards");
+    cards.innerHTML = Object.entries(sentiment).map(([sym, s]) => `
+      <div class="bg-gray-700 p-3 rounded">
+        <div class="font-semibold text-yellow-400">${sym}</div>
+        <div class="mt-1 font-bold uppercase ${
+          s.signal === "BUY" ? "text-green-400" :
+          s.signal === "SELL" ? "text-red-400" : "text-gray-300"
+        }">
+          Signal: ${s.signal}
+        </div>
+        <div class="text-gray-200">Reason: ${s.reason || ""}</div>
+        <div class="text-gray-500 text-xs">${s.updated_at || ""}</div>
+      </div>
+    `).join("");
+
+    // --- Per-symbol performance ---
+    const rows = document.getElementById("symbol-rows");
+    rows.innerHTML = Object.entries(summary.symbols).map(([sym, d]) => `
+      <tr class="border-b border-gray-700 hover:bg-gray-700">
+        <td class="px-4 py-2 font-semibold text-white">${sym}</td>
+        <td class="px-4 py-2">${d.trades || 0}</td>
+        <td class="px-4 py-2 text-green-400">${d.wins || 0}</td>
+        <td class="px-4 py-2 text-red-400">${d.losses || 0}</td>
+        <td class="px-4 py-2">${d.win_rate || 0}%</td>
+        <td class="px-4 py-2 ${d.pnl >= 0 ? "text-green-400" : "text-red-400"}">$${d.pnl.toFixed(2)}</td>
+        <td class="px-4 py-2">$${d.volume || 0}</td>
+      </tr>
+    `).join("");
+
+    // --- Trade log ---
+    const tradeRows = document.getElementById("trade-rows");
+    tradeRows.innerHTML = (summary.trades || []).map(t => `
+      <tr class="border-b border-gray-700 hover:bg-gray-700">
+        <td class="px-4 py-2">${t.timestamp || ""}</td>
+        <td class="px-4 py-2 uppercase font-semibold text-${
+          t.action === "buy" ? "green-400" :
+          t.action === "sell" ? "red-400" : "gray-400"
+        }">${t.action}</td>
+        <td class="px-4 py-2">${t.symbol}</td>
+        <td class="px-4 py-2">${t.amount}</td>
+        <td class="px-4 py-2">$${t.price}</td>
+        <td class="px-4 py-2">$${t.value}</td>
+      </tr>
+    `).join("");
+
+    // --- PnL chart ---
+    const ctx = document.getElementById("pnlChart").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "PnL ($)",
+          data: pnl_data,
+          backgroundColor: pnl_data.map(v =>
+            v >= 0 ? "rgba(16, 185, 129, 0.7)" : "rgba(239, 68, 68, 0.7)"
+          )
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#ccc" }, title: { display: true, text: "Symbol", color: "#ccc" } },
+          y: { ticks: { color: "#ccc" }, title: { display: true, text: "PnL ($)", color: "#ccc" } }
+        }
+      }
+    });
+
+  } catch (e) {
+    console.error("Failed to refresh partial", e);
+  }
+}
+
+// Auto-refresh
+setInterval(refreshPartial, 5000);
+refreshPartial();
+</script>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Trading Bot Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-900 text-white">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Trading Bot Dashboard</h1>
+        <a
+          href="/export"
+          class="bg-blue-600 px-4 py-2 rounded shadow hover:bg-blue-500"
+          >📄 Export CSV</a
+        >
+      </div>
+
+      <!-- Controls: Strategy + Run Now -->
+      <div class="mb-6 flex items-center space-x-4">
+        <form method="post" action="/config" class="flex items-center space-x-2">
+          <label for="strategy" class="mr-2">Strategy:</label>
+          <select name="strategy" id="strategy" class="text-black px-2 py-1 rounded">
+            <option value="gpt-sentiment">GPT Sentiment</option>
+          </select>
+          <button type="submit" class="bg-green-600 px-3 py-1 rounded hover:bg-green-500">
+            Update
+          </button>
+        </form>
+
+        <button
+          id="runNowBtn"
+          class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-4 py-2 rounded-lg shadow"
+        >
+          🚀 Run Now
+        </button>
+        <span id="nextRun" class="text-gray-400 text-sm">Next run: ...</span>
+      </div>
+
+      <!-- Bot Status Card -->
+      <div class="mb-6 bg-gray-800 rounded-lg p-4 shadow">
+        <h2 class="text-lg font-semibold mb-2">🤖 Bot Status</h2>
+        <p id="lastRun">Last run: N/A — N/A</p>
+        <p id="nextRunStatus">Next run: Unknown</p>
+      </div>
+
+      <!-- Dynamic Summary -->
+      <div id="summary-container">
+        <!-- We render here entirely from JSON (/partial) to avoid server-side Jinja mismatches -->
+        <div class="text-gray-400">Loading summary…</div>
+      </div>
+    </div>
+
+    <script>
+      // --- Status state ---
+      const Status = {
+        time: null,
+        message: null,
+        next: null
+      };
+
+      function renderStatus() {
+        const time = Status.time || "N/A";
+        const msg = Status.message || "N/A";
+        const next = Status.next || "Unknown";
+        document.getElementById("lastRun").textContent = `Last run: ${time} — ${msg}`;
+        document.getElementById("nextRunStatus").textContent = `Next run: ${next}`;
+        document.getElementById("nextRun").textContent = `Next run: ${next}`;
+      }
+
+      function loadStatusFromStorage() {
+        try {
+          const raw = localStorage.getItem("botStatus");
+          if (raw) {
+            const saved = JSON.parse(raw);
+            if (saved && typeof saved === "object") {
+              if (saved.time) Status.time = saved.time;
+              if (saved.message) Status.message = saved.message;
+              if (saved.next) Status.next = saved.next;
+            }
+          }
+        } catch {}
+        renderStatus();
+      }
+
+      function saveStatusToStorage() {
+        try {
+          localStorage.setItem("botStatus", JSON.stringify(Status));
+        } catch {}
+      }
+
+      async function refreshStatus() {
+        try {
+          const resp = await fetch("/status");
+          if (!resp.ok) throw new Error("Bad response");
+          const data = await resp.json();
+
+          const last = data.last_status || {};
+          if (last.time) Status.time = last.time;
+          if (last.message) Status.message = last.message;
+
+          // Next run now comes from bot_status.json via /status
+          if (data.next_run) Status.next = data.next_run;
+
+          saveStatusToStorage();
+        } catch (err) {
+          console.warn("Failed to refresh status (keeping cached):", err);
+        }
+        renderStatus();
+      }
+
+      async function runNow() {
+        try {
+          const resp = await fetch("/run-now");
+          const data = await resp.json();
+          if (data.last_status) {
+            if (data.last_status.time) Status.time = data.last_status.time;
+            if (data.last_status.message) Status.message = data.last_status.message;
+          }
+          if (data.next_run) Status.next = data.next_run;
+          saveStatusToStorage();
+          renderStatus();
+          await refreshSummary();
+        } catch (err) {
+          console.error("[RunNow] Error:", err);
+        }
+      }
+
+      // --- PnL chart wiring (simple bar) ---
+      let pnlChart = null;
+      function initPnLChart(labels, values) {
+        const ctx = document.getElementById("pnlChart");
+        if (!ctx) return;
+
+        if (!pnlChart) {
+          pnlChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: "PnL ($)",
+                  data: values,
+                  backgroundColor: values.map(v =>
+                    v >= 0 ? "rgba(16, 185, 129, 0.7)" : "rgba(239, 68, 68, 0.7)"
+                  ),
+                }
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function (ctx) {
+                      return "$" + ctx.parsed.y.toFixed(2);
+                    },
+                  },
+                },
+              },
+              scales: {
+                x: { title: { display: true, text: "Symbol", color: "#ccc" }, ticks: { color: "#ccc" } },
+                y: { beginAtZero: true, title: { display: true, text: "PnL ($)", color: "#ccc" }, ticks: { color: "#ccc" } },
+              },
+            },
+          });
+        } else {
+          pnlChart.data.labels = labels;
+          pnlChart.data.datasets[0].data = values;
+          pnlChart.data.datasets[0].backgroundColor = values.map(v =>
+            v >= 0 ? "rgba(16, 185, 129, 0.7)" : "rgba(239, 68, 68, 0.7)"
+          );
+          pnlChart.update();
+        }
+      }
+
+      // Renderers
+      function renderSymbolsTable(summary) {
+        const symbols = summary?.symbols || {};
+        const keys = Object.keys(symbols);
+        if (!keys.length) {
+          return `<div class="text-gray-400">No symbols yet.</div>`;
+        }
+
+        const rows = keys.map(sym => {
+          const d = symbols[sym] || {};
+          const pnl = Number(d.pnl || 0);
+          const pnlCls = pnl >= 0 ? "text-green-400" : "text-red-400";
+          const lastAct = (d.last_action || "").toUpperCase();
+          const ts = d.last_timestamp || "-";
+          const price = d.last_price != null ? `$${d.last_price}` : "-";
+          const amt = d.last_amount != null ? d.last_amount : "-";
+          const reason = d.last_reason || "-";
+          return `
+            <tr class="border-b border-gray-700 hover:bg-gray-700">
+              <td class="px-4 py-2 font-semibold text-white">${sym}</td>
+              <td class="px-4 py-2">${lastAct}</td>
+              <td class="px-4 py-2">${ts}</td>
+              <td class="px-4 py-2">${amt}</td>
+              <td class="px-4 py-2">${price}</td>
+              <td class="px-4 py-2">${reason}</td>
+              <td class="px-4 py-2 ${pnlCls}">$${pnl.toFixed(2)}</td>
+            </tr>
+          `;
+        }).join("");
+
+        return `
+          <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+            <h2 class="text-xl font-bold mb-3">📈 Per-Symbol Snapshot</h2>
+            <table class="min-w-full table-auto text-left text-sm bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+              <thead class="bg-gray-700 text-gray-200">
+                <tr>
+                  <th class="px-4 py-2">Symbol</th>
+                  <th class="px-4 py-2">Last Action</th>
+                  <th class="px-4 py-2">Timestamp</th>
+                  <th class="px-4 py-2">Amount</th>
+                  <th class="px-4 py-2">Price</th>
+                  <th class="px-4 py-2">Reason</th>
+                  <th class="px-4 py-2">PnL</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function renderSentimentPanel(sentiment) {
+        const keys = Object.keys(sentiment || {});
+        if (!keys.length) {
+          return `
+            <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+              <h2 class="text-xl font-bold mb-3">🧠 Latest GPT Sentiment Signals</h2>
+              <div class="text-gray-400">No sentiment yet.</div>
+            </div>
+          `;
+        }
+
+        const cards = keys.map(sym => {
+          const s = sentiment[sym] || {};
+          const sig = (s.signal || "HOLD").toUpperCase();
+          const cls =
+            sig === "BUY" ? "text-green-400" :
+            sig === "SELL" ? "text-red-400" : "text-yellow-400";
+          const reason = s.reason || "-";
+          const ts = s.updated_at || "-";
+          return `
+            <div class="bg-gray-700 p-3 rounded">
+              <div class="font-semibold text-yellow-400">${sym}</div>
+              <div class="mt-1 ${cls} font-bold uppercase">Signal: ${sig}</div>
+              <div class="text-gray-200">Reason: ${reason}</div>
+              <div class="text-gray-500 text-xs">${ts}</div>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+            <h2 class="text-xl font-bold mb-3">🧠 Latest GPT Sentiment Signals</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              ${cards}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderTradesTable(trades) {
+        const rows = (trades || []).map(t => {
+          const act = (t.action || "").toLowerCase();
+          const color = act === "buy" ? "green-400" : "red-400";
+          const total = (t.value != null) ? t.value : (t.amount && t.price ? t.amount * t.price : 0);
+          return `
+            <tr class="border-b border-gray-700 hover:bg-gray-700">
+              <td class="px-4 py-2">${t.timestamp || "-"}</td>
+              <td class="px-4 py-2 uppercase font-semibold text-${color}">${t.action || "-"}</td>
+              <td class="px-4 py-2">${t.symbol || "-"}</td>
+              <td class="px-4 py-2">${t.amount ?? "-"}</td>
+              <td class="px-4 py-2">$${(t.price ?? "-")}</td>
+              <td class="px-4 py-2">$${Number(total || 0).toFixed(2)}</td>
+            </tr>
+          `;
+        }).join("");
+
+        return `
+          <h2 class="text-xl font-bold mb-4">Recent Trades</h2>
+          <table class="min-w-full table-auto text-left text-sm bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+            <thead class="bg-gray-700 text-gray-200">
+              <tr>
+                <th class="px-4 py-2">Time</th>
+                <th class="px-4 py-2">Action</th>
+                <th class="px-4 py-2">Symbol</th>
+                <th class="px-4 py-2">Amount</th>
+                <th class="px-4 py-2">Price</th>
+                <th class="px-4 py-2">Total</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+
+      function renderSummaryHTML(payload) {
+        const { summary, labels, pnl_data, sentiment, trades } = payload || {};
+
+        // top summary block
+        const perfHTML = `
+          <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+            <h2 class="text-xl font-bold mb-3">Performance Summary</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+              <div>Total Trades: <strong>${summary?.total_trades ?? 0}</strong></div>
+              <div>Buys: <strong>${summary?.buy_count ?? 0}</strong></div>
+              <div>Sells: <strong>${summary?.sell_count ?? 0}</strong></div>
+              <div>Holds (signals): <strong>${summary?.hold_count ?? 0}</strong></div>
+            </div>
+          </div>
+        `;
+
+        // PnL chart block
+        const pnlHTML = `
+          <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
+            <h2 class="text-xl font-bold mb-3">📉 PnL by Symbol</h2>
+            <canvas id="pnlChart" height="120"></canvas>
+          </div>
+        `;
+
+        // combine
+        return (
+          perfHTML +
+          renderSymbolsTable(summary || {}) +
+          pnlHTML +
+          renderSentimentPanel(sentiment || {}) +
+          renderTradesTable(trades || [])
+        );
+      }
+
+      async function refreshSummary() {
+        try {
+          const resp = await fetch("/partial");
+          if (!resp.ok) throw new Error("Network response was not ok");
+
+          const data = await resp.json();
+
+          // Render whole summary area
+          const container = document.getElementById("summary-container");
+          container.innerHTML = renderSummaryHTML(data);
+
+          // Update PnL chart (simple bar)
+          if (Array.isArray(data.labels) && Array.isArray(data.pnl_data)) {
+            initPnLChart(data.labels, data.pnl_data);
+          }
+        } catch (err) {
+          console.error("Failed to refresh summary:", err);
+        }
+      }
+
+      document.getElementById("runNowBtn").addEventListener("click", runNow);
+
+      // Initial load + auto-refresh
+      document.addEventListener("DOMContentLoaded", () => {
+        loadStatusFromStorage();
+        refreshSummary();
+        refreshStatus();
+        setInterval(refreshSummary, 5000);
+        setInterval(refreshStatus, 5000);
+      });
+    </script>
+  </body>
+</html>

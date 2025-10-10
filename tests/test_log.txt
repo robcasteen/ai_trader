@@ -1,0 +1,169 @@
+DEBUG    tzlocal:unix.py:61 /etc/timezone found, contents:
+ America/Chicago
+
+DEBUG    tzlocal:unix.py:120 /etc/localtime found
+DEBUG    tzlocal:unix.py:136 2 found:
+ {'/etc/timezone': 'America/Chicago', '/etc/localtime is a symlink to': 'America/Chicago'}
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/ "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/ "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [200.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [200.0]
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [2000.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [-2000.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD', 'ETH/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [2000.0, 200.0]
+ERROR    root:dashboard.py:27 [Dashboard] Failed to load sentiment.json: Expecting property name enclosed in double quotes: line 1 column 3 (char 2)
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [200.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [200.0]
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:116 [PnL] Labels: ['SYM0', 'SYM1', 'SYM2', 'SYM3', 'SYM4', 'SYM5', 'SYM6', 'SYM7', 'SYM8', 'SYM9', 'SYM10', 'SYM11', 'SYM12', 'SYM13', 'SYM14', 'SYM15', 'SYM16', 'SYM17', 'SYM18', 'SYM19', 'SYM20', 'SYM21', 'SYM22', 'SYM23', 'SYM24', 'SYM25', 'SYM26', 'SYM27', 'SYM28', 'SYM29']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['SYM0', 'SYM1', 'SYM2', 'SYM3', 'SYM4', 'SYM5', 'SYM6', 'SYM7', 'SYM8', 'SYM9', 'SYM10', 'SYM11', 'SYM12', 'SYM13', 'SYM14', 'SYM15', 'SYM16', 'SYM17', 'SYM18', 'SYM19', 'SYM20', 'SYM21', 'SYM22', 'SYM23', 'SYM24', 'SYM25', 'SYM26', 'SYM27', 'SYM28', 'SYM29']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0]
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
+INFO     root:main.py:105 [Scanner] Top 1 symbols: ['BTC/USD']
+INFO     root:main.py:106 [News] Retrieved 1 symbol groups with unseen headlines
+INFO     root:main.py:118 [BTC/USD] Checking...
+INFO     root:main.py:129 [BTC/USD] Current price: 50000.0
+INFO     root:main.py:130 [BTC/USD] Current USD balance: 10000.0
+INFO     root:main.py:140 [BTC/USD] Headline: Bitcoin surges to new all-time high
+INFO     root:main.py:143 [BTC/USD] Signal: BUY | Reason: Positive sentiment
+INFO     root:main.py:146 [BTC/USD] Trade result: {'timestamp': '2025-10-09T17:24:57.389810', 'action': 'BUY', 'symbol': 'BTC/USD', 'price': 50000.0, 'amount': 0.01, 'value': 500.0, 'reason': 'Positive sentiment'}
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Positive sentiment
+INFO     root:main.py:149 [BTC/USD] Notified result.
+INFO     root:main.py:162 [BTC/USD] Marked 1 headlines as seen.
+INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-09 17:24:57', 'message': 'Completed trade cycle successfully.', 'next_run': '2025-10-09 17:24:57'}
+INFO     root:main.py:184 [Scheduler] Next run scheduled at 2025-10-09 17:24:57
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
+INFO     root:main.py:105 [Scanner] Top 2 symbols: ['BTC/USD', 'ETH/USD']
+INFO     root:main.py:106 [News] Retrieved 2 symbol groups with unseen headlines
+INFO     root:main.py:118 [BTC/USD] Checking...
+INFO     root:main.py:129 [BTC/USD] Current price: 50000.0
+INFO     root:main.py:130 [BTC/USD] Current USD balance: 10000.0
+INFO     root:main.py:140 [BTC/USD] Headline: Bitcoin surges
+INFO     root:main.py:143 [BTC/USD] Signal: BUY | Reason: Positive
+INFO     root:main.py:146 [BTC/USD] Trade result: {'timestamp': '2025-10-09T17:24:57.439988', 'action': 'BUY', 'symbol': 'BTC/USD', 'price': 50000.0, 'amount': 0.01, 'value': 500.0, 'reason': 'Positive'}
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Positive
+INFO     root:main.py:149 [BTC/USD] Notified result.
+INFO     root:main.py:162 [BTC/USD] Marked 1 headlines as seen.
+INFO     root:main.py:118 [ETH/USD] Checking...
+INFO     root:main.py:129 [ETH/USD] Current price: 3000.0
+INFO     root:main.py:130 [ETH/USD] Current USD balance: 10000.0
+INFO     root:main.py:140 [ETH/USD] Headline: Ethereum drops
+INFO     root:main.py:143 [ETH/USD] Signal: SELL | Reason: Negative
+INFO     root:main.py:146 [ETH/USD] Trade result: {'timestamp': '2025-10-09T17:24:57.441528', 'action': 'SELL', 'symbol': 'ETH/USD', 'price': 3000.0, 'amount': 0.01, 'value': 30.0, 'reason': 'Negative'}
+INFO     root:notifier.py:14 [ALERT] [ETH/USD] SELL @ 3000.0 — Negative
+INFO     root:main.py:149 [ETH/USD] Notified result.
+INFO     root:main.py:162 [ETH/USD] Marked 1 headlines as seen.
+INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-09 17:24:57', 'message': 'Completed trade cycle successfully.', 'next_run': '2025-10-09 17:24:57'}
+INFO     root:main.py:184 [Scheduler] Next run scheduled at 2025-10-09 17:24:57
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:main.py:228 [Manual] Trade cycle triggered via /run-now endpoint
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/run-now "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['AAVE/USD', 'XLM/USD', 'BTC/USD', 'ETH/USD', 'DOGE/USD', 'XRP/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [0.0, 0.0, -3.87, 0.0, 0.0, 0.0]
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
+INFO     root:main.py:105 [Scanner] Top 2 symbols: ['BTC/USD', 'ETH/USD']
+INFO     root:main.py:106 [News] Retrieved 2 symbol groups with unseen headlines
+INFO     root:main.py:118 [BTC/USD] Checking...
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [2000.0]
+INFO     root:dashboard.py:116 [PnL] Labels: ['BTC/USD']
+INFO     root:dashboard.py:117 [PnL] Data: [2000.0]
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-01-01 00:00:00', 'message': 'ok', 'next_run': 'soon'}
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
+INFO     root:main.py:105 [Scanner] Top 1 symbols: ['BTC/USD']
+INFO     root:main.py:106 [News] Retrieved 1 symbol groups with unseen headlines
+INFO     root:main.py:118 [BTC/USD] Checking...
+INFO     root:main.py:129 [BTC/USD] Current price: 50000.0
+INFO     root:main.py:130 [BTC/USD] Current USD balance: 1000.0
+INFO     root:main.py:140 [BTC/USD] Headline: Breaking news!
+INFO     root:main.py:143 [BTC/USD] Signal: BUY | Reason: Positive news
+INFO     root:main.py:146 [BTC/USD] Trade result: {'trade': 'executed'}
+INFO     root:main.py:149 [BTC/USD] Notified result.
+INFO     root:main.py:162 [BTC/USD] Marked 1 headlines as seen.
+INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-09 17:24:57', 'message': 'Completed trade cycle successfully.', 'next_run': 'Unknown'}
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:main.py:228 [Manual] Trade cycle triggered via /run-now endpoint
+INFO     root:main.py:83 [TradeCycle] === Starting cycle at 2025-10-09 17:24:57 ===
+INFO     root:main.py:99 [Strategy] Using strategy: gpt-sentiment
+DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): api.kraken.com:443
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=all HTTP/1.1" 200 39
+INFO     root:main.py:105 [Scanner] Top 0 symbols: []
+INFO     root:main.py:106 [News] Retrieved 0 symbol groups with unseen headlines
+INFO     root:main.py:170 [TradeCycle] === Completed cycle at 2025-10-09 17:24:59 ===
+INFO     root:main.py:65 [Status] Updated bot_status.json: {'time': '2025-10-09 17:24:59', 'message': 'No actionable headlines or symbols.', 'next_run': 'Unknown'}
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/run-now "HTTP/1.1 200 OK"
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Positive sentiment detected
+INFO     root:notifier.py:14 [ALERT] [ETH/USD] SELL @ 3000.0 — Negative news
+INFO     root:notifier.py:14 [ALERT] [SOL/USD] HOLD @ 100.0 — Mixed sentiment
+INFO     root:notifier.py:14 [ALERT] [?] BUY @ 50000.0 — Test
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] HOLD @ 50000.0 — Test
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 0 — Test
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — No reason.
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Test
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Test
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Test
+INFO     root:notifier.py:14 [ALERT] [BTC/USD] BUY @ 50000.0 — Buy signal
+INFO     root:notifier.py:14 [ALERT] [ETH/USD] SELL @ 3000.0 — Sell signal
+INFO     root:notifier.py:14 [ALERT] [SOL/USD] HOLD @ 100.0 — Hold signal
+ERROR    root:sentiment.py:75 [SentimentSignal] GPT error for BTC/USD: API timeout
+ERROR    root:sentiment.py:75 [SentimentSignal] GPT error for BTC/USD: Expecting value: line 1 column 1 (char 0)
+INFO     root:sentiment.py:106 [SentimentSignal] Sending 3 headlines for BTC/USD to GPT
+INFO     root:sentiment.py:123 [SentimentSignal] BTC/USD consolidated signal: HOLD — Mixed sentiment
+INFO     root:sentiment.py:106 [SentimentSignal] Sending 2 headlines for BTC/USD to GPT
+ERROR    root:sentiment.py:127 [SentimentSignal] GPT error for BTC/USD: API error

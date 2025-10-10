@@ -1,0 +1,190 @@
+<!-- templates/partials/_sentiment.html -->
+<section id="sentiment-panel" class="card">
+  <div class="card-header">
+    <h3>Sentiment by Symbol</h3>
+    <small id="sentiment-updated" aria-live="polite"></small>
+  </div>
+
+  <div class="card-body">
+    <div class="sentiment-chart-wrap">
+      <canvas id="sentimentChart" height="140"></canvas>
+      <div id="sentimentChartFallback" class="fallback" hidden>No chart library detected; showing table only.</div>
+    </div>
+
+    <table id="sentimentTable" class="sentiment-table">
+      <thead>
+        <tr>
+          <th>Symbol</th>
+          <th>Signal</th>
+          <th>Reason</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <style>
+    /* Scoped styles to avoid baseline collisions */
+    #sentiment-panel { display:flex; flex-direction:column; gap:.75rem; }
+    #sentiment-panel .card-header { display:flex; align-items:baseline; justify-content:space-between; }
+    #sentiment-panel .card-body { display:flex; flex-direction:column; gap:.75rem; }
+    #sentiment-panel .sentiment-chart-wrap { width:100%; }
+    #sentiment-panel .sentiment-table { width:100%; border-collapse:collapse; }
+    #sentiment-panel .sentiment-table th, 
+    #sentiment-panel .sentiment-table td { padding:.5rem .6rem; border-bottom:1px solid rgba(0,0,0,.08); }
+    #sentiment-panel .badge { padding:.15rem .5rem; border-radius:.5rem; font-size:.85rem; font-weight:600; }
+    #sentiment-panel .badge-buy  { background:#e8fff0; color:#137333; }
+    #sentiment-panel .badge-sell { background:#ffebee; color:#b00020; }
+    #sentiment-panel .badge-hold { background:#eef2ff; color:#1e3a8a; }
+    #sentiment-panel .muted { opacity:.7; }
+    #sentiment-panel .fallback { font-size:.9rem; }
+  </style>
+
+  <script>
+    (() => {
+      const endpoints = [
+        "/api/sentiment",
+        "/sentiment",
+        "/status/sentiment",
+        "/sentiment.json",
+        "/static/sentiment.json"
+      ];
+
+      const $updated = document.getElementById("sentiment-updated");
+      const $tbody   = document.querySelector("#sentimentTable tbody");
+      const $fallback = document.getElementById("sentimentChartFallback");
+
+      let chart;
+
+      async function fetchSentiment() {
+        for (const url of endpoints) {
+          try {
+            const res = await fetch(url, { cache: "no-store" });
+            if (!res.ok) continue;
+            return await res.json();
+          } catch (_) { /* try next */ }
+        }
+        return null;
+      }
+
+      function normalize(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+
+        if (data.items && Array.isArray(data.items)) return data.items;
+
+        if (data.by_symbol && typeof data.by_symbol === "object") {
+          return Object.entries(data.by_symbol).map(([symbol, v]) => ({
+            symbol,
+            signal: v.signal ?? v.last_signal ?? v.sentiment ?? "HOLD",
+            reason: v.reason ?? v.last_reason ?? "",
+            updated_at: v.updated_at ?? v.time ?? v.timestamp ?? null
+          }));
+        }
+
+        if (data.symbols && data.signals) {
+          return data.symbols.map((s, i) => ({
+            symbol: s,
+            signal: data.signals[i],
+            reason: data.reasons?.[i] ?? "",
+            updated_at: (data.updated_ats?.[i] ?? data.updated_at ?? null)
+          }));
+        }
+
+        return [];
+      }
+
+      function signalBadge(signal) {
+        const s = (signal || "HOLD").toUpperCase();
+        if (s === "BUY")  return `<span class="badge badge-buy">BUY</span>`;
+        if (s === "SELL") return `<span class="badge badge-sell">SELL</span>`;
+        return `<span class="badge badge-hold">HOLD</span>`;
+      }
+
+      function fmtTime(t) {
+        if (!t) return `<span class="muted">—</span>`;
+        try {
+          const d = new Date(t);
+          if (isNaN(d)) return String(t);
+          return d.toLocaleString();
+        } catch { return String(t); }
+      }
+
+      function renderTable(items) {
+        $tbody.innerHTML = items.map(row => {
+          const reason = (row.reason || "").length > 160
+            ? row.reason.slice(0, 157) + "…"
+            : (row.reason || "");
+          return `<tr>
+            <td>${row.symbol}</td>
+            <td>${signalBadge(row.signal)}</td>
+            <td title="${(row.reason || "").replace(/"/g,'&quot;')}">${reason || '<span class="muted">—</span>'}</td>
+            <td>${fmtTime(row.updated_at)}</td>
+          </tr>`;
+        }).join("") || `<tr><td colspan="4" class="muted">No sentiment yet.</td></tr>`;
+      }
+
+      function renderChart(items) {
+        const ctx = document.getElementById("sentimentChart");
+        if (!window.Chart || !ctx) {
+          $fallback.hidden = false;
+          return;
+        }
+        $fallback.hidden = true;
+
+        const labels  = items.map(i => i.symbol);
+        const values  = items.map(i => {
+          const s = (i.signal || "HOLD").toUpperCase();
+          return s === "BUY" ? 1 : s === "SELL" ? -1 : 0;
+        });
+        const colors  = items.map(v => v.signal?.toUpperCase() === "BUY"
+          ? "rgba(16, 185, 129, 0.7)"
+          : v.signal?.toUpperCase() === "SELL"
+            ? "rgba(239, 68, 68, 0.7)"
+            : "rgba(99, 102, 241, 0.7)");
+
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [{
+              label: "Sentiment (BUY=1, HOLD=0, SELL=-1)",
+              data: values,
+              backgroundColor: colors,
+            }]
+          },
+          options: {
+            animation: false,
+            responsive: true,
+            scales: {
+              y: { suggestedMin: -1, suggestedMax: 1, ticks: { stepSize: 1 } }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      function setUpdated(at) {
+        const now = new Date();
+        const ts  = at ? fmtTime(at) : now.toLocaleString();
+        $updated.textContent = `Last update: ${ts}`;
+      }
+
+      async function refreshSentiment() {
+        const raw = await fetchSentiment();
+        const items = normalize(raw);
+        renderTable(items);
+        renderChart(items);
+        setUpdated(items[0]?.updated_at);
+      }
+
+      // Expose a hook so your existing AJAX/HTMX refresh can trigger this too.
+      window.__refreshSentimentPanel = refreshSentiment;
+
+      // Initial paint
+      refreshSentiment();
+    })();
+  </script>
+</section>
