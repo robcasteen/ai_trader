@@ -589,3 +589,446 @@ async def get_latest_signal():
     except Exception as e:
         logging.error(f"[API] Error in get_latest_signal: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
+
+# Add these imports at the top of dashboard.py
+from typing import Optional
+import time
+import asyncio
+from datetime import datetime, timedelta
+
+# You'll need to add these to track RSS feeds
+# Add after signal_logger initialization
+RSS_FEEDS_FILE = LOGS_DIR / "rss_feeds.json"
+
+# ============================================================================
+# HEALTH MONITORING API
+# ============================================================================
+
+
+@router.get("/api/health")
+async def get_system_health():
+    """
+    Get health status of all system dependencies.
+
+    Returns:
+        {
+            "openai": {
+                "status": "operational" | "degraded" | "error",
+                "latency": 245,
+                "lastCheck": "2025-01-15T10:30:00Z",
+                "errors24h": 0
+            },
+            "exchange": { ... },
+            "rssFeeds": { ... },
+            "database": { ... }
+        }
+    """
+    try:
+        health_data = {}
+
+        # Check OpenAI
+        openai_start = time.time()
+        openai_status = await check_openai_health()
+        openai_latency = int((time.time() - openai_start) * 1000)
+
+        health_data["openai"] = {
+            "status": openai_status["status"],
+            "latency": openai_latency,
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errors24h": openai_status.get("errors", 0),
+        }
+
+        # Check Exchange (placeholder - implement based on your exchange)
+        exchange_start = time.time()
+        exchange_status = await check_exchange_health()
+        exchange_latency = int((time.time() - exchange_start) * 1000)
+
+        health_data["exchange"] = {
+            "status": exchange_status["status"],
+            "latency": exchange_latency,
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errors24h": exchange_status.get("errors", 0),
+        }
+
+        # Check RSS Feeds
+        rss_start = time.time()
+        rss_status = await check_rss_feeds_health()
+        rss_latency = int((time.time() - rss_start) * 1000)
+
+        health_data["rssFeeds"] = {
+            "status": rss_status["status"],
+            "latency": rss_latency,
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errors24h": rss_status.get("errors", 0),
+        }
+
+        # Check Database/File System
+        db_start = time.time()
+        db_status = check_database_health()
+        db_latency = int((time.time() - db_start) * 1000)
+
+        health_data["database"] = {
+            "status": db_status["status"],
+            "latency": db_latency,
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errors24h": db_status.get("errors", 0),
+        }
+
+        return JSONResponse(health_data)
+
+    except Exception as e:
+        logging.error(f"[API] Error in get_system_health: {e}")
+        return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
+
+async def check_openai_health() -> Dict[str, Any]:
+    """Check OpenAI API health."""
+    try:
+        # TODO: Implement actual OpenAI health check
+        # For now, check if we have recent errors in logs
+        error_count = 0
+
+        # Check sentiment.json for recent successful updates
+        sentiment = load_sentiment()
+        if sentiment:
+            # If we have recent sentiment data, OpenAI is likely working
+            return {"status": "operational", "errors": 0}
+
+        return {"status": "degraded", "errors": error_count}
+    except Exception as e:
+        logging.error(f"[Health] OpenAI check failed: {e}")
+        return {"status": "error", "errors": 1}
+
+
+async def check_exchange_health() -> Dict[str, Any]:
+    """Check exchange API health."""
+    try:
+        # TODO: Implement actual exchange health check
+        # Check if we have recent trades
+        trades = _load_trades()
+        if trades:
+            # Check if last trade is recent (within 24h)
+            last_trade = trades[-1]
+            last_timestamp = last_trade.get("timestamp")
+            if last_timestamp:
+                last_time = datetime.fromisoformat(
+                    last_timestamp.replace("Z", "+00:00")
+                )
+                if datetime.now(timezone.utc) - last_time < timedelta(hours=24):
+                    return {"status": "operational", "errors": 0}
+
+        return {"status": "degraded", "errors": 0}
+    except Exception as e:
+        logging.error(f"[Health] Exchange check failed: {e}")
+        return {"status": "error", "errors": 1}
+
+
+async def check_rss_feeds_health() -> Dict[str, Any]:
+    """Check RSS feeds health."""
+    try:
+        feeds = _load_rss_feeds()
+        if not feeds:
+            return {"status": "degraded", "errors": 0}
+
+        error_count = sum(1 for f in feeds if f.get("status") == "error")
+        total_feeds = len(feeds)
+
+        if error_count == 0:
+            return {"status": "operational", "errors": 0}
+        elif error_count < total_feeds:
+            return {"status": "degraded", "errors": error_count}
+        else:
+            return {"status": "error", "errors": error_count}
+
+    except Exception as e:
+        logging.error(f"[Health] RSS feeds check failed: {e}")
+        return {"status": "error", "errors": 1}
+
+
+def check_database_health() -> Dict[str, Any]:
+    """Check database/file system health."""
+    try:
+        # Check if we can read/write to logs directory
+        test_file = LOGS_DIR / ".health_check"
+        test_file.write_text("ok")
+        test_file.unlink()
+
+        # Check if key files exist and are readable
+        required_files = [LOGS_DIR / "trades.json", LOGS_DIR / "bot_status.json"]
+
+        for file in required_files:
+            if file.exists():
+                file.read_text()
+
+        return {"status": "operational", "errors": 0}
+    except Exception as e:
+        logging.error(f"[Health] Database check failed: {e}")
+        return {"status": "error", "errors": 1}
+
+
+# ============================================================================
+# RSS FEED MANAGEMENT API
+# ============================================================================
+
+
+def _load_rss_feeds() -> List[Dict[str, Any]]:
+    """Load RSS feeds from JSON file."""
+    feeds = _safe_load_json(RSS_FEEDS_FILE, [])
+    if not isinstance(feeds, list):
+        return []
+    return feeds
+
+
+def _save_rss_feeds(feeds: List[Dict[str, Any]]) -> bool:
+    """Save RSS feeds to JSON file."""
+    try:
+        with RSS_FEEDS_FILE.open("w") as f:
+            json.dump(feeds, f, indent=2)
+        return True
+    except Exception as e:
+        logging.error(f"[Feeds] Failed to save feeds: {e}")
+        return False
+
+
+@router.get("/api/feeds")
+async def get_rss_feeds():
+    """
+    Get all configured RSS feeds.
+
+    Returns:
+        [
+            {
+                "id": 1,
+                "name": "CoinDesk",
+                "url": "https://coindesk.com/feed",
+                "status": "active" | "error",
+                "last_fetch": "2025-01-15T10:25:00Z",
+                "headlines_count": 47,
+                "relevant_count": 12,
+                "error": "Connection timeout" (optional)
+            },
+            ...
+        ]
+    """
+    try:
+        feeds = _load_rss_feeds()
+        return JSONResponse(feeds)
+    except Exception as e:
+        logging.error(f"[API] Error in get_rss_feeds: {e}")
+        return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
+
+@router.post("/api/feeds")
+async def add_rss_feed(request: Request):
+    """
+    Add a new RSS feed.
+
+    Body:
+        {
+            "url": "https://example.com/feed",
+            "name": "Example Feed" (optional)
+        }
+
+    Returns:
+        {
+            "id": 4,
+            "url": "https://example.com/feed",
+            "name": "Example Feed",
+            "status": "active",
+            "message": "Feed added successfully"
+        }
+    """
+    try:
+        body = await request.json()
+        url = body.get("url", "").strip()
+        name = body.get("name", "").strip()
+
+        if not url:
+            return JSONResponse(
+                {"error": "URL is required", "status": "error"}, status_code=400
+            )
+
+        # Validate URL format
+        from urllib.parse import urlparse
+
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.netloc:
+            return JSONResponse(
+                {"error": "Invalid URL format", "status": "error"}, status_code=400
+            )
+
+        # Load existing feeds
+        feeds = _load_rss_feeds()
+
+        # Check for duplicates
+        if any(f.get("url") == url for f in feeds):
+            return JSONResponse(
+                {"error": "Feed URL already exists", "status": "error"}, status_code=400
+            )
+
+        # Generate new ID
+        new_id = max([f.get("id", 0) for f in feeds], default=0) + 1
+
+        # Extract name from URL if not provided
+        if not name:
+            name = parsed.netloc.replace("www.", "")
+
+        # Create new feed
+        new_feed = {
+            "id": new_id,
+            "name": name,
+            "url": url,
+            "status": "active",
+            "last_fetch": None,
+            "headlines_count": 0,
+            "relevant_count": 0,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+        feeds.append(new_feed)
+
+        # Save feeds
+        if not _save_rss_feeds(feeds):
+            return JSONResponse(
+                {"error": "Failed to save feed", "status": "error"}, status_code=500
+            )
+
+        logging.info(f"[Feeds] Added new feed: {name} ({url})")
+
+        return JSONResponse(
+            {**new_feed, "message": "Feed added successfully", "status": "success"}
+        )
+
+    except json.JSONDecodeError:
+        return JSONResponse(
+            {"error": "Invalid JSON body", "status": "error"}, status_code=400
+        )
+    except Exception as e:
+        logging.error(f"[API] Error in add_rss_feed: {e}")
+        return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
+
+@router.delete("/api/feeds/{feed_id}")
+async def delete_rss_feed(feed_id: int):
+    """
+    Delete an RSS feed by ID.
+
+    Returns:
+        {
+            "message": "Feed deleted successfully",
+            "id": 3
+        }
+    """
+    try:
+        feeds = _load_rss_feeds()
+
+        # Find feed
+        feed_to_delete = None
+        for i, feed in enumerate(feeds):
+            if feed.get("id") == feed_id:
+                feed_to_delete = feeds.pop(i)
+                break
+
+        if not feed_to_delete:
+            return JSONResponse(
+                {"error": f"Feed with ID {feed_id} not found", "status": "error"},
+                status_code=404,
+            )
+
+        # Save updated feeds
+        if not _save_rss_feeds(feeds):
+            return JSONResponse(
+                {"error": "Failed to save feeds", "status": "error"}, status_code=500
+            )
+
+        logging.info(
+            f"[Feeds] Deleted feed: {feed_to_delete.get('name')} (ID: {feed_id})"
+        )
+
+        return JSONResponse(
+            {"message": "Feed deleted successfully", "id": feed_id, "status": "success"}
+        )
+
+    except Exception as e:
+        logging.error(f"[API] Error in delete_rss_feed: {e}")
+        return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
+
+@router.put("/api/feeds/{feed_id}")
+async def update_rss_feed(feed_id: int, request: Request):
+    """
+    Update an RSS feed's status or metadata.
+
+    Body:
+        {
+            "name": "New Name" (optional),
+            "status": "active" | "error" (optional),
+            "last_fetch": "2025-01-15T10:25:00Z" (optional),
+            "headlines_count": 50 (optional),
+            "relevant_count": 15 (optional),
+            "error": "Error message" (optional)
+        }
+
+    Returns:
+        {
+            "message": "Feed updated successfully",
+            "feed": { ... }
+        }
+    """
+    try:
+        body = await request.json()
+        feeds = _load_rss_feeds()
+
+        # Find feed
+        feed_to_update = None
+        for feed in feeds:
+            if feed.get("id") == feed_id:
+                feed_to_update = feed
+                break
+
+        if not feed_to_update:
+            return JSONResponse(
+                {"error": f"Feed with ID {feed_id} not found", "status": "error"},
+                status_code=404,
+            )
+
+        # Update fields
+        updatable_fields = [
+            "name",
+            "status",
+            "last_fetch",
+            "headlines_count",
+            "relevant_count",
+            "error",
+        ]
+
+        for field in updatable_fields:
+            if field in body:
+                feed_to_update[field] = body[field]
+
+        feed_to_update["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+        # Save updated feeds
+        if not _save_rss_feeds(feeds):
+            return JSONResponse(
+                {"error": "Failed to save feeds", "status": "error"}, status_code=500
+            )
+
+        logging.info(f"[Feeds] Updated feed ID {feed_id}")
+
+        return JSONResponse(
+            {
+                "message": "Feed updated successfully",
+                "feed": feed_to_update,
+                "status": "success",
+            }
+        )
+
+    except json.JSONDecodeError:
+        return JSONResponse(
+            {"error": "Invalid JSON body", "status": "error"}, status_code=400
+        )
+    except Exception as e:
+        logging.error(f"[API] Error in update_rss_feed: {e}")
+        return JSONResponse({"error": str(e), "status": "error"}, status_code=500)

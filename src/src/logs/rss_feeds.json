@@ -1,0 +1,200 @@
+[
+  {
+    "id": 1,
+    "name": "CoinDesk",
+    "url": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219518+00:00",
+    "description": "Leading crypto news and analysis"
+  },
+  {
+    "id": 2,
+    "name": "CoinTelegraph",
+    "url": "https://cointelegraph.com/rss",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219543+00:00",
+    "description": "Global blockchain and crypto news"
+  },
+  {
+    "id": 3,
+    "name": "CryptoPotato",
+    "url": "https://cryptopotato.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219551+00:00",
+    "description": "Crypto news and price analysis"
+  },
+  {
+    "id": 4,
+    "name": "Decrypt",
+    "url": "https://decrypt.co/feed",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219557+00:00",
+    "description": "Bitcoin, Ethereum, and Web3 news"
+  },
+  {
+    "id": 5,
+    "name": "The Block",
+    "url": "https://www.theblock.co/rss.xml",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219563+00:00",
+    "description": "Institutional crypto news"
+  },
+  {
+    "id": 6,
+    "name": "Bitcoin Magazine",
+    "url": "https://bitcoinmagazine.com/.rss/full/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219569+00:00",
+    "description": "Original Bitcoin-focused publication"
+  },
+  {
+    "id": 7,
+    "name": "CoinJournal",
+    "url": "https://coinjournal.net/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219575+00:00",
+    "description": "Crypto news and educational content"
+  },
+  {
+    "id": 8,
+    "name": "BeInCrypto",
+    "url": "https://beincrypto.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219580+00:00",
+    "description": "Market analysis and breaking news"
+  },
+  {
+    "id": 9,
+    "name": "Bitcoin.com News",
+    "url": "https://news.bitcoin.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219586+00:00",
+    "description": "Bitcoin and crypto ecosystem news"
+  },
+  {
+    "id": 10,
+    "name": "CryptoSlate",
+    "url": "https://cryptoslate.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219592+00:00",
+    "description": "Blockchain and crypto news"
+  },
+  {
+    "id": 11,
+    "name": "NewsBTC",
+    "url": "https://www.newsbtc.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219601+00:00",
+    "description": "Bitcoin and altcoin news"
+  },
+  {
+    "id": 12,
+    "name": "U.Today",
+    "url": "https://u.today/rss",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219607+00:00",
+    "description": "Crypto news and market updates"
+  },
+  {
+    "id": 13,
+    "name": "Bitcoinist",
+    "url": "https://bitcoinist.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219613+00:00",
+    "description": "Bitcoin news and analysis"
+  },
+  {
+    "id": 14,
+    "name": "CryptoNews",
+    "url": "https://cryptonews.com/news/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219619+00:00",
+    "description": "Latest cryptocurrency news"
+  },
+  {
+    "id": 15,
+    "name": "AMBCrypto",
+    "url": "https://ambcrypto.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219624+00:00",
+    "description": "Crypto market analysis"
+  },
+  {
+    "id": 16,
+    "name": "Crypto Briefing",
+    "url": "https://cryptobriefing.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219633+00:00",
+    "description": "Research-driven crypto news"
+  },
+  {
+    "id": 17,
+    "name": "CoinGape",
+    "url": "https://coingape.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219639+00:00",
+    "description": "Cryptocurrency and blockchain news"
+  },
+  {
+    "id": 18,
+    "name": "CCN",
+    "url": "https://www.ccn.com/feed/",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-11T21:56:15.219645+00:00",
+    "description": "Bitcoin and financial news"
+  }
+]
