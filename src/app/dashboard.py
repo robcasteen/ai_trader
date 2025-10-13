@@ -10,14 +10,15 @@ from app.strategy_signal_logger import StrategySignalLogger
 from datetime import datetime, timezone
 
 router = APIRouter()
-# Initialize strategy signal logger
-signal_logger = StrategySignalLogger()
+
 
 # === Paths ===
 PROJECT_ROOT = Path(__file__).resolve().parents[1]  # /src
 TEMPLATES_DIR = PROJECT_ROOT / "templates"
 LOGS_DIR = PROJECT_ROOT / "logs"
 
+# Initialize strategy signal logger
+signal_logger = StrategySignalLogger(data_dir=str(LOGS_DIR))
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
@@ -262,7 +263,7 @@ from app.strategy_signal_logger import StrategySignalLogger
 from datetime import datetime, timezone
 
 # Initialize the logger (add after router creation)
-signal_logger = StrategySignalLogger()
+# signal_logger already initialized at top
 
 
 # ============================================================================

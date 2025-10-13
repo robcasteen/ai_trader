@@ -34,10 +34,9 @@ class StrategyManager:
         # Initialize default strategies
         self._initialize_strategies()
         # Initialize signal logger
-        self.signal_logger = StrategySignalLogger()
-        logging.info(
-            f"[StrategyManager] Initialized with {len(self.strategies)} strategies"
-        )
+        logs_dir = self.config.get("logs_dir", "data")
+        self.signal_logger = StrategySignalLogger(data_dir=logs_dir)
+        logging.info(f"[StrategyManager] Logging to {logs_dir}/strategy_signals.jsonl")
 
     def _initialize_strategies(self):
         """Initialize and register all available strategies."""

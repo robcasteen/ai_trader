@@ -1382,16 +1382,19 @@
                 icon: "📈",
                 color: "blue",
                 description: "Price patterns & indicators",
+                name: "Technical Analysis"
               },
               sentiment: {
                 icon: "💬",
                 color: "green",
                 description: "News & social sentiment",
+                name: "Sentiment Analysis"
               },
               volume: {
                 icon: "📊",
                 color: "purple",
                 description: "Trading volume analysis",
+                name: "Volume Analysis"
               },
             };
 
@@ -1402,22 +1405,21 @@
                     icon: "⚙️",
                     color: "blue",
                     description: "Strategy",
+                    name: name.charAt(0).toUpperCase() + name.slice(1)
                   };
                   return `
               <div class="card card-hover rounded-lg p-6 border-l-4 border-${
                 info.color
               }-500">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-lg font-bold text-white capitalize flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-white flex items-center gap-2">
                     <span>${info.icon}</span>
-                    ${name}
+                    ${info.name}
                   </h3>
                   <div class="tooltip-container">
                     <span class="info-icon">?</span>
                     <span class="tooltip">
-                      <strong>${
-                        name.charAt(0).toUpperCase() + name.slice(1)
-                      }</strong><br>
+                      <strong>${info.name}</strong><br>
                       ${info.description}
                     </span>
                   </div>

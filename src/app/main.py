@@ -26,6 +26,7 @@ from app.client.kraken import KrakenClient
 from app.config import get_current_config
 
 # --- Core bot components ---
+client = KrakenClient()
 kraken = KrakenClient()
 signal_model = SentimentSignal()
 trader = PaperTrader()
@@ -77,112 +78,140 @@ def normalize_symbol(sym: str) -> str:
     return sym
 
 
+"""
+Updated run_trade_cycle to use StrategyManager with multiple strategies.
+
+Replace the run_trade_cycle function in src/app/main.py with this version.
+"""
+
 def run_trade_cycle():
-    """Run one trade evaluation cycle with detailed logging."""
+    """Run one trade evaluation cycle with multi-strategy analysis."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logging.info(f"[TradeCycle] === Starting cycle at {start_time} ===")
-
-    config = get_current_config()
-    strategy = config.get("strategy", "gpt-sentiment")
-
-    # Normalize "gpt" -> "gpt-sentiment"
-    if strategy == "gpt":
-        logging.info('[Config] Normalized strategy "gpt" -> "gpt-sentiment"')
-        strategy = "gpt-sentiment"
-
-    if strategy != "gpt-sentiment":
-        msg = f"Unknown strategy {strategy}"
-        logging.warning(f"[Strategy] {msg}")
-        save_status_to_file({"time": start_time, "message": msg, "next_run": "Unknown"})
-        return
-
-    logging.info(f"[Strategy] Using strategy: {strategy}")
-
+    
+    # Initialize strategy manager with correct logs directory
+    from app.strategies.strategy_manager import StrategyManager
+    from pathlib import Path
+    
+    # Get logs directory
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]  # ADD THIS
+    LOGS_DIR = PROJECT_ROOT / "logs"                     # ADD THIS
+    
+    # Configure strategy manager
+    strategy_config = {
+        "use_technical": True,
+        "use_volume": True,
+        "min_confidence": 0.5,
+        "aggregation_method": "weighted_vote",
+        "logs_dir": str(LOGS_DIR)  # ADD THIS
+    }
+    
+    strategy_manager = StrategyManager(config=strategy_config)
+    
     # Fetch scanner symbols and unseen headlines
     symbols = get_top_symbols(limit=10)
     headlines_by_symbol = get_unseen_headlines()
-
+    
     logging.info(f"[Scanner] Top {len(symbols)} symbols: {symbols}")
     logging.info(
         f"[News] Retrieved {len(headlines_by_symbol)} symbol groups with unseen headlines"
     )
-
-    # If the scanner returns nothing, still process what news gave us
-    if not symbols:
-        symbols = list(headlines_by_symbol.keys())
-
-    processed_any = False
-
-    for raw_symbol in symbols:
-        sym = normalize_symbol(raw_symbol)
-        logging.info(f"[{sym}] Checking...")
-
-        # Headlines for this symbol (work with either 'BTCUSD' or 'BTC/USD' keys)
-        sym_variants = {raw_symbol, raw_symbol.replace("/", ""), sym.replace("/", "")}
-        sym_headlines = []
-        for key in sym_variants:
-            sym_headlines.extend(headlines_by_symbol.get(key, []))
-
-        price = kraken.get_price(sym)
-        balance = kraken.get_balance("ZUSD")
-
-        logging.info(f"[{sym}] Current price: {price}")
-        logging.info(f"[{sym}] Current USD balance: {balance}")
-
-        if not sym_headlines:
-            logging.info(f"[{sym}] No new headlines, skipping.")
-            continue
-
-        processed_any = True
-
-        # Process each unseen headline independently
-        for headline in sym_headlines:
-            logging.info(f"[{sym}] Headline: {headline}")
-
-            signal, reason = signal_model.get_signal(headline, sym)
-            logging.info(f"[{sym}] Signal: {signal} | Reason: {reason}")
-
-            trade_result = trader.execute_trade(sym, signal, price, balance, reason)
-            logging.info(f"[{sym}] Trade result: {trade_result}")
-
-            notifier.send(trade_result)
-            logging.info(f"[{sym}] Notified result.")
-
-        # Mark all processed as seen
+    
+    # Combine symbols from scanner and news
+    all_symbols = set(symbols)
+    all_symbols.update(headlines_by_symbol.keys())
+    
+    if not all_symbols:
+        msg = "No actionable headlines or symbols."
+        logging.info(f"[TradeCycle] {msg}")
+        save_status_to_file({
+            "time": start_time, 
+            "message": msg, 
+            "next_run": get_next_run_time()
+        })
+        logging.info(f"[TradeCycle] === Completed cycle at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
+        return
+    
+    # Process each symbol
+    for symbol in all_symbols:
+        logging.info(f"[{symbol}] Checking...")
+        
         try:
-            mark_as_seen(raw_symbol, sym_headlines)
-        except TypeError:
-            # Legacy signature fallback
-            for _ in sym_headlines:
-                try:
-                    mark_as_seen(raw_symbol)
-                    break
-                except Exception:
-                    pass
-        logging.info(f"[{sym}] Marked {len(sym_headlines)} headlines as seen.")
-
+            # Get current price
+            price = client.get_price(symbol)
+            logging.info(f"[{symbol}] Current price: {price}")
+            
+            # Get current balance
+            balance = client.get_balance()
+            logging.info(f"[{symbol}] Current USD balance: {balance}")
+            
+            # Prepare context for strategies
+            context = {
+                'headlines': headlines_by_symbol.get(symbol, []),
+                'price': price,
+                'symbol': symbol
+            }
+            
+            # Add price history if available (for technical analysis)
+            try:
+                # You can implement price history fetching here
+                # For now, we'll use single price point
+                context['price_history'] = [price]
+                context['volume_history'] = []
+            except:
+                context['price_history'] = [price]
+                context['volume_history'] = []
+            
+            # Get aggregated signal from all strategies
+            signal, confidence, reason = strategy_manager.get_signal(symbol, context)
+            
+            logging.info(f"[{symbol}] Signal: {signal} | Reason: {reason}")
+            
+            # Execute trade based on signal
+            result = paper_trader.execute_trade(
+                symbol=symbol,
+                action=signal,
+                price=price,
+                reason=reason
+            )
+            
+            logging.info(f"[{symbol}] Trade result: {result}")
+            
+            # Send notification
+            notifier.send_alert(
+                symbol=symbol,
+                action=signal,
+                price=price,
+                reason=reason
+            )
+            
+            logging.info(f"[{symbol}] Notified result.")
+            
+            # Mark headlines as seen
+            if symbol in headlines_by_symbol:
+                mark_as_seen(symbol, headlines_by_symbol[symbol])
+                logging.info(f"[{symbol}] Marked {len(headlines_by_symbol[symbol])} headlines as seen.")
+        
+        except Exception as e:
+            logging.error(f"[{symbol}] Error processing: {e}")
+            continue
+    
+    # Update status
     end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = (
-        "Completed trade cycle successfully."
-        if processed_any
-        else "No actionable headlines or symbols."
-    )
+    save_status_to_file({
+        "time": end_time,
+        "message": f"Processed {len(all_symbols)} symbols with multi-strategy analysis",
+        "next_run": get_next_run_time()
+    })
+    
     logging.info(f"[TradeCycle] === Completed cycle at {end_time} ===")
 
-    job = scheduler.get_job("trade_cycle")
-    next_run = (
-        job.next_run_time.strftime("%Y-%m-%d %H:%M:%S")
-        if job and job.next_run_time
-        else "Unknown"
-    )
 
-    # Persist full status with next_run
-    status = {"time": end_time, "message": msg, "next_run": next_run}
-    save_status_to_file(status)
-
-    if job and job.next_run_time:
-        logging.info(f"[Scheduler] Next run scheduled at {next_run}")
-
+def get_next_run_time():
+    """Calculate next scheduled run time."""
+    from datetime import datetime, timedelta
+    next_run = datetime.now() + timedelta(minutes=5)
+    return next_run.strftime("%Y-%m-%d %H:%M:%S")
 
 # --- Scheduler setup ---
 scheduler = BackgroundScheduler()
