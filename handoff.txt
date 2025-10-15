@@ -1,0 +1,6 @@
+✅ Phase 1.5 issues documented
+
+📄 Created: PHASE_1.5_ISSUES.md
+📄 Updated: HANDOFF_PHASE1_COMPLETE.md
+
+🎯 NEXT: Fix Phase 1.5 issues before proceeding to backtesting

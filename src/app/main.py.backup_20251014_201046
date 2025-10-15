@@ -8,7 +8,6 @@ from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime
 from app.data_collector import data_collector
 from app.risk_manager import risk_manager
-
 # --- Configure logging early so our INFO lines always show
 logging.basicConfig(
     level=logging.INFO,
@@ -35,7 +34,7 @@ trader = PaperTrader()
 notifier = Notifier()
 
 # --- State tracking ---
-PROJECT_ROOT = Path(__file__).resolve().parent  # /src
+PROJECT_ROOT = Path(__file__).resolve().parents[1]  # /src
 LOGS_DIR = PROJECT_ROOT / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 STATUS_FILE = LOGS_DIR / "bot_status.json"
@@ -80,23 +79,25 @@ def normalize_symbol(sym: str) -> str:
     return sym
 
 
+"""
+Updated run_trade_cycle to use StrategyManager with multiple strategies.
+
+Replace the run_trade_cycle function in src/app/main.py with this version.
+"""
+
+
 def run_trade_cycle():
     """Run one trade evaluation cycle with multi-strategy analysis."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logging.info(f"[TradeCycle] === Starting cycle at {start_time} ===")
 
-    # CHECK RISK MANAGER FIRST - ADDED
-    if not risk_manager.can_trade():
-        msg = "Risk manager blocked trading (daily loss limit reached)"
-        logging.error(f"[TradeCycle] {msg}")
-        save_status_to_file(
-            {"time": start_time, "message": msg, "next_run": get_next_run_time()}
-        )
-        return
-
     # Initialize strategy manager with correct logs directory
     from app.strategies.strategy_manager import StrategyManager
     from pathlib import Path
+
+    # Get logs directory
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]  # ADD THIS
+    LOGS_DIR = PROJECT_ROOT / "logs"  # ADD THIS
 
     # Configure strategy manager
     strategy_config = {
@@ -158,45 +159,39 @@ def run_trade_cycle():
             price = client.get_price(symbol)
             logging.info(f"[{symbol}] Current price: {price}")
 
-            # ADDED - Skip if invalid price
-            if price <= 0:
-                logging.warning(f"[{symbol}] Invalid price, skipping")
-                continue
-
             # Get current balance
             balance = client.get_balance()
             logging.info(f"[{symbol}] Current USD balance: {balance}")
 
-            # ADDED - Calculate position size from risk manager
-            amount = risk_manager.calculate_position_size(price)
-            logging.info(f"[{symbol}] Risk-adjusted position size: {amount}")
-
-            # Prepare context for strategies - UPDATED WITH DATA COLLECTOR
+            # Prepare context for strategies
             context = {
                 "headlines": headlines_by_symbol.get(symbol, []),
                 "price": price,
                 "symbol": symbol,
-                "price_history": data_collector.get_price_history(symbol, limit=50),  # CHANGED
-                "volume_history": data_collector.get_volume_history(symbol, limit=50),  # CHANGED
             }
-            
-            # ADDED - Add current volume
-            vol_hist = data_collector.get_volume_history(symbol, limit=1)
-            context["volume"] = vol_hist[-1] if vol_hist else 0
+
+            # Add price history if available (for technical analysis)
+            try:
+                # You can implement price history fetching here
+                # For now, we'll use single price point
+                context["price_history"] = [price]
+                context["volume_history"] = []
+            except:
+                context["price_history"] = [price]
+                context["volume_history"] = []
 
             # Get aggregated signal from all strategies
             signal, confidence, reason = strategy_manager.get_signal(symbol, context)
 
             logging.info(f"[{symbol}] Signal: {signal} | Reason: {reason}")
 
-            # Execute trade based on signal - UPDATED WITH RISK-MANAGED AMOUNT
+            # Execute trade based on signal
             result = trader.execute_trade(
                 symbol=symbol,
                 action=signal,
                 price=price,
-                balance=balance,
+                balance=balance,  # ADD THIS LINE
                 reason=reason,
-                amount=amount,  # CHANGED - use risk-managed amount instead of default
             )
 
             logging.info(f"[{symbol}] Trade result: {result}")
@@ -254,15 +249,14 @@ def start_scheduler():
         )
         return
 
-    # ADDED - Start data collector FIRST
-    data_collector.start()
-    logging.info("[Startup] Data collector started")
-
     if not scheduler.running:
         trigger = IntervalTrigger(minutes=5)
         job = scheduler.add_job(
             run_trade_cycle, trigger, id="trade_cycle", replace_existing=True
         )
+        data_collector.start()
+        logging.info('[Startup] Data collector started')
+        
         scheduler.start()
         logging.info(
             "[Startup] Scheduler started. Trade cycle scheduled every 5 minutes."
@@ -275,10 +269,6 @@ def start_scheduler():
 
 @app.on_event("shutdown")
 def shutdown_scheduler():
-    # ADDED - Stop data collector
-    data_collector.stop()
-    logging.info("[Shutdown] Data collector stopped")
-    
     if scheduler.running:
         scheduler.shutdown()
         logging.info("[Shutdown] Scheduler shutdown complete.")

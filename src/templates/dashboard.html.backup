@@ -1,370 +1,1639 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <title>Trading Bot Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🤖 Crypto Trading Bot Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="bg-gray-900 text-white">
-    <div class="container mx-auto px-4 py-6">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">Trading Bot Dashboard</h1>
-        <a
-          href="/export"
-          class="bg-blue-600 px-4 py-2 rounded shadow hover:bg-blue-500"
-          >📄 Export CSV</a
-        >
-      </div>
-
-      <!-- Controls: Strategy + Run Now -->
-      <div class="mb-6 flex items-center space-x-4">
-        <form method="post" action="/config" class="flex items-center space-x-2">
-          <label for="strategy" class="mr-2">Strategy:</label>
-          <select name="strategy" id="strategy" class="text-black px-2 py-1 rounded">
-            <option value="gpt-sentiment">GPT Sentiment</option>
-          </select>
-          <button type="submit" class="bg-green-600 px-3 py-1 rounded hover:bg-green-500">
-            Update
-          </button>
-        </form>
-
-        <button
-          id="runNowBtn"
-          class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-4 py-2 rounded-lg shadow"
-        >
-          🚀 Run Now
-        </button>
-        <span id="nextRun" class="text-gray-400 text-sm">Next run: ...</span>
-      </div>
-
-      <!-- Bot Status Card -->
-      <div class="mb-6 bg-gray-800 rounded-lg p-4 shadow">
-        <h2 class="text-lg font-semibold mb-2">🤖 Bot Status</h2>
-        <p id="lastRun">Last run: N/A — N/A</p>
-        <p id="nextRunStatus">Next run: Unknown</p>
-      </div>
-
-      <!-- Dynamic Summary -->
-      <div id="summary-container">
-        <!-- We render here entirely from JSON (/partial) to avoid server-side Jinja mismatches -->
-        <div class="text-gray-400">Loading summary…</div>
-      </div>
-    </div>
-
-    <script>
-      // --- Status state ---
-      const Status = {
-        time: null,
-        message: null,
-        next: null
-      };
-
-      function renderStatus() {
-        const time = Status.time || "N/A";
-        const msg = Status.message || "N/A";
-        const next = Status.next || "Unknown";
-        document.getElementById("lastRun").textContent = `Last run: ${time} — ${msg}`;
-        document.getElementById("nextRunStatus").textContent = `Next run: ${next}`;
-        document.getElementById("nextRun").textContent = `Next run: ${next}`;
+    <style>
+      body {
+        background-color: #0f172a;
+        color: #e2e8f0;
       }
 
-      function loadStatusFromStorage() {
-        try {
-          const raw = localStorage.getItem("botStatus");
-          if (raw) {
-            const saved = JSON.parse(raw);
-            if (saved && typeof saved === "object") {
-              if (saved.time) Status.time = saved.time;
-              if (saved.message) Status.message = saved.message;
-              if (saved.next) Status.next = saved.next;
-            }
-          }
-        } catch {}
-        renderStatus();
-      }
-
-      function saveStatusToStorage() {
-        try {
-          localStorage.setItem("botStatus", JSON.stringify(Status));
-        } catch {}
-      }
-
-      async function refreshStatus() {
-        try {
-          const resp = await fetch("/status");
-          if (!resp.ok) throw new Error("Bad response");
-          const data = await resp.json();
-
-          const last = data.last_status || {};
-          if (last.time) Status.time = last.time;
-          if (last.message) Status.message = last.message;
-
-          // Next run now comes from bot_status.json via /status
-          if (data.next_run) Status.next = data.next_run;
-
-          saveStatusToStorage();
-        } catch (err) {
-          console.warn("Failed to refresh status (keeping cached):", err);
+      @keyframes pulse-glow {
+        0%,
+        100% {
+          opacity: 1;
+          box-shadow: 0 0 10px currentColor;
         }
-        renderStatus();
-      }
-
-      async function runNow() {
-        try {
-          const resp = await fetch("/run-now");
-          const data = await resp.json();
-          if (data.last_status) {
-            if (data.last_status.time) Status.time = data.last_status.time;
-            if (data.last_status.message) Status.message = data.last_status.message;
-          }
-          if (data.next_run) Status.next = data.next_run;
-          saveStatusToStorage();
-          renderStatus();
-          await refreshSummary();
-        } catch (err) {
-          console.error("[RunNow] Error:", err);
+        50% {
+          opacity: 0.6;
+          box-shadow: 0 0 20px currentColor;
         }
       }
 
-      // --- PnL chart wiring (simple bar) ---
-      let pnlChart = null;
-      function initPnLChart(labels, values) {
-        const ctx = document.getElementById("pnlChart");
-        if (!ctx) return;
+      .pulse-green {
+        animation: pulse-glow 2s ease-in-out infinite;
+        color: #10b981;
+      }
 
-        if (!pnlChart) {
-          pnlChart = new Chart(ctx, {
-            type: "bar",
-            data: {
-              labels,
-              datasets: [
-                {
-                  label: "PnL ($)",
-                  data: values,
-                  backgroundColor: values.map(v =>
-                    v >= 0 ? "rgba(16, 185, 129, 0.7)" : "rgba(239, 68, 68, 0.7)"
-                  ),
-                }
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                legend: { display: false },
-                tooltip: {
-                  callbacks: {
-                    label: function (ctx) {
-                      return "$" + ctx.parsed.y.toFixed(2);
-                    },
-                  },
-                },
-              },
-              scales: {
-                x: { title: { display: true, text: "Symbol", color: "#ccc" }, ticks: { color: "#ccc" } },
-                y: { beginAtZero: true, title: { display: true, text: "PnL ($)", color: "#ccc" }, ticks: { color: "#ccc" } },
-              },
-            },
-          });
-        } else {
-          pnlChart.data.labels = labels;
-          pnlChart.data.datasets[0].data = values;
-          pnlChart.data.datasets[0].backgroundColor = values.map(v =>
-            v >= 0 ? "rgba(16, 185, 129, 0.7)" : "rgba(239, 68, 68, 0.7)"
-          );
-          pnlChart.update();
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
 
-      // Renderers
-      function renderSymbolsTable(summary) {
-        const symbols = summary?.symbols || {};
-        const keys = Object.keys(symbols);
-        if (!keys.length) {
-          return `<div class="text-gray-400">No symbols yet.</div>`;
-        }
-
-        const rows = keys.map(sym => {
-          const d = symbols[sym] || {};
-          const pnl = Number(d.pnl || 0);
-          const pnlCls = pnl >= 0 ? "text-green-400" : "text-red-400";
-          const lastAct = (d.last_action || "").toUpperCase();
-          const ts = d.last_timestamp || "-";
-          const price = d.last_price != null ? `$${d.last_price}` : "-";
-          const amt = d.last_amount != null ? d.last_amount : "-";
-          const reason = d.last_reason || "-";
-          return `
-            <tr class="border-b border-gray-700 hover:bg-gray-700">
-              <td class="px-4 py-2 font-semibold text-white">${sym}</td>
-              <td class="px-4 py-2">${lastAct}</td>
-              <td class="px-4 py-2">${ts}</td>
-              <td class="px-4 py-2">${amt}</td>
-              <td class="px-4 py-2">${price}</td>
-              <td class="px-4 py-2">${reason}</td>
-              <td class="px-4 py-2 ${pnlCls}">$${pnl.toFixed(2)}</td>
-            </tr>
-          `;
-        }).join("");
-
-        return `
-          <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
-            <h2 class="text-xl font-bold mb-3">📈 Per-Symbol Snapshot</h2>
-            <table class="min-w-full table-auto text-left text-sm bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-              <thead class="bg-gray-700 text-gray-200">
-                <tr>
-                  <th class="px-4 py-2">Symbol</th>
-                  <th class="px-4 py-2">Last Action</th>
-                  <th class="px-4 py-2">Timestamp</th>
-                  <th class="px-4 py-2">Amount</th>
-                  <th class="px-4 py-2">Price</th>
-                  <th class="px-4 py-2">Reason</th>
-                  <th class="px-4 py-2">PnL</th>
-                </tr>
-              </thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>
-        `;
+      .slide-in {
+        animation: slideIn 0.3s ease-out;
       }
 
-      function renderSentimentPanel(sentiment) {
-        const keys = Object.keys(sentiment || {});
-        if (!keys.length) {
-          return `
-            <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
-              <h2 class="text-xl font-bold mb-3">🧠 Latest GPT Sentiment Signals</h2>
-              <div class="text-gray-400">No sentiment yet.</div>
-            </div>
-          `;
-        }
-
-        const cards = keys.map(sym => {
-          const s = sentiment[sym] || {};
-          const sig = (s.signal || "HOLD").toUpperCase();
-          const cls =
-            sig === "BUY" ? "text-green-400" :
-            sig === "SELL" ? "text-red-400" : "text-yellow-400";
-          const reason = s.reason || "-";
-          const ts = s.updated_at || "-";
-          return `
-            <div class="bg-gray-700 p-3 rounded">
-              <div class="font-semibold text-yellow-400">${sym}</div>
-              <div class="mt-1 ${cls} font-bold uppercase">Signal: ${sig}</div>
-              <div class="text-gray-200">Reason: ${reason}</div>
-              <div class="text-gray-500 text-xs">${ts}</div>
-            </div>
-          `;
-        }).join("");
-
-        return `
-          <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
-            <h2 class="text-xl font-bold mb-3">🧠 Latest GPT Sentiment Signals</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              ${cards}
-            </div>
-          </div>
-        `;
-      }
-
-      function renderTradesTable(trades) {
-        const rows = (trades || []).map(t => {
-          const act = (t.action || "").toLowerCase();
-          const color = act === "buy" ? "green-400" : "red-400";
-          const total = (t.value != null) ? t.value : (t.amount && t.price ? t.amount * t.price : 0);
-          return `
-            <tr class="border-b border-gray-700 hover:bg-gray-700">
-              <td class="px-4 py-2">${t.timestamp || "-"}</td>
-              <td class="px-4 py-2 uppercase font-semibold text-${color}">${t.action || "-"}</td>
-              <td class="px-4 py-2">${t.symbol || "-"}</td>
-              <td class="px-4 py-2">${t.amount ?? "-"}</td>
-              <td class="px-4 py-2">$${(t.price ?? "-")}</td>
-              <td class="px-4 py-2">$${Number(total || 0).toFixed(2)}</td>
-            </tr>
-          `;
-        }).join("");
-
-        return `
-          <h2 class="text-xl font-bold mb-4">Recent Trades</h2>
-          <table class="min-w-full table-auto text-left text-sm bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-            <thead class="bg-gray-700 text-gray-200">
-              <tr>
-                <th class="px-4 py-2">Time</th>
-                <th class="px-4 py-2">Action</th>
-                <th class="px-4 py-2">Symbol</th>
-                <th class="px-4 py-2">Amount</th>
-                <th class="px-4 py-2">Price</th>
-                <th class="px-4 py-2">Total</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
-        `;
-      }
-
-      function renderSummaryHTML(payload) {
-        const { summary, labels, pnl_data, sentiment, trades } = payload || {};
-
-        // top summary block
-        const perfHTML = `
-          <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
-            <h2 class="text-xl font-bold mb-3">Performance Summary</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-              <div>Total Trades: <strong>${summary?.total_trades ?? 0}</strong></div>
-              <div>Buys: <strong>${summary?.buy_count ?? 0}</strong></div>
-              <div>Sells: <strong>${summary?.sell_count ?? 0}</strong></div>
-              <div>Holds (signals): <strong>${summary?.hold_count ?? 0}</strong></div>
-            </div>
-          </div>
-        `;
-
-        // PnL chart block
-        const pnlHTML = `
-          <div class="bg-gray-800 rounded-lg p-4 mb-6 shadow-md">
-            <h2 class="text-xl font-bold mb-3">📉 PnL by Symbol</h2>
-            <canvas id="pnlChart" height="120"></canvas>
-          </div>
-        `;
-
-        // combine
-        return (
-          perfHTML +
-          renderSymbolsTable(summary || {}) +
-          pnlHTML +
-          renderSentimentPanel(sentiment || {}) +
-          renderTradesTable(trades || [])
+      .gradient-header {
+        background: linear-gradient(
+          135deg,
+          #1e40af 0%,
+          #7c3aed 50%,
+          #db2777 100%
         );
       }
 
-      async function refreshSummary() {
-        try {
-          const resp = await fetch("/partial");
-          if (!resp.ok) throw new Error("Network response was not ok");
+      .card {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+      }
 
-          const data = await resp.json();
+      .card-hover {
+        transition: all 0.2s ease;
+      }
 
-          // Render whole summary area
-          const container = document.getElementById("summary-container");
-          container.innerHTML = renderSummaryHTML(data);
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        border-color: #475569;
+      }
 
-          // Update PnL chart (simple bar)
-          if (Array.isArray(data.labels) && Array.isArray(data.pnl_data)) {
-            initPnLChart(data.labels, data.pnl_data);
+      .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      .status-active {
+        background-color: #10b981;
+        box-shadow: 0 0 10px #10b981;
+      }
+
+      .status-idle {
+        background-color: #f59e0b;
+        box-shadow: 0 0 6px #f59e0b;
+      }
+
+      .status-error {
+        background-color: #ef4444;
+        box-shadow: 0 0 10px #ef4444;
+      }
+
+      .status-degraded {
+        background-color: #f59e0b;
+        box-shadow: 0 0 6px #f59e0b;
+      }
+
+      .metric-card {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-left: 4px solid;
+      }
+
+      .metric-card.blue {
+        border-left-color: #3b82f6;
+      }
+      .metric-card.green {
+        border-left-color: #10b981;
+      }
+      .metric-card.red {
+        border-left-color: #ef4444;
+      }
+      .metric-card.yellow {
+        border-left-color: #f59e0b;
+      }
+      .metric-card.purple {
+        border-left-color: #a855f7;
+      }
+
+      .signal-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+
+      .signal-buy,
+      .signal-BUY {
+        background-color: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border: 1px solid #10b981;
+      }
+
+      .signal-sell,
+      .signal-SELL {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid #ef4444;
+      }
+
+      .signal-hold,
+      .signal-HOLD {
+        background-color: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+        border: 1px solid #f59e0b;
+      }
+
+      .scrollbar-dark::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .scrollbar-dark::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+
+      .scrollbar-dark::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 4px;
+      }
+
+      .scrollbar-dark::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+
+      /* Tab styles */
+      .tab-button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        background-color: #1e293b;
+        color: #94a3b8;
+        border: 1px solid #334155;
+        cursor: pointer;
+      }
+      .tab-button:hover {
+        background-color: #334155;
+        color: #e2e8f0;
+      }
+      .tab-button.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        border-color: transparent;
+      }
+
+      .tab-content {
+        animation: slideIn 0.3s ease-out;
+      }
+      .tab-content.hidden {
+        display: none;
+      }
+
+      .correlation-cell {
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid #334155;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      .correlation-cell:hover {
+        transform: scale(1.05);
+        z-index: 10;
+      }
+
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+        animation: fadeIn 0.3s;
+      }
+
+      .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 1rem;
+        max-width: 900px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .health-status-card {
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feed-item {
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      /* Tooltip styles */
+      .tooltip-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip {
+        visibility: hidden;
+        position: absolute;
+        z-index: 1000;
+        background-color: #1e293b;
+        color: #e2e8f0;
+        text-align: left;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid #475569;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        width: 250px;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+
+      .tooltip::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #1e293b transparent transparent transparent;
+      }
+
+      .tooltip-container:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .info-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background-color: #3b82f6;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: help;
+        margin-left: 0.25rem;
+      }
+
+      .strategy-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        background-color: #334155;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      .strategy-technical {
+        border-left: 3px solid #3b82f6;
+      }
+      .strategy-sentiment {
+        border-left: 3px solid #10b981;
+      }
+      .strategy-volume {
+        border-left: 3px solid #a855f7;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <!-- Header -->
+    <header class="gradient-header shadow-2xl">
+      <div class="container mx-auto px-4 py-6">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        >
+          <div class="flex items-center gap-3">
+            <h1
+              class="text-3xl sm:text-4xl font-bold text-white flex items-center gap-3"
+            >
+              🤖 Crypto Trading Bot
+              <span id="statusDot" class="status-dot status-idle"></span>
+            </h1>
+          </div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <button
+              id="healthMonitorBtn"
+              class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transition-all hover:scale-105 flex items-center gap-2"
+            >
+              <span>💊</span>
+              <span class="hidden sm:inline">System Health</span>
+              <span class="sm:hidden">Health</span>
+            </button>
+            <button
+              id="feedManagerBtn"
+              class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transition-all hover:scale-105 flex items-center gap-2"
+            >
+              <span>📡</span>
+              <span class="hidden sm:inline">Manage Feeds</span>
+              <span class="sm:hidden">Feeds</span>
+            </button>
+            <button
+              id="runNowBtn"
+              class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg transition-all hover:scale-105 flex items-center gap-2 text-sm sm:text-base"
+            >
+              <span>🚀</span>
+              <span>Run Now</span>
+            </button>
+            <button
+              id="refreshBtn"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg transition-all hover:scale-105 text-sm sm:text-base"
+            >
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+        <p class="text-blue-200 mt-2 text-sm">
+          AI-Powered Sentiment Trading System
+        </p>
+      </div>
+    </header>
+
+    <!-- Health Monitor Modal -->
+    <div id="healthMonitorModal" class="modal">
+      <div class="modal-content">
+        <div class="p-6 border-b border-gray-700">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white">💊 System Health Monitor</h2>
+              <p class="text-gray-400 text-sm mt-1">Real-time status of all dependencies</p>
+            </div>
+            <button class="close-modal text-gray-400 hover:text-white text-3xl font-bold leading-none">&times;</button>
+          </div>
+        </div>
+        <div id="healthMonitorContent" class="p-6">
+          <p class="text-gray-400 text-center py-8">Loading health data...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feed Manager Modal -->
+    <div id="feedManagerModal" class="modal">
+      <div class="modal-content">
+        <div class="p-6 border-b border-gray-700">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white">📡 RSS Feed Manager</h2>
+              <p class="text-gray-400 text-sm mt-1">Configure and monitor news feeds</p>
+            </div>
+            <button class="close-modal text-gray-400 hover:text-white text-3xl font-bold leading-none">&times;</button>
+          </div>
+        </div>
+        <div class="p-6">
+          <!-- Add Feed Form -->
+          <div class="card rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold text-white mb-3">Add New Feed</h3>
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                id="newFeedUrl" 
+                placeholder="https://example.com/feed"
+                class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              />
+              <button id="addFeedBtn" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors">
+                ➕ Add
+              </button>
+            </div>
+          </div>
+          
+          <!-- Active Feeds -->
+          <div>
+            <h3 class="text-lg font-semibold text-white mb-3">Active Feeds (<span id="feedCount">0</span>)</h3>
+            <div id="feedsList" class="space-y-3 max-h-96 overflow-y-auto scrollbar-dark">
+              <p class="text-gray-400 text-center py-8">Loading feeds...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-6">
+      <!-- Tab Navigation -->
+      <div class="flex space-x-4 mb-6 overflow-x-auto pb-2">
+        <button id="tab-overview" class="tab-button active">📊 Overview</button>
+        <button id="tab-strategies" class="tab-button">🎯 Strategies</button>
+      </div>
+
+      <!-- Overview Tab (existing content) -->
+      <div id="content-overview" class="tab-content">
+        <!-- Bot Status Card -->
+        <div class="mb-6 card rounded-xl p-6 shadow-xl card-hover slide-in">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start gap-4"
+          >
+            <div class="flex-1">
+              <h2
+                class="text-xl sm:text-2xl font-bold mb-3 flex items-center gap-2 text-white"
+              >
+                <span>⚡</span> Bot Status
+              </h2>
+              <div class="space-y-2">
+                <p id="lastRun" class="text-base sm:text-lg text-gray-300">
+                  <span class="text-gray-500">Last run:</span>
+                  <span class="text-white font-semibold">N/A</span>
+                </p>
+                <p id="lastMessage" class="text-sm text-gray-400">
+                  Waiting for first run...
+                </p>
+              </div>
+            </div>
+            <div class="text-left sm:text-right">
+              <p class="text-gray-500 text-sm mb-1">Next Scheduled Run</p>
+              <p id="countdown" class="text-lg text-gray-400 mt-1">
+                calculating...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Summary Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div
+            class="metric-card blue rounded-xl p-4 sm:p-6 shadow-xl card-hover slide-in"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p
+                  class="text-gray-400 text-xs sm:text-sm uppercase tracking-wide"
+                >
+                  Total Trades
+                </p>
+                <p
+                  id="totalTrades"
+                  class="text-2xl sm:text-4xl font-bold mt-2 text-white"
+                >
+                  0
+                </p>
+              </div>
+              <div class="text-3xl sm:text-5xl opacity-50">📊</div>
+            </div>
+          </div>
+
+          <div
+            class="metric-card green rounded-xl p-4 sm:p-6 shadow-xl card-hover slide-in"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p
+                  class="text-gray-400 text-xs sm:text-sm uppercase tracking-wide"
+                >
+                  Buys
+                </p>
+                <p
+                  id="buyCount"
+                  class="text-2xl sm:text-4xl font-bold mt-2 text-green-400"
+                >
+                  0
+                </p>
+              </div>
+              <div class="text-3xl sm:text-5xl opacity-50">📈</div>
+            </div>
+          </div>
+
+          <div
+            class="metric-card red rounded-xl p-4 sm:p-6 shadow-xl card-hover slide-in"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p
+                  class="text-gray-400 text-xs sm:text-sm uppercase tracking-wide"
+                >
+                  Sells
+                </p>
+                <p
+                  id="sellCount"
+                  class="text-2xl sm:text-4xl font-bold mt-2 text-red-400"
+                >
+                  0
+                </p>
+              </div>
+              <div class="text-3xl sm:text-5xl opacity-50">📉</div>
+            </div>
+          </div>
+
+          <div
+            class="metric-card yellow rounded-xl p-4 sm:p-6 shadow-xl card-hover slide-in"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p
+                  class="text-gray-400 text-xs sm:text-sm uppercase tracking-wide"
+                >
+                  Holds
+                </p>
+                <p
+                  id="holdCount"
+                  class="text-2xl sm:text-4xl font-bold mt-2 text-yellow-400"
+                >
+                  0
+                </p>
+              </div>
+              <div class="text-3xl sm:text-5xl opacity-50">⏸️</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left Column: Charts & Table -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- PnL Chart -->
+            <div class="card rounded-xl p-6 shadow-xl card-hover slide-in">
+              <h2
+                class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2 text-white"
+              >
+                <span>💰</span> Profit & Loss by Symbol
+              </h2>
+              <div class="relative" style="height: 300px">
+                <canvas id="pnlChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Symbol Performance Table -->
+            <div class="card rounded-xl p-6 shadow-xl card-hover slide-in">
+              <h2
+                class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2 text-white"
+              >
+                <span>📊</span> Symbol Performance
+              </h2>
+              <div id="symbolsTable" class="overflow-x-auto scrollbar-dark">
+                <p class="text-gray-500 text-center py-8">
+                  No trading activity yet
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Sentiment & Activity -->
+          <div class="space-y-6">
+            <!-- AI Sentiment Signals -->
+            <div class="card rounded-xl p-6 shadow-xl card-hover slide-in">
+              <h2
+                class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2 text-white"
+              >
+                <span>🧠</span> AI Signals
+              </h2>
+              <div
+                id="sentimentContainer"
+                class="space-y-3 scrollbar-dark"
+                style="max-height: 400px; overflow-y: auto"
+              >
+                <p class="text-gray-500 text-center py-4">Loading signals...</p>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card rounded-xl p-6 shadow-xl card-hover slide-in">
+              <h2
+                class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2 text-white"
+              >
+                <span>🕒</span> Recent Activity
+              </h2>
+              <div
+                id="recentTrades"
+                class="space-y-2 scrollbar-dark"
+                style="max-height: 400px; overflow-y: auto"
+              >
+                <p class="text-gray-500 text-center py-4">No recent trades</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategies Tab -->
+      <div id="content-strategies" class="tab-content hidden">
+        <!-- Strategy Performance Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="metric-card blue card card-hover rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center">
+                <h3 class="text-lg font-semibold text-slate-300">
+                  Total Decisions
+                </h3>
+                <div class="tooltip-container">
+                  <span class="info-icon">?</span>
+                  <span class="tooltip">
+                    <strong>Total Decisions</strong><br />
+                    The total number of trading decisions made by the bot. Each
+                    decision includes input from all active strategies.
+                  </span>
+                </div>
+              </div>
+              <span class="text-3xl">📈</span>
+            </div>
+            <p id="total-decisions" class="text-4xl font-bold text-white mb-2">
+              -
+            </p>
+            <p class="text-sm text-slate-400">All time signals logged</p>
+          </div>
+
+          <div class="metric-card green card card-hover rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center">
+                <h3 class="text-lg font-semibold text-slate-300">
+                  Active Strategies
+                </h3>
+                <div class="tooltip-container">
+                  <span class="info-icon">?</span>
+                  <span class="tooltip">
+                    <strong>Active Strategies</strong><br />
+                    The number of strategies currently analyzing the market.
+                    Each strategy provides its own signal which are then
+                    combined.
+                  </span>
+                </div>
+              </div>
+              <span class="text-3xl">⚙️</span>
+            </div>
+            <p
+              id="active-strategies"
+              class="text-4xl font-bold text-white mb-2"
+            >
+              -
+            </p>
+            <p class="text-sm text-slate-400" id="strategy-names">Loading...</p>
+          </div>
+
+          <div class="metric-card purple card card-hover rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center">
+                <h3 class="text-lg font-semibold text-slate-300">
+                  Symbols Tracked
+                </h3>
+                <div class="tooltip-container">
+                  <span class="info-icon">?</span>
+                  <span class="tooltip">
+                    <strong>Symbols Tracked</strong><br />
+                    The trading pairs being monitored (e.g., BTC/USD, ETH/USD).
+                    Each symbol gets independent analysis.
+                  </span>
+                </div>
+              </div>
+              <span class="text-3xl">🎯</span>
+            </div>
+            <p id="symbols-count" class="text-4xl font-bold text-white mb-2">
+              -
+            </p>
+            <p class="text-sm text-slate-400" id="symbols-list">Loading...</p>
+          </div>
+        </div>
+
+        <!-- Strategy Legend -->
+        <div class="card rounded-lg p-4 mb-6">
+          <h3 class="text-sm font-semibold text-slate-300 mb-3">
+            Strategy Types:
+          </h3>
+          <div class="flex flex-wrap gap-3">
+            <div class="strategy-label strategy-technical">
+              <span>📈</span>
+              <span>Technical Analysis</span>
+              <div class="tooltip-container">
+                <span class="info-icon">?</span>
+                <span class="tooltip">
+                  <strong>Technical Strategy</strong><br />
+                  Analyzes price patterns, moving averages (SMA), RSI
+                  indicators, and momentum. Uses mathematical indicators to
+                  predict price movements.
+                </span>
+              </div>
+            </div>
+
+            <div class="strategy-label strategy-sentiment">
+              <span>💬</span>
+              <span>Sentiment Analysis</span>
+              <div class="tooltip-container">
+                <span class="info-icon">?</span>
+                <span class="tooltip">
+                  <strong>Sentiment Strategy</strong><br />
+                  Uses AI to analyze news headlines and social media sentiment.
+                  Positive news → BUY signal, negative news → SELL signal.
+                </span>
+              </div>
+            </div>
+
+            <div class="strategy-label strategy-volume">
+              <span>📊</span>
+              <span>Volume Analysis</span>
+              <div class="tooltip-container">
+                <span class="info-icon">?</span>
+                <span class="tooltip">
+                  <strong>Volume Strategy</strong><br />
+                  Analyzes trading volume patterns and OBV (On-Balance Volume).
+                  High volume + price increase = strong buy signal.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Signals -->
+        <div class="card rounded-lg p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <h2 class="text-xl font-bold text-white">📡 Current Signals</h2>
+              <div class="tooltip-container">
+                <span class="info-icon">?</span>
+                <span class="tooltip">
+                  <strong>Current Signals</strong><br />
+                  The most recent trading decision for each symbol, showing the
+                  final signal and each strategy's individual input.
+                </span>
+              </div>
+            </div>
+            <button
+              onclick="refreshStrategies()"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors"
+            >
+              🔄 Refresh
+            </button>
+          </div>
+          <div id="current-signals-container">
+            <p class="text-slate-400 text-center py-8">
+              Loading current signals...
+            </p>
+          </div>
+        </div>
+
+        <!-- Strategy Performance Cards -->
+        <div class="mb-6">
+          <div class="flex items-center mb-4">
+            <h2 class="text-xl font-bold text-white">
+              📊 Strategy Performance (Last 7 Days)
+            </h2>
+            <div class="tooltip-container">
+              <span class="info-icon">?</span>
+              <span class="tooltip">
+                <strong>Strategy Performance</strong><br />
+                Detailed metrics for each strategy over the past week, showing
+                how often they signal and how well they agree with final
+                decisions.
+              </span>
+            </div>
+          </div>
+          <div
+            id="strategy-performance-cards"
+            class="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            <p class="text-slate-400 text-center py-8 col-span-3">
+              Loading performance data...
+            </p>
+          </div>
+        </div>
+
+        <!-- Correlation Heatmap -->
+        <div class="card rounded-lg p-6 mb-6">
+          <div class="flex items-center mb-4">
+            <h2 class="text-xl font-bold text-white">
+              🗺️ Strategy Correlation Matrix
+            </h2>
+            <div class="tooltip-container">
+              <span class="info-icon">?</span>
+              <span class="tooltip">
+                <strong>Correlation Matrix</strong><br />
+                Shows how often strategies agree with each other. 1.0 = always
+                agree, 0.5 = agree half the time, 0.0 = never agree. High
+                correlation means strategies see the market similarly.
+              </span>
+            </div>
+          </div>
+          <p class="text-sm text-slate-400 mb-4">
+            Hover over cells to see agreement rates between strategies
+          </p>
+          <div id="correlation-heatmap">
+            <p class="text-slate-400 text-center py-8">
+              Loading correlation data...
+            </p>
+          </div>
+        </div>
+
+        <!-- Signal History Chart -->
+        <div class="card rounded-lg p-6">
+          <div class="flex items-center mb-4">
+            <h2 class="text-xl font-bold text-white">
+              📈 Recent Signal History
+            </h2>
+            <div class="tooltip-container">
+              <span class="info-icon">?</span>
+              <span class="tooltip">
+                <strong>Signal History</strong><br />
+                Shows the confidence level of the last 50 trading decisions.
+                Higher confidence means stronger agreement between strategies.
+              </span>
+            </div>
+          </div>
+          <canvas id="signal-history-chart" height="80"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- External JavaScript -->
+    <script src="/static/js/dashboard.js"></script>
+
+    <!-- Modal Management Script -->
+    <script>
+      // Modal management
+      function setupModals() {
+        const modals = {
+          healthMonitor: document.getElementById('healthMonitorModal'),
+          feedManager: document.getElementById('feedManagerModal')
+        };
+
+        // Open modals
+        document.getElementById('healthMonitorBtn').addEventListener('click', () => {
+          modals.healthMonitor.classList.add('show');
+          loadHealthData();
+        });
+
+        document.getElementById('feedManagerBtn').addEventListener('click', () => {
+          modals.feedManager.classList.add('show');
+          loadFeedsData();
+        });
+
+        // Close modals
+        document.querySelectorAll('.close-modal').forEach(btn => {
+          btn.addEventListener('click', function() {
+            this.closest('.modal').classList.remove('show');
+          });
+        });
+
+        // Close on outside click
+        window.addEventListener('click', (e) => {
+          if (e.target.classList.contains('modal')) {
+            e.target.classList.remove('show');
           }
-        } catch (err) {
-          console.error("Failed to refresh summary:", err);
+        });
+
+        // Close on ESC key
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            document.querySelectorAll('.modal').forEach(modal => {
+              modal.classList.remove('show');
+            });
+          }
+        });
+      }
+
+      // Health Monitor functions
+      async function loadHealthData() {
+        const container = document.getElementById('healthMonitorContent');
+        container.innerHTML = '<p class="text-gray-400 text-center py-8">Loading health data...</p>';
+        
+        try {
+          // Replace with your actual API endpoint
+          const response = await fetch('/api/health');
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          // Check if data is in expected format
+          if (!data || typeof data !== 'object') {
+            throw new Error('Invalid data format');
+          }
+          
+          renderHealthData(data);
+        } catch (error) {
+          console.error('Error loading health data:', error);
+          
+          container.innerHTML = `
+            <div class="bg-red-500/20 border border-red-500 rounded-lg p-4">
+              <p class="text-red-400">
+                <strong>⚠️ Could not load health data</strong>
+                <br><small class="text-gray-400 mt-2 block">Error: ${error.message}</small>
+                <br><small class="text-gray-400">Make sure /api/health endpoint is implemented and returns data in this format:</small>
+              </p>
+              <pre class="text-xs text-gray-300 mt-3 bg-gray-900 p-3 rounded overflow-x-auto">{
+  "openai": {
+    "status": "operational",
+    "latency": 245,
+    "lastCheck": "2025-01-15T10:30:00Z",
+    "errors24h": 0
+  },
+  "exchange": { ... },
+  "rssFeeds": { ... },
+  "database": { ... }
+}</pre>
+            </div>
+          `;
         }
       }
 
-      document.getElementById("runNowBtn").addEventListener("click", runNow);
+      function renderHealthData(data) {
+        const container = document.getElementById('healthMonitorContent');
+        
+        let html = '';
+        for (const [service, info] of Object.entries(data)) {
+          // Handle undefined or missing values
+          const status = info.status || 'unknown';
+          const latency = info.latency !== undefined && info.latency !== null ? info.latency : 'N/A';
+          const lastCheck = info.lastCheck || null;
+          const errors24h = info.errors24h !== undefined && info.errors24h !== null ? info.errors24h : 0;
+          
+          const statusClass = status === 'operational' ? 'status-active' : 
+                            status === 'degraded' ? 'status-degraded' : 'status-error';
+          const statusColor = status === 'operational' ? 'text-green-400' : 
+                            status === 'degraded' ? 'text-yellow-400' : 'text-red-400';
+          
+          html += `
+            <div class="health-status-card">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <span class="status-dot ${statusClass}"></span>
+                  <h3 class="text-lg font-semibold text-white capitalize">${service.replace(/([A-Z])/g, ' $1')}</h3>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium ${statusColor}" style="background-color: rgba(${status === 'operational' ? '16, 185, 129' : status === 'degraded' ? '245, 158, 11' : '239, 68, 68'}, 0.2); border: 1px solid currentColor;">
+                  ${status}
+                </span>
+              </div>
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <div class="text-gray-400 text-sm mb-1">Latency</div>
+                  <div class="text-white font-semibold">${latency !== 'N/A' ? latency + 'ms' : latency}</div>
+                </div>
+                <div>
+                  <div class="text-gray-400 text-sm mb-1">Last Check</div>
+                  <div class="text-white font-semibold">${lastCheck ? formatTimeAgo(lastCheck) : 'Never'}</div>
+                </div>
+                <div>
+                  <div class="text-gray-400 text-sm mb-1">Errors (24h)</div>
+                  <div class="font-semibold ${errors24h > 0 ? 'text-red-400' : 'text-green-400'}">
+                    ${errors24h}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        
+        container.innerHTML = html;
+      }
 
-      // Initial load + auto-refresh
-      document.addEventListener("DOMContentLoaded", () => {
-        loadStatusFromStorage();
-        refreshSummary();
-        refreshStatus();
-        setInterval(refreshSummary, 5000);
-        setInterval(refreshStatus, 5000);
+      // Feed Manager functions
+      async function loadFeedsData() {
+        const container = document.getElementById('feedsList');
+        container.innerHTML = '<p class="text-gray-400 text-center py-8">Loading feeds...</p>';
+        
+        try {
+          // Replace with your actual API endpoint
+          const response = await fetch('/api/feeds');
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const feeds = await response.json();
+          renderFeedsData(feeds);
+        } catch (error) {
+          console.error('Error loading feeds data:', error);
+          container.innerHTML = `
+            <div class="bg-red-500/20 border border-red-500 rounded-lg p-4">
+              <p class="text-red-400 text-sm">
+                ⚠️ Could not load feeds from API. 
+                <br><small>Error: ${error.message}</small>
+                <br><small class="text-gray-400">Make sure /api/feeds endpoint is implemented</small>
+              </p>
+            </div>
+          `;
+        }
+      }
+
+      function renderFeedsData(feeds) {
+        document.getElementById('feedCount').textContent = feeds.length;
+        const container = document.getElementById('feedsList');
+        
+        if (!Array.isArray(feeds) || feeds.length === 0) {
+          container.innerHTML = '<p class="text-gray-400 text-center py-8">No feeds configured. Add one above!</p>';
+          return;
+        }
+
+        let html = '';
+        feeds.forEach(feed => {
+          const statusClass = feed.status === 'active' ? 'status-active' : 'status-error';
+          const statusColor = feed.status === 'active' ? 'text-green-400' : 'text-red-400';
+          
+          html += `
+            <div class="feed-item">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="status-dot ${statusClass}"></span>
+                    <h4 class="text-white font-semibold">${feed.name || feed.url}</h4>
+                    <span class="px-2 py-0.5 rounded text-xs font-medium ${statusColor}" style="background-color: rgba(${feed.status === 'active' ? '16, 185, 129' : '239, 68, 68'}, 0.2); border: 1px solid currentColor;">
+                      ${feed.status || 'unknown'}
+                    </span>
+                  </div>
+                  <div class="text-sm text-gray-400 mb-2 break-all">${feed.url}</div>
+                  ${feed.error ? `<div class="text-sm text-red-400 mb-2">Error: ${feed.error}</div>` : ''}
+                </div>
+                <button onclick="removeFeed(${feed.id})" class="text-gray-400 hover:text-red-400 transition-colors ml-4 text-xl" title="Remove feed">
+                  🗑️
+                </button>
+              </div>
+              <div class="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <div class="text-gray-400 mb-1">Last Fetch</div>
+                  <div class="text-white font-medium">${feed.lastFetch || feed.last_fetch ? formatTimeAgo(feed.lastFetch || feed.last_fetch) : 'Never'}</div>
+                </div>
+                <div>
+                  <div class="text-gray-400 mb-1">Total Headlines</div>
+                  <div class="text-white font-medium">${feed.headlinesCount || feed.headlines_count || 0}</div>
+                </div>
+                <div>
+                  <div class="text-gray-400 mb-1">Relevant</div>
+                  <div class="text-green-400 font-medium">${feed.relevantCount || feed.relevant_count || 0}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html;
+      }
+
+      // Add feed handler
+      async function addFeed() {
+        const input = document.getElementById('newFeedUrl');
+        const url = input.value.trim();
+        const button = document.getElementById('addFeedBtn');
+        
+        if (!url) {
+          alert('Please enter a feed URL');
+          return;
+        }
+
+        // Basic URL validation
+        try {
+          new URL(url);
+        } catch (e) {
+          alert('Please enter a valid URL');
+          return;
+        }
+
+        // Disable button during request
+        button.disabled = true;
+        button.innerHTML = '⏳ Adding...';
+
+        try {
+          // Replace with your actual API endpoint
+          const response = await fetch('/api/feeds', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          }
+          
+          const result = await response.json();
+          
+          // Show success message
+          const successDiv = document.createElement('div');
+          successDiv.className = 'bg-green-500/20 border border-green-500 rounded-lg p-3 mb-4 slide-in';
+          successDiv.innerHTML = '<p class="text-green-400 text-sm">✅ Feed added successfully!</p>';
+          document.getElementById('feedsList').insertBefore(successDiv, document.getElementById('feedsList').firstChild);
+          
+          // Remove success message after 3 seconds
+          setTimeout(() => successDiv.remove(), 3000);
+          
+          input.value = '';
+          loadFeedsData();
+        } catch (error) {
+          console.error('Error adding feed:', error);
+          alert(`Failed to add feed: ${error.message}\n\nMake sure /api/feeds POST endpoint is implemented.`);
+        } finally {
+          button.disabled = false;
+          button.innerHTML = '➕ Add';
+        }
+      }
+
+      // Remove feed handler
+      async function removeFeed(feedId) {
+        if (!confirm('Are you sure you want to remove this feed?')) return;
+
+        try {
+          // Replace with your actual API endpoint
+          const response = await fetch(`/api/feeds/${feedId}`, { 
+            method: 'DELETE' 
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          }
+          
+          // Show success message
+          const successDiv = document.createElement('div');
+          successDiv.className = 'bg-green-500/20 border border-green-500 rounded-lg p-3 mb-4 slide-in';
+          successDiv.innerHTML = '<p class="text-green-400 text-sm">✅ Feed removed successfully!</p>';
+          document.getElementById('feedsList').insertBefore(successDiv, document.getElementById('feedsList').firstChild);
+          
+          // Remove success message after 3 seconds
+          setTimeout(() => successDiv.remove(), 3000);
+          
+          loadFeedsData();
+        } catch (error) {
+          console.error('Error removing feed:', error);
+          alert(`Failed to remove feed: ${error.message}\n\nMake sure /api/feeds/{id} DELETE endpoint is implemented.`);
+        }
+      }
+
+      // Utility function
+      function formatTimeAgo(date) {
+        if (!date) return 'Never';
+        
+        try {
+          const dateObj = new Date(date);
+          if (isNaN(dateObj.getTime())) return 'Invalid date';
+          
+          const seconds = Math.floor((new Date() - dateObj) / 1000);
+          if (seconds < 0) return 'Just now';
+          if (seconds < 60) return `${seconds}s ago`;
+          const minutes = Math.floor(seconds / 60);
+          if (minutes < 60) return `${minutes}m ago`;
+          const hours = Math.floor(minutes / 60);
+          if (hours < 24) return `${hours}h ago`;
+          const days = Math.floor(hours / 24);
+          return `${days}d ago`;
+        } catch (e) {
+          return 'Unknown';
+        }
+      }
+
+      // Initialize modals when page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        setupModals();
+        
+        // Add feed button handler
+        document.getElementById('addFeedBtn').addEventListener('click', addFeed);
+        
+        // Allow Enter key to add feed
+        document.getElementById('newFeedUrl').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            addFeed();
+          }
+        });
       });
+    </script>
+
+    <!-- Strategies Tab JavaScript -->
+    <script>
+      // Tab switching
+      document.addEventListener("DOMContentLoaded", function () {
+        const tabButtons = document.querySelectorAll(".tab-button");
+
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const tabId = this.id.replace("tab-", "");
+
+            // Hide all tab contents
+            document.querySelectorAll(".tab-content").forEach((content) => {
+              content.classList.add("hidden");
+            });
+
+            // Remove active class from all buttons
+            tabButtons.forEach((btn) => btn.classList.remove("active"));
+
+            // Show selected tab content
+            const contentId = "content-" + tabId;
+            const content = document.getElementById(contentId);
+            if (content) {
+              content.classList.remove("hidden");
+            }
+
+            // Mark button as active
+            this.classList.add("active");
+
+            // Load strategies data if strategies tab is selected
+            if (tabId === "strategies") {
+              loadStrategiesData();
+            }
+          });
+        });
+      });
+
+      // Load all strategies data
+      async function loadStrategiesData() {
+        try {
+          await Promise.all([
+            loadSummary(),
+            loadCurrentSignals(),
+            loadPerformance(),
+            loadCorrelation(),
+            loadSignalHistory(),
+          ]);
+        } catch (error) {
+          console.error("Error loading strategies data:", error);
+        }
+      }
+
+      // Load summary statistics
+      async function loadSummary() {
+        try {
+          const response = await fetch("/api/strategy/summary");
+          const data = await response.json();
+
+          if (data.status === "success") {
+            document.getElementById("total-decisions").textContent =
+              data.total_decisions.toLocaleString();
+            document.getElementById("active-strategies").textContent =
+              data.total_strategies;
+            document.getElementById("strategy-names").textContent =
+              data.strategy_names.join(", ");
+            document.getElementById("symbols-count").textContent =
+              data.symbols_tracked.length;
+            document.getElementById("symbols-list").textContent =
+              data.symbols_tracked.join(", ");
+          }
+        } catch (error) {
+          console.error("Error loading summary:", error);
+        }
+      }
+
+      // Load current signals
+      async function loadCurrentSignals() {
+        try {
+          const response = await fetch("/api/strategy/current");
+          const data = await response.json();
+
+          const container = document.getElementById(
+            "current-signals-container"
+          );
+
+          const strategyIcons = {
+            technical: "📈",
+            sentiment: "💬",
+            volume: "📊",
+          };
+
+          if (data.status === "success" && data.signals.length > 0) {
+            container.innerHTML = data.signals
+              .map(
+                (signal) => `
+          <div class="card-hover rounded-lg border border-slate-700 p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-lg font-bold text-white">${signal.symbol}</h3>
+                <p class="text-sm text-slate-400">${signal.price.toLocaleString()}</p>
+              </div>
+              <div class="text-right">
+                <span class="signal-badge signal-${signal.final_signal}">${
+                  signal.final_signal
+                }</span>
+                <p class="text-sm text-slate-400 mt-1">Confidence: ${(
+                  signal.final_confidence * 100
+                ).toFixed(0)}%</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 mt-4">
+              ${Object.entries(signal.strategies)
+                .map(
+                  ([name, strat]) => `
+                <div class="text-center p-2 rounded bg-slate-800">
+                  <p class="text-xs text-slate-400 mb-1 flex items-center justify-center gap-1">
+                    <span>${strategyIcons[name] || "⚙️"}</span>
+                    <span class="capitalize">${name}</span>
+                  </p>
+                  <span class="signal-badge signal-${strat.signal} text-xs">${
+                    strat.signal
+                  }</span>
+                  <p class="text-xs text-slate-500 mt-1">${(
+                    strat.confidence * 100
+                  ).toFixed(0)}%</p>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+        `
+              )
+              .join("");
+          } else {
+            container.innerHTML =
+              '<p class="text-slate-400 text-center py-8">No signals available</p>';
+          }
+        } catch (error) {
+          console.error("Error loading current signals:", error);
+        }
+      }
+
+      // Load strategy performance
+      async function loadPerformance() {
+        try {
+          const response = await fetch("/api/strategy/performance");
+          const data = await response.json();
+
+          const container = document.getElementById(
+            "strategy-performance-cards"
+          );
+
+          if (data.status === "success") {
+            const strategies = Object.entries(data.strategies);
+
+            // Strategy info for tooltips
+            const strategyInfo = {
+              technical: {
+                icon: "📈",
+                color: "blue",
+                description: "Price patterns & indicators",
+                name: "Technical Analysis"
+              },
+              sentiment: {
+                icon: "💬",
+                color: "green",
+                description: "News & social sentiment",
+                name: "Sentiment Analysis"
+              },
+              volume: {
+                icon: "📊",
+                color: "purple",
+                description: "Trading volume analysis",
+                name: "Volume Analysis"
+              },
+            };
+
+            if (strategies.length > 0) {
+              container.innerHTML = strategies
+                .map(([name, perf]) => {
+                  const info = strategyInfo[name] || {
+                    icon: "⚙️",
+                    color: "blue",
+                    description: "Strategy",
+                    name: name.charAt(0).toUpperCase() + name.slice(1)
+                  };
+                  return `
+              <div class="card card-hover rounded-lg p-6 border-l-4 border-${
+                info.color
+              }-500">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>${info.icon}</span>
+                    ${info.name}
+                  </h3>
+                  <div class="tooltip-container">
+                    <span class="info-icon">?</span>
+                    <span class="tooltip">
+                      <strong>${info.name}</strong><br>
+                      ${info.description}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="space-y-3">
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      <span class="text-slate-400">Total Signals:</span>
+                      <div class="tooltip-container">
+                        <span class="info-icon">?</span>
+                        <span class="tooltip">Total number of times this strategy provided a signal</span>
+                      </div>
+                    </div>
+                    <span class="text-white font-semibold">${
+                      perf.total_signals
+                    }</span>
+                  </div>
+                  
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      <span class="text-slate-400">Avg Confidence:</span>
+                      <div class="tooltip-container">
+                        <span class="info-icon">?</span>
+                        <span class="tooltip">Average confidence level of this strategy's signals. Higher = more certain</span>
+                      </div>
+                    </div>
+                    <span class="text-white font-semibold">${(
+                      perf.avg_confidence * 100
+                    ).toFixed(0)}%</span>
+                  </div>
+                  
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      <span class="text-slate-400">Agreement Rate:</span>
+                      <div class="tooltip-container">
+                        <span class="info-icon">?</span>
+                        <span class="tooltip">How often this strategy agrees with the final trading decision</span>
+                      </div>
+                    </div>
+                    <span class="text-white font-semibold">${(
+                      perf.agreement_rate * 100
+                    ).toFixed(0)}%</span>
+                  </div>
+                  
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      <span class="text-slate-400">Action Rate:</span>
+                      <div class="tooltip-container">
+                        <span class="info-icon">?</span>
+                        <span class="tooltip">Percentage of signals that are BUY or SELL (vs HOLD). Higher = more active</span>
+                      </div>
+                    </div>
+                    <span class="text-white font-semibold">${(
+                      perf.action_rate * 100
+                    ).toFixed(0)}%</span>
+                  </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-slate-700">
+                  <p class="text-xs text-slate-400 mb-2">Signal Distribution:</p>
+                  <div class="flex gap-2 text-xs flex-wrap">
+                    <span class="signal-badge signal-BUY">${
+                      perf.signal_distribution.BUY
+                    } BUY</span>
+                    <span class="signal-badge signal-SELL">${
+                      perf.signal_distribution.SELL
+                    } SELL</span>
+                    <span class="signal-badge signal-HOLD">${
+                      perf.signal_distribution.HOLD
+                    } HOLD</span>
+                  </div>
+                </div>
+              </div>
+            `;
+                })
+                .join("");
+            } else {
+              container.innerHTML =
+                '<p class="text-slate-400 text-center py-8 col-span-3">No performance data available</p>';
+            }
+          }
+        } catch (error) {
+          console.error("Error loading performance:", error);
+        }
+      }
+
+      // Load correlation heatmap
+      async function loadCorrelation() {
+        try {
+          const response = await fetch("/api/strategy/correlation");
+          const data = await response.json();
+
+          const container = document.getElementById("correlation-heatmap");
+
+          if (
+            data.status === "success" &&
+            Object.keys(data.correlations).length > 0
+          ) {
+            const strategies = Object.keys(data.correlations);
+
+            let html =
+              '<div class="overflow-x-auto"><table class="w-full border-collapse">';
+
+            // Header row
+            html += '<tr><th class="correlation-cell bg-slate-800"></th>';
+            strategies.forEach((s) => {
+              html += `<th class="correlation-cell bg-slate-800 capitalize">${s}</th>`;
+            });
+            html += "</tr>";
+
+            // Data rows
+            strategies.forEach((row) => {
+              html += `<tr><th class="correlation-cell bg-slate-800 capitalize">${row}</th>`;
+              strategies.forEach((col) => {
+                const value = data.correlations[row][col];
+                const bgColor =
+                  row === col
+                    ? "rgba(59, 130, 246, 0.5)"
+                    : `rgba(16, 185, 129, ${value * 0.5})`;
+                html += `<td class="correlation-cell" style="background-color: ${bgColor}">${value.toFixed(
+                  2
+                )}</td>`;
+              });
+              html += "</tr>";
+            });
+
+            html += "</table></div>";
+            container.innerHTML = html;
+          } else {
+            container.innerHTML =
+              '<p class="text-slate-400 text-center py-8">No correlation data available</p>';
+          }
+        } catch (error) {
+          console.error("Error loading correlation:", error);
+        }
+      }
+
+      // Load signal history chart
+      let signalHistoryChart = null;
+
+      async function loadSignalHistory() {
+        try {
+          const response = await fetch("/api/strategy/history?limit=50");
+          const data = await response.json();
+
+          if (data.status === "success" && data.signals.length > 0) {
+            const ctx = document.getElementById("signal-history-chart");
+
+            // Destroy existing chart
+            if (signalHistoryChart) {
+              signalHistoryChart.destroy();
+            }
+
+            // Prepare data
+            const signals = data.signals.reverse(); // Oldest first
+            const labels = signals.map((s, i) => i + 1);
+            const confidences = signals.map((s) => s.final_confidence * 100);
+
+            signalHistoryChart = new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: labels,
+                datasets: [
+                  {
+                    label: "Confidence %",
+                    data: confidences,
+                    borderColor: "#3b82f6",
+                    backgroundColor: "rgba(59, 130, 246, 0.1)",
+                    tension: 0.4,
+                    fill: true,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                  legend: {
+                    labels: { color: "#e2e8f0" },
+                  },
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { color: "#94a3b8" },
+                    grid: { color: "#334155" },
+                  },
+                  x: {
+                    ticks: { color: "#94a3b8" },
+                    grid: { color: "#334155" },
+                  },
+                },
+              },
+            });
+          }
+        } catch (error) {
+          console.error("Error loading signal history:", error);
+        }
+      }
+
+      // Refresh all data
+      function refreshStrategies() {
+        loadStrategiesData();
+      }
+
+      // Auto-refresh every 30 seconds when strategies tab is active
+      setInterval(() => {
+        const strategiesTab = document.getElementById("content-strategies");
+        if (strategiesTab && !strategiesTab.classList.contains("hidden")) {
+          refreshStrategies();
+        }
+      }, 30000);
     </script>
   </body>
 </html>

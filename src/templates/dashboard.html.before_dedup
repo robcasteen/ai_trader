@@ -418,7 +418,7 @@
                 <div class="terminal-panel">
                     <div class="panel-header">Actions</div>
                     <div class="panel-content" style="display: flex; flex-direction: column; gap: 4px;">
-                        <button class="btn" id="runNowBtn" onclick="runNow()">▶ RUN NOW</button>
+                        <button class="btn" id="run-now-btn" onclick="runNow()">▶ RUN NOW</button>
                         <button class="btn" onclick="refreshData()">↻ REFRESH</button>
                     </div>
                 </div>
@@ -592,12 +592,246 @@
             document.querySelectorAll('.nav-tab').forEach(navTab => navTab.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             if (tabName === 'feeds') loadFeedsDetailed();
-            if (tabName === 'health') loadHealth();
-            if (tabName === 'strategies') loadStrategies();
             event.target.classList.add('active');
         }
+
+        // Format price
+        function formatPrice(price) {
+            return '$' + parseFloat(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Format timestamp
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toTimeString().split(' ')[0].substring(0, 5);
+        }
+
+        // Load portfolio data
+        async function loadPortfolio() {
+            try {
+                const response = await fetch('/partial');
+                const data = await response.json();
+                
+                const summary = data.summary || {};
+                //                 document.getElementById('balance').textContent = formatPrice(summary.current_balance || 0);
+                //                 document.getElementById('pnl-today').textContent = formatPrice(summary.pnl || 0);
+                //                 document.getElementById('pnl-today').className = 'metric-value price ' + (summary.pnl >= 0 ? 'positive' : 'negative');
+                document.getElementById('total-trades').textContent = summary.total_trades || 0;
+                document.getElementById('win-rate').textContent = (summary.win_rate || 0) + '%';
+                
+                document.getElementById('total-trades').textContent = summary.total_trades || 0;
+                const symbols = summary.symbols || {};
+                const winners = Object.values(symbols).filter(s => (s.pnl || 0) > 0).length;
+                const total = Object.keys(symbols).length;
+                const winRate = total > 0 ? Math.round((winners / total) * 100) : 0;
+                document.getElementById('win-rate').textContent = winRate + '%';
+                // Load recent trades
+                const trades = data.trades || [];
+                document.getElementById('trade-count').textContent = trades.length;
+                const tradesHtml = trades.slice(0, 5).map(trade => `
+                    <tr>
+                        <td class="timestamp">${formatTime(trade.timestamp)}</td>
+                        <td>${trade.symbol}</td>
+                        <td><span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action}</span></td>
+                        <td class="price">${formatPrice(trade.price)}</td>
+                    </tr>
+                `).join('');
+                document.getElementById('recent-trades').innerHTML = tradesHtml || '<tr><td colspan="4">No trades yet</td></tr>';
+                
+                // All trades tab
+                document.getElementById('all-trade-count').textContent = trades.length;
+                const allTradesHtml = trades.map(trade => `
+                    <tr>
+                        <td class="timestamp">${trade.timestamp}</td>
+                        <td>${trade.symbol}</td>
+                        <td><span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action}</span></td>
+                        <td class="price">${formatPrice(trade.price)}</td>
+                        <td>${trade.amount || 0.01}</td>
+                        <td class="price">${formatPrice(trade.value || 0)}</td>
+                        <td style="font-size: 9px; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${trade.reason || ''}</td>
+                    </tr>
+                `).join('');
+                document.getElementById('all-trades').innerHTML = allTradesHtml || '<tr><td colspan="7">No trades yet</td></tr>';
+            } catch (error) {
+                console.error('Error loading portfolio:', error);
+            }
+        }
+
+        // Load strategy signals
+        async function loadStrategies() {
+            try {
+                const response = await fetch('/api/strategy/current');
+                const data = await response.json();
+                
+                const signals = data.signals || [];
+                document.getElementById('signal-count').textContent = signals.length;
+                document.getElementById('strategy-signal-count').textContent = signals.length;
+                
+                // Recent signals (overview tab)
+                const recentHtml = signals.slice(0, 5).map(sig => `
+                    <tr>
+                        <td class="timestamp">${formatTime(sig.timestamp)}</td>
+                        <td>${sig.symbol}</td>
+                        <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal}</span></td>
+                        <td class="price">${formatPrice(sig.price)}</td>
+                    </tr>
+                `).join('');
+                document.getElementById('recent-signals').innerHTML = recentHtml || '<tr><td colspan="4">No signals yet</td></tr>';
+                
+                // All signals (strategies tab)
+                const allSignalsHtml = signals.map(sig => `
+                    <tr>
+                        <td class="timestamp">${formatTime(sig.timestamp)}</td>
+                        <td>${sig.symbol}</td>
+                        <td>${Object.keys(sig.strategies || {})[0] || "N/A"}</td>
+                        <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal}</span></td>
+                        <td>${Math.round((sig.confidence || 0) * 100)}%</td>
+                        <td class="price">${formatPrice(sig.price)}</td>
+                        <td style="font-size: 9px; max-width: 250px; overflow: hidden; text-overflow: ellipsis;">${Object.values(sig.strategies || {})[0]?.reason || ''}</td>
+                    </tr>
+                `).join('');
+                document.getElementById('strategy-signals').innerHTML = allSignalsHtml || '<tr><td colspan="7">No signals yet</td></tr>';
+            } catch (error) {
+                console.error('Error loading strategies:', error);
+            }
+        }
+
+        // Load status
+        async function loadStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                const status = data.last_status || {};
+                document.getElementById('last-run').textContent = status.time ? new Date(status.time).toTimeString().split(' ')[0] : '--';
+                document.getElementById('next-run').textContent = status.next_run || '--';
+                document.getElementById('status-msg').textContent = status.message || '--';
+            } catch (error) {
+                console.error('Error loading status:', error);
+            }
+        }
+
+        // Load feeds
+        async function refreshBalance() {
+            try {
+                const response = await fetch('/api/balance');
+                const data = await response.json();
+                
+                const balanceEl = document.getElementById('balance');
+                if (balanceEl) {
+                    balanceEl.textContent = '$' + (data.total || 0).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                }
+                
+                const pnlEl = document.getElementById('pnl-today');
+                if (pnlEl) {
+                    const pnl = data.pnl || 0;
+                    pnlEl.textContent = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+                    pnlEl.className = 'metric-value price ' + (pnl >= 0 ? 'positive' : 'negative');
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+            }
+        }
+        async function loadFeeds() {
+            try {
+                const response = await fetch('/api/feeds');
+                const data = await response.json();
+                
+                const feeds = data.feeds || [];
+                document.getElementById('feed-count').textContent = feeds.length;
+                
+                const feedsHtml = feeds.map(feed => `
+                    <tr>
+                        <td>${feed.name}</td>
+                        <td><span class="positive">●</span> ACTIVE</td>
+                        <td style="font-size: 9px; max-width: 400px; overflow: hidden; text-overflow: ellipsis;">${feed.url}</td>
+                    </tr>
+                `).join('');
+                document.getElementById('feed-list').innerHTML = feedsHtml || '<tr><td colspan="3">No feeds configured</td></tr>';
+            } catch (error) {
+                console.error('Error loading feeds:', error);
+            }
+        }
+
+        // Load health
+        async function loadHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                const services = [
+                    { name: 'OpenAI API', key: 'openai', status: data.openai },
+                    { name: 'Kraken API', key: 'kraken', status: data.kraken },
+                    { name: 'RSS Feeds', key: 'rss', status: data.rss },
+                    { name: 'Database', key: 'database', status: data.database }
+                ];
+                
+                const healthHtml = services.map(svc => `
+                    <div class="health-item">
+                        <div class="health-label">${svc.name}</div>
+                        <div class="health-value ${svc.status?.status === 'operational' ? 'positive' : svc.status?.status === 'degraded' ? 'yellow' : 'negative'}">●</div>
+                        <div class="health-status">${svc.status?.status || '--'}</div>
+                    </div>
+                `).join('');
+                document.getElementById('health-grid').innerHTML = healthHtml;
+                
+                // Update header status
+                const allOk = services.every(s => s.status?.status === 'operational');
+                document.getElementById('status-dot').className = 'status-dot ' + (allOk ? '' : 'red');
+                document.getElementById('status-text').textContent = allOk ? 'LIVE' : 'ERROR';
+            } catch (error) {
+                console.error('Error loading health:', error);
+            }
+        }
+
+        // Run now
+        async function runNow() {
+            const btn = document.getElementById('run-now-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ RUNNING...';
+            
+            try {
+                const response = await fetch('/run-now');
+                const data = await response.json();
+                
+                if (data.status === 'ok') {
+                    btn.textContent = '✓ COMPLETE';
+                    setTimeout(() => {
+                        btn.textContent = '▶ RUN NOW';
+                        btn.disabled = false;
+                        refreshData();
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error running cycle:', error);
+                btn.textContent = '✗ ERROR';
+                setTimeout(() => {
+                    btn.textContent = '▶ RUN NOW';
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Refresh all data
+        function refreshData() {
+            refreshBalance();
+            loadPortfolio();
+            loadStrategies();
+            loadStatus();
+            loadFeeds();
+            loadHealth();
+        }
+
+        // Initial load
+        refreshData();
+        
+        // Auto-refresh every 10 seconds
+       setInterval(refreshData, 10000);
     </script>
-    
+
     <script src="/static/js/dashboard.js"></script>
-</body>
-</html>
+ </body>
+ </html>

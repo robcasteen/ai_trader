@@ -262,11 +262,5 @@ class TestGetRSSFeeds:
         """Test that all feeds are valid URLs."""
         feeds = news_fetcher.get_rss_feeds()
         for feed in feeds:
-            # Feeds are now dicts with metadata
-            if isinstance(feed, dict):
-                assert "url" in feed, f"Feed dict missing 'url' key: {feed}"
-                assert feed["url"].startswith("http"), f"Invalid URL: {feed['url']}"
-            else:
-                # Legacy string format
-                assert feed.startswith("http")
-                assert "rss" in feed.lower() or "feed" in feed.lower()
+            assert feed.startswith("http")
+            assert "rss" in feed.lower() or "feed" in feed.lower()

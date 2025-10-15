@@ -13,8 +13,8 @@ router = APIRouter()
 
 
 # === Paths ===
-PROJECT_ROOT = Path(__file__).resolve().parents[1]  # /src
-TEMPLATES_DIR = PROJECT_ROOT / "templates"
+PROJECT_ROOT = Path(__file__).resolve().parent  # /src
+TEMPLATES_DIR = PROJECT_ROOT.parent / "templates"  # src/templates
 LOGS_DIR = PROJECT_ROOT / "logs"
 
 # Initialize strategy signal logger
@@ -270,6 +270,94 @@ from datetime import datetime, timezone
 # NEW API ENDPOINTS - Add these to dashboard.py
 # ============================================================================
 
+
+# Replace BOTH @router.get("/api/balance") functions in dashboard.py with this single one:
+
+# Replace both @router.get("/api/balance") functions in dashboard.py with this:
+
+@router.get("/api/balance")
+async def get_balance():
+    """
+    Get balance for paper trading mode with real Kraken data
+    
+    Shows:
+    - Real Kraken account balance (what you COULD deploy with)
+    - Paper trading balance (simulated starting capital)
+    - P&L from paper trades
+    """
+    
+    balance_data = {
+        "paper_trading": {
+            "initial": 100000.0,
+            "current": 100000.0,
+            "pnl": 0.0,
+            "active": True
+        },
+        "kraken_live": {
+            "total_usd": 0.0,
+            "balances": {},
+            "connected": False
+        },
+        "mode": "paper",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Calculate paper trading P&L from trades
+    try:
+        labels, pnl_data = load_pnl_data()
+        total_pnl = sum(pnl_data) if pnl_data else 0.0
+        
+        balance_data["paper_trading"]["pnl"] = round(total_pnl, 2)
+        balance_data["paper_trading"]["current"] = round(100000.0 + total_pnl, 2)
+        
+        logging.info(f"[Balance] Paper trading: ${balance_data['paper_trading']['current']:.2f} (P&L: ${total_pnl:+.2f})")
+    except Exception as e:
+        logging.error(f"[Balance] Error calculating paper P&L: {e}")
+    
+    # Fetch REAL Kraken balance (for reference/when going live)
+    try:
+        from app.client.kraken import KrakenClient
+        
+        client = KrakenClient()
+        kraken_balances = await client.get_balance()
+        
+        if kraken_balances:
+            balance_data["kraken_live"]["connected"] = True
+            balance_data["kraken_live"]["balances"] = kraken_balances
+            
+            # Calculate total USD value from USD-equivalent currencies
+            total_usd = 0.0
+            for currency in ["ZUSD", "USD", "USDT", "USDC"]:
+                if currency in kraken_balances:
+                    amount = float(kraken_balances[currency])
+                    total_usd += amount
+            
+            balance_data["kraken_live"]["total_usd"] = round(total_usd, 2)
+            
+            logging.info(f"[Balance] Real Kraken balance: ${total_usd:.2f} (available for live trading)")
+        else:
+            logging.warning("[Balance] Kraken returned no balances")
+            
+    except Exception as e:
+        logging.warning(f"[Balance] Could not fetch Kraken balance: {e}")
+        balance_data["kraken_live"]["error"] = str(e)
+    
+    # Return format optimized for dashboard display
+    return {
+        "total": balance_data["paper_trading"]["current"],
+        "available": balance_data["paper_trading"]["current"],
+        "pnl": balance_data["paper_trading"]["pnl"],
+        "currency": "USD",
+        "mode": "paper",
+        
+        # Additional context
+        "paper_initial": balance_data["paper_trading"]["initial"],
+        "kraken_balance": balance_data["kraken_live"]["total_usd"],
+        "kraken_connected": balance_data["kraken_live"]["connected"],
+        
+        # For detailed view
+        "details": balance_data
+    }
 
 @router.get("/api/strategy/current")
 async def get_current_signals():
@@ -702,24 +790,48 @@ async def check_openai_health() -> Dict[str, Any]:
         return {"status": "error", "errors": 1}
 
 
+# Find the check_exchange_health() function in dashboard.py
+# (around line 550-570) and replace it with this simpler version:
+
+
 async def check_exchange_health() -> Dict[str, Any]:
     """Check exchange API health."""
     try:
-        # TODO: Implement actual exchange health check
         # Check if we have recent trades
         trades = _load_trades()
-        if trades:
-            # Check if last trade is recent (within 24h)
-            last_trade = trades[-1]
-            last_timestamp = last_trade.get("timestamp")
-            if last_timestamp:
-                last_time = datetime.fromisoformat(
-                    last_timestamp.replace("Z", "+00:00")
-                )
-                if datetime.now(timezone.utc) - last_time < timedelta(hours=24):
-                    return {"status": "operational", "errors": 0}
+        if not trades:
+            return {"status": "degraded", "errors": 0}
 
-        return {"status": "degraded", "errors": 0}
+        # Check if last trade is recent (within 24h)
+        last_trade = trades[-1]
+        last_timestamp = last_trade.get("timestamp")
+
+        if last_timestamp:
+            try:
+                # Parse timestamp - handle both formats
+                if last_timestamp.endswith("Z"):
+                    last_timestamp = last_timestamp.replace("Z", "+00:00")
+
+                last_time = datetime.fromisoformat(last_timestamp)
+
+                # Make timezone-aware if needed
+                if last_time.tzinfo is None:
+                    last_time = last_time.replace(tzinfo=timezone.utc)
+
+                now = datetime.now(timezone.utc)
+                time_diff = now - last_time
+
+                if time_diff < timedelta(hours=24):
+                    return {"status": "operational", "errors": 0}
+                else:
+                    return {"status": "degraded", "errors": 0}
+
+            except Exception as e:
+                logging.error(f"[Health] Timestamp parse error: {e}")
+                return {"status": "degraded", "errors": 0}
+
+        return {"status": "operational", "errors": 0}
+
     except Exception as e:
         logging.error(f"[Health] Exchange check failed: {e}")
         return {"status": "error", "errors": 1}
@@ -814,7 +926,7 @@ async def get_rss_feeds():
     """
     try:
         feeds = _load_rss_feeds()
-        return JSONResponse(feeds)
+        return JSONResponse({"feeds": feeds, "total": len(feeds)})
     except Exception as e:
         logging.error(f"[API] Error in get_rss_feeds: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)

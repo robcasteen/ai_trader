@@ -1,0 +1,653 @@
+// Dashboard JavaScript - Dark Theme Compatible
+// Place this file at: src/static/js/dashboard.js
+
+// State management
+const State = {
+  time: null,
+  message: null,
+  next: null,
+  isRunning: false,
+};
+
+// Utility: Format time with relative display
+function formatTime(dateStr) {
+  if (!dateStr) return "N/A";
+  try {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+// Utility: Calculate countdown to next run
+function updateCountdown() {
+  const countdownEl = document.getElementById("countdown");
+  if (!countdownEl || !State.next) {
+    if (countdownEl) countdownEl.textContent = "";
+    return;
+  }
+
+  try {
+    const next = new Date(State.next);
+    const now = new Date();
+    const diff = next - now;
+
+    if (diff <= 0) {
+      countdownEl.textContent = "Running soon...";
+      return;
+    }
+
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    countdownEl.textContent = `in ${minutes}m ${seconds}s`;
+  } catch (e) {
+    countdownEl.textContent = "";
+  }
+}
+
+// Render: Bot status section
+function renderStatus() {
+  const lastRunEl = document.getElementById("lastRun");
+  const lastMessageEl = document.getElementById("lastMessage");
+  const nextRunEl = document.getElementById("nextRun");
+  const dotEl = document.getElementById("statusDot");
+
+  if (lastRunEl) {
+    lastRunEl.innerHTML = `
+      <span class="text-gray-500">Last run:</span> 
+      <span class="text-white font-semibold">${formatTime(State.time)}</span>
+    `;
+  }
+
+  if (lastMessageEl) {
+    lastMessageEl.textContent = State.message || "Waiting for first run...";
+  }
+
+  if (nextRunEl) {
+    nextRunEl.textContent = State.next ? formatTime(State.next) : "...";
+  }
+
+  if (dotEl) {
+    if (State.isRunning) {
+      dotEl.className = "status-dot status-active pulse-green";
+    } else if (State.time) {
+      dotEl.className = "status-dot status-active";
+    } else {
+      dotEl.className = "status-dot status-idle";
+    }
+  }
+}
+
+// API: Refresh status from server
+async function refreshStatus() {
+  try {
+    const resp = await fetch("/status");
+    if (!resp.ok) throw new Error("Bad response");
+    const data = await resp.json();
+
+    const last = data.last_status || {};
+    if (last.time) State.time = last.time;
+    if (last.message) State.message = last.message;
+    if (data.next_run) State.next = data.next_run;
+
+    renderStatus();
+  } catch (err) {
+    console.warn("Failed to refresh status:", err);
+  }
+}
+
+// API: Trigger manual run
+async function runNow() {
+  const btn = document.getElementById("runNowBtn");
+  if (!btn) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="animate-spin">⏳</span> Running...';
+  State.isRunning = true;
+  renderStatus();
+
+  try {
+    const resp = await fetch("/run-now");
+    const data = await resp.json();
+
+    if (data.last_status) {
+      if (data.last_status.time) State.time = data.last_status.time;
+      if (data.last_status.message) State.message = data.last_status.message;
+    }
+    if (data.next_run) State.next = data.next_run;
+
+    await refreshSummary();
+  } catch (err) {
+    console.error("[RunNow] Error:", err);
+  } finally {
+    State.isRunning = false;
+    btn.disabled = false;
+    btn.innerHTML = "<span>🚀</span><span>Run Now</span>";
+    renderStatus();
+  }
+}
+
+/// Chart: PnL visualization (optimized to prevent flashing)
+let pnlChart = null;
+
+function initPnLChart(labels, values) {
+  const ctx = document.getElementById("pnlChart");
+  if (!ctx) return;
+
+  // Check if data actually changed
+  if (
+    pnlChart &&
+    JSON.stringify(pnlChart.data.labels) === JSON.stringify(labels) &&
+    JSON.stringify(pnlChart.data.datasets[0].data) === JSON.stringify(values)
+  ) {
+    return; // Don't update if data hasn't changed
+  }
+
+  if (pnlChart) {
+    // Update existing chart instead of destroying
+    pnlChart.data.labels = labels || [];
+    pnlChart.data.datasets[0].data = values || [];
+    pnlChart.data.datasets[0].backgroundColor = (values || []).map((v) =>
+      v >= 0 ? "rgba(16, 185, 129, 0.7)" : "rgba(239, 68, 68, 0.7)"
+    );
+    pnlChart.data.datasets[0].borderColor = (values || []).map((v) =>
+      v >= 0 ? "rgb(16, 185, 129)" : "rgb(239, 68, 68)"
+    );
+    pnlChart.update("none"); // Update without animation to prevent flash
+    return;
+  }
+
+  // Create new chart only if it doesn't exist
+  pnlChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels || [],
+      datasets: [
+        {
+          label: "PnL ($)",
+          data: values || [],
+          backgroundColor: (values || []).map((v) =>
+            v >= 0 ? "rgba(16, 185, 129, 0.7)" : "rgba(239, 68, 68, 0.7)"
+          ),
+          borderColor: (values || []).map((v) =>
+            v >= 0 ? "rgb(16, 185, 129)" : "rgb(239, 68, 68)"
+          ),
+          borderWidth: 2,
+          borderRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false, // Disable animations to prevent flashing
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "rgba(30, 41, 59, 0.95)",
+          titleColor: "#fff",
+          bodyColor: "#e2e8f0",
+          borderColor: "#475569",
+          borderWidth: 1,
+          callbacks: {
+            label: (ctx) => {
+              const val = ctx.parsed.y;
+              return (val >= 0 ? "+" : "") + "$" + val.toFixed(2);
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: "#94a3b8", font: { size: 11 } },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: "#334155" },
+          ticks: {
+            color: "#94a3b8",
+            callback: (value) => "$" + value,
+          },
+        },
+      },
+    },
+  });
+}
+
+// Render: Symbols performance table
+function renderSymbolsTable(summary) {
+  const container = document.getElementById("symbolsTable");
+  if (!container) return;
+
+  const symbols = summary?.symbols || {};
+  const keys = Object.keys(symbols);
+
+  if (!keys.length) {
+    container.innerHTML =
+      '<p class="text-gray-500 text-center py-8">No trading activity yet</p>';
+    return;
+  }
+
+  const rows = keys
+    .map((sym) => {
+      const d = symbols[sym];
+      const pnl = Number(d.pnl || 0);
+      const pnlCls = pnl >= 0 ? "text-green-400" : "text-red-400";
+      const pnlIcon = pnl >= 0 ? "↗" : "↘";
+      const action = (d.last_action || "").toLowerCase();
+      const badgeClass =
+        action === "buy"
+          ? "signal-buy"
+          : action === "sell"
+          ? "signal-sell"
+          : "signal-hold";
+
+      return `
+      <tr class="border-b border-gray-700 hover:bg-slate-800/50 transition-colors">
+        <td class="px-4 py-3 font-semibold text-white">${sym}</td>
+        <td class="px-4 py-3">
+          <span class="signal-badge ${badgeClass}">${(
+        d.last_action || "N/A"
+      ).toUpperCase()}</span>
+        </td>
+        <td class="px-4 py-3 text-gray-300">${
+          d.last_price ? "$" + d.last_price.toLocaleString() : "-"
+        }</td>
+        <td class="px-4 py-3 ${pnlCls} font-bold">${pnlIcon} $${Math.abs(
+        pnl
+      ).toFixed(2)}</td>
+      </tr>
+    `;
+    })
+    .join("");
+
+  container.innerHTML = `
+    <table class="min-w-full">
+      <thead class="bg-slate-800/50">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-400">Symbol</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-400">Action</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-400">Price</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-400">PnL</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// Render: AI sentiment signals
+function renderSentiment(sentiment) {
+  const container = document.getElementById("sentimentContainer");
+  if (!container) return;
+
+  const keys = Object.keys(sentiment || {});
+
+  if (!keys.length) {
+    container.innerHTML =
+      '<p class="text-gray-500 text-center py-4">No AI signals yet</p>';
+    return;
+  }
+
+  const signalConfig = {
+    BUY: {
+      bg: "bg-green-900/30",
+      border: "border-green-600",
+      text: "text-green-400",
+      icon: "📈",
+    },
+    SELL: {
+      bg: "bg-red-900/30",
+      border: "border-red-600",
+      text: "text-red-400",
+      icon: "📉",
+    },
+    HOLD: {
+      bg: "bg-yellow-900/30",
+      border: "border-yellow-600",
+      text: "text-yellow-400",
+      icon: "⏸️",
+    },
+  };
+
+  const cards = keys
+    .map((sym) => {
+      const s = sentiment[sym];
+      const sig = (s.signal || "HOLD").toUpperCase();
+      const config = signalConfig[sig] || signalConfig["HOLD"];
+
+      return `
+      <div class="${config.bg} border-l-4 ${
+        config.border
+      } p-4 rounded-r-lg hover:bg-opacity-50 transition-all">
+        <div class="flex items-start justify-between mb-2">
+          <div class="font-bold text-white text-lg">${sym}</div>
+          <div class="${config.text} text-2xl">${config.icon}</div>
+        </div>
+        <div class="${config.text} font-semibold text-xl mb-2">${sig}</div>
+        <div class="text-gray-400 text-sm leading-relaxed">${
+          s.reason || "No reason provided"
+        }</div>
+        ${
+          s.updated_at
+            ? `
+          <div class="text-gray-600 text-xs mt-3 flex items-center gap-1">
+            <span>🕒</span>
+            <span>${formatTime(s.updated_at)}</span>
+          </div>
+        `
+            : ""
+        }
+      </div>
+    `;
+    })
+    .join("");
+
+  container.innerHTML = cards;
+}
+
+// Render: Recent trading activity
+function renderRecentTrades(trades) {
+  const container = document.getElementById("recentTrades");
+  if (!container) return;
+
+  if (!trades || !trades.length) {
+    container.innerHTML =
+      '<p class="text-gray-500 text-center py-4">No recent activity</p>';
+    return;
+  }
+
+  const actionConfig = {
+    buy: { bg: "bg-green-900/20", text: "text-green-400", icon: "🟢" },
+    sell: { bg: "bg-red-900/20", text: "text-red-400", icon: "🔴" },
+    hold: { bg: "bg-yellow-900/20", text: "text-yellow-400", icon: "🟡" },
+  };
+
+  const items = trades
+    .slice(-10)
+    .reverse()
+    .map((t) => {
+      const action = (t.action || "").toLowerCase();
+      const config = actionConfig[action] || {
+        bg: "bg-gray-800",
+        text: "text-gray-400",
+        icon: "⚪",
+      };
+
+      return `
+      <div class="${
+        config.bg
+      } rounded-lg p-3 hover:bg-opacity-70 transition-all border border-gray-700">
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-semibold text-white text-sm">${
+            t.symbol || "Unknown"
+          }</span>
+          <span class="${
+            config.text
+          } font-bold text-xs flex items-center gap-1">
+            <span>${config.icon}</span>
+            <span>${(t.action || "N/A").toUpperCase()}</span>
+          </span>
+        </div>
+        <div class="text-xs text-gray-400 flex justify-between">
+          <span>${t.amount || 0} @ $${(t.price || 0).toLocaleString()}</span>
+          <span class="text-gray-600">${formatTime(t.timestamp)}</span>
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+
+  container.innerHTML = items;
+}
+// API: Refresh balance data
+async function refreshBalance() {
+  try {
+    const resp = await fetch("/api/balance");
+    if (!resp.ok) throw new Error("Balance fetch failed");
+    const data = await resp.json();
+
+    // Update balance display
+    const balanceEl = document.getElementById("balance");
+    if (balanceEl) {
+      balanceEl.textContent =
+        "$" +
+        (data.total || 0).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+    }
+
+    // Update P&L display
+    const pnlEl = document.getElementById("pnl");
+    if (pnlEl) {
+      const pnl = data.pnl || 0;
+      const pnlFormatted =
+        (pnl >= 0 ? "+" : "") +
+        "$" +
+        Math.abs(pnl).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      pnlEl.textContent = pnlFormatted;
+      pnlEl.className = pnl >= 0 ? "text-green-400" : "text-red-400";
+    }
+
+    // Update win rate (if available)
+    const winRateEl = document.getElementById("winRate");
+    if (winRateEl && data.win_rate !== undefined) {
+      winRateEl.textContent = Math.round(data.win_rate) + "%";
+    }
+  } catch (err) {
+    console.error("Failed to refresh balance:", err);
+  }
+}
+
+// API: Refresh all dashboard data
+
+// API: Refresh balance data
+async function refreshBalance() {
+  try {
+    const resp = await fetch('/api/balance');
+    if (!resp.ok) throw new Error('Balance fetch failed');
+    const data = await resp.json();
+
+    // Update balance display
+    const balanceEl = document.getElementById('balance');
+    if (balanceEl) {
+      balanceEl.textContent = '$' + (data.total || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    // Update P&L display
+    const pnlEl = document.getElementById('pnl-today');
+    if (pnlEl) {
+      const pnl = data.pnl || 0;
+      const pnlFormatted = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      pnlEl.textContent = pnlFormatted;
+      pnlEl.className = 'metric-value price ' + (pnl >= 0 ? 'text-green-400' : 'text-red-400');
+    }
+
+  } catch (err) {
+    console.error('Failed to refresh balance:', err);
+  }
+}
+
+
+// API: Refresh balance data
+async function refreshBalance() {
+  try {
+    const resp = await fetch('/api/balance');
+    if (!resp.ok) throw new Error('Balance fetch failed');
+    const data = await resp.json();
+
+    // Update balance display
+    const balanceEl = document.getElementById('balance');
+    if (balanceEl) {
+      balanceEl.textContent = '$' + (data.total || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    // Update P&L display
+    const pnlEl = document.getElementById('pnl-today');
+    if (pnlEl) {
+      const pnl = data.pnl || 0;
+      const pnlFormatted = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      pnlEl.textContent = pnlFormatted;
+      pnlEl.className = 'metric-value price ' + (pnl >= 0 ? 'text-green-400' : 'text-red-400');
+    }
+
+  } catch (err) {
+    console.error('Failed to refresh balance:', err);
+  }
+}
+
+async function refreshSummary() {
+  try {
+    const resp = await fetch("/partial");
+    if (!resp.ok) throw new Error("Network error");
+    const data = await resp.json();
+
+    // Update metric counters
+    const updates = {
+      totalTrades: data.summary?.total_trades || 0,
+      buyCount: data.summary?.buy_count || 0,
+      sellCount: data.summary?.sell_count || 0,
+      holdCount: data.summary?.hold_count || 0,
+    };
+
+    Object.entries(updates).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    });
+
+    // Calculate and update win rate
+    const symbols = data.summary?.symbols || {};
+    const winners = Object.values(symbols).filter(
+      (s) => (s.pnl || 0) > 0
+    ).length;
+    const total = Object.keys(symbols).length;
+    const winRate = total > 0 ? Math.round((winners / total) * 100) : 0;
+    const winRateEl = document.getElementById("winRate");
+    if (winRateEl) winRateEl.textContent = winRate + "%";
+
+    // Update visualizations
+    if (data.labels && data.pnl_data) {
+      initPnLChart(data.labels, data.pnl_data);
+    }
+
+    renderSymbolsTable(data.summary);
+    renderSentiment(data.sentiment);
+    renderRecentTrades(data.trades);
+  } catch (err) {
+    console.error("Failed to refresh summary:", err);
+  }
+}
+// API: Refresh all dashboard data
+async function refreshSummary() {
+  try {
+    const resp = await fetch("/partial");
+    if (!resp.ok) throw new Error("Network error");
+    const data = await resp.json();
+
+    // Update metric counters
+    const updates = {
+      totalTrades: data.summary?.total_trades || 0,
+      buyCount: data.summary?.buy_count || 0,
+      sellCount: data.summary?.sell_count || 0,
+      holdCount: data.summary?.hold_count || 0,
+    };
+
+    Object.entries(updates).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    });
+
+    // Update visualizations
+    if (data.labels && data.pnl_data) {
+      initPnLChart(data.labels, data.pnl_data);
+    }
+
+    renderSymbolsTable(data.summary);
+    renderSentiment(data.sentiment);
+    renderRecentTrades(data.trades);
+  } catch (err) {
+    console.error("Failed to refresh summary:", err);
+  }
+}
+
+// Event: Manual refresh button
+function setupRefreshButton() {
+  const refreshBtn = document.getElementById("refreshBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", () => {
+      refreshStatus();
+  refreshBalance();
+  refreshBalance();
+      refreshSummary();
+    });
+  }
+}
+
+// Event: Run now button
+function setupRunNowButton() {
+  const runNowBtn = document.getElementById("runNowBtn");
+  if (runNowBtn) {
+    runNowBtn.addEventListener("click", runNow);
+  }
+}
+
+// Initialize dashboard
+function initDashboard() {
+  console.log("🚀 Initializing dashboard...");
+
+  // Setup event listeners
+  setupRunNowButton();
+  setupRefreshButton();
+
+  // Initial data load
+  refreshStatus();
+  refreshBalance();
+  refreshBalance();
+  refreshSummary();
+
+  // Auto-refresh intervals
+  setInterval(refreshBalance, 5000);   // Refresh balance every 5 seconds
+  setInterval(refreshBalance, 5000);   // Refresh balance every 5 seconds
+  setInterval(refreshSummary, 5000); // Refresh data every 5 seconds
+  setInterval(refreshStatus, 5000); // Refresh status every 5 seconds
+  setInterval(updateCountdown, 1000); // Update countdown every second
+
+  console.log("✅ Dashboard initialized");
+}
+
+// Start when DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initDashboard);
+} else {
+  initDashboard();
+}

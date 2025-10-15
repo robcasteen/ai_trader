@@ -1,0 +1,203 @@
+[
+  {
+    "id": 1,
+    "name": "CoinDesk",
+    "url": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:08.693163+00:00",
+    "headlines_count": 25,
+    "relevant_count": 5,
+    "created_at": "2025-10-14T21:29:24.113843+00:00",
+    "description": "Leading crypto news and analysis"
+  },
+  {
+    "id": 2,
+    "name": "CoinTelegraph",
+    "url": "https://cointelegraph.com/rss",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:09.093665+00:00",
+    "headlines_count": 30,
+    "relevant_count": 10,
+    "created_at": "2025-10-14T21:29:24.113869+00:00",
+    "description": "Global blockchain and crypto news"
+  },
+  {
+    "id": 3,
+    "name": "CryptoPotato",
+    "url": "https://cryptopotato.com/feed/",
+    "status": "error",
+    "last_fetch": "2025-10-14T21:32:58.788099+00:00",
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-14T21:29:24.113876+00:00",
+    "description": "Crypto news and price analysis",
+    "error": "<unknown>:2:751: not well-formed (invalid token)"
+  },
+  {
+    "id": 4,
+    "name": "Decrypt",
+    "url": "https://decrypt.co/feed",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:09.463297+00:00",
+    "headlines_count": 57,
+    "relevant_count": 22,
+    "created_at": "2025-10-14T21:29:24.113881+00:00",
+    "description": "Bitcoin, Ethereum, and Web3 news"
+  },
+  {
+    "id": 5,
+    "name": "The Block",
+    "url": "https://www.theblock.co/rss.xml",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:09.770120+00:00",
+    "headlines_count": 19,
+    "relevant_count": 5,
+    "created_at": "2025-10-14T21:29:24.113887+00:00",
+    "description": "Institutional crypto news"
+  },
+  {
+    "id": 6,
+    "name": "Bitcoin Magazine",
+    "url": "https://bitcoinmagazine.com/.rss/full/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:14.608340+00:00",
+    "headlines_count": 10,
+    "relevant_count": 3,
+    "created_at": "2025-10-14T21:29:24.113893+00:00",
+    "description": "Original Bitcoin-focused publication"
+  },
+  {
+    "id": 7,
+    "name": "CoinJournal",
+    "url": "https://coinjournal.net/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:15.074178+00:00",
+    "headlines_count": 9,
+    "relevant_count": 5,
+    "created_at": "2025-10-14T21:29:24.113898+00:00",
+    "description": "Crypto news and educational content"
+  },
+  {
+    "id": 8,
+    "name": "BeInCrypto",
+    "url": "https://beincrypto.com/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:15.440180+00:00",
+    "headlines_count": 12,
+    "relevant_count": 2,
+    "created_at": "2025-10-14T21:29:24.113903+00:00",
+    "description": "Market analysis and breaking news"
+  },
+  {
+    "id": 9,
+    "name": "Bitcoin.com News",
+    "url": "https://news.bitcoin.com/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:15.756430+00:00",
+    "headlines_count": 10,
+    "relevant_count": 4,
+    "created_at": "2025-10-14T21:29:24.113908+00:00",
+    "description": "Bitcoin and crypto ecosystem news"
+  },
+  {
+    "id": 10,
+    "name": "CryptoSlate",
+    "url": "https://cryptoslate.com/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:17.193299+00:00",
+    "headlines_count": 10,
+    "relevant_count": 4,
+    "created_at": "2025-10-14T21:29:24.113914+00:00",
+    "description": "Blockchain and crypto news"
+  },
+  {
+    "id": 11,
+    "name": "NewsBTC",
+    "url": "https://www.newsbtc.com/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:17.435549+00:00",
+    "headlines_count": 10,
+    "relevant_count": 7,
+    "created_at": "2025-10-14T21:29:24.113919+00:00",
+    "description": "Bitcoin and altcoin news"
+  },
+  {
+    "id": 12,
+    "name": "U.Today",
+    "url": "https://u.today/rss",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:17.831301+00:00",
+    "headlines_count": 97,
+    "relevant_count": 67,
+    "created_at": "2025-10-14T21:29:24.113929+00:00",
+    "description": "Crypto news and market updates"
+  },
+  {
+    "id": 13,
+    "name": "Bitcoinist",
+    "url": "https://bitcoinist.com/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:18.042578+00:00",
+    "headlines_count": 8,
+    "relevant_count": 5,
+    "created_at": "2025-10-14T21:29:24.113935+00:00",
+    "description": "Bitcoin news and analysis"
+  },
+  {
+    "id": 14,
+    "name": "CryptoNews",
+    "url": "https://cryptonews.com/news/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:19.485683+00:00",
+    "headlines_count": 20,
+    "relevant_count": 10,
+    "created_at": "2025-10-14T21:29:24.113940+00:00",
+    "description": "Latest cryptocurrency news"
+  },
+  {
+    "id": 15,
+    "name": "AMBCrypto",
+    "url": "https://ambcrypto.com/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:19.795902+00:00",
+    "headlines_count": 16,
+    "relevant_count": 8,
+    "created_at": "2025-10-14T21:29:24.113945+00:00",
+    "description": "Crypto market analysis"
+  },
+  {
+    "id": 16,
+    "name": "Crypto Briefing",
+    "url": "https://cryptobriefing.com/feed/",
+    "status": "active",
+    "last_fetch": "2025-10-15T01:10:20.155320+00:00",
+    "headlines_count": 30,
+    "relevant_count": 13,
+    "created_at": "2025-10-14T21:29:24.113950+00:00",
+    "description": "Research-driven crypto news"
+  },
+  {
+    "id": 17,
+    "name": "CoinGape",
+    "url": "https://coingape.com/feed/",
+    "status": "error",
+    "last_fetch": "2025-10-14T21:33:07.356333+00:00",
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-14T21:29:24.113959+00:00",
+    "description": "Cryptocurrency and blockchain news",
+    "error": "<unknown>:7:2: mismatched tag"
+  },
+  {
+    "id": 18,
+    "name": "CCN",
+    "url": "https://www.ccn.com/feed/",
+    "status": "error",
+    "last_fetch": "2025-10-14T21:33:07.581793+00:00",
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-14T21:29:24.113964+00:00",
+    "description": "Bitcoin and financial news",
+    "error": "<unknown>:69:50: undefined entity"
+  }
+]

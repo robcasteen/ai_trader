@@ -9,23 +9,6 @@ const State = {
   isRunning: false,
 };
 
-// Format price for terminal display
-function formatPrice(price) {
-  return (
-    "$" +
-    parseFloat(price).toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })
-  );
-}
-
-// Format time as HH:MM for terminal display
-function formatTimeShort(timestamp) {
-  const date = new Date(timestamp);
-  return date.toTimeString().split(" ")[0].substring(0, 5);
-}
-
 // Utility: Format time with relative display
 function formatTime(dateStr) {
   if (!dateStr) return "N/A";
@@ -147,7 +130,6 @@ async function runNow() {
     if (data.next_run) State.next = data.next_run;
 
     await refreshSummary();
-    refreshData();
   } catch (err) {
     console.error("[RunNow] Error:", err);
   } finally {
@@ -511,7 +493,6 @@ function setupRefreshButton() {
       refreshStatus();
       refreshBalance();
       refreshSummary();
-      refreshData();
     });
   }
 }
@@ -535,7 +516,6 @@ function initDashboard() {
   // Initial data load
   refreshStatus();
   refreshSummary();
-  refreshData();
 
   // Auto-refresh intervals
   setInterval(refreshSummary, 5000); // Refresh data every 5 seconds
@@ -575,13 +555,12 @@ async function loadFeedsDetailed() {
 
     const tbody = document.getElementById("feed-list-detailed");
     if (!tbody) {
-      console.warn("feed-list-detailed element not found");
+      console.warn('feed-list-detailed element not found');
       return;
     }
 
     if (feeds.length === 0) {
-      tbody.innerHTML =
-        '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ffaa00;">No feeds configured. Click + ADD FEED to get started.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ffaa00;">No feeds configured. Click + ADD FEED to get started.</td></tr>';
       return;
     }
 
@@ -606,12 +585,8 @@ async function loadFeedsDetailed() {
             feed.url || "--"
           }</td>
           <td style="text-align: center;">
-            <button class="btn" onclick="testFeed('${
-              feed.url
-            }')" style="width: auto; padding: 1px 8px; font-size: 8px; margin-right: 4px;">TEST</button>
-            <button class="btn" onclick="deleteFeed('${
-              feed.url
-            }')" style="width: auto; padding: 1px 8px; font-size: 8px; border-color: #ff0000; color: #ff0000;">DEL</button>
+            <button class="btn" onclick="testFeed('${feed.url}')" style="width: auto; padding: 1px 8px; font-size: 8px; margin-right: 4px;">TEST</button>
+            <button class="btn" onclick="deleteFeed('${feed.url}')" style="width: auto; padding: 1px 8px; font-size: 8px; border-color: #ff0000; color: #ff0000;">DEL</button>
           </td>
         </tr>
       `;
@@ -619,15 +594,12 @@ async function loadFeedsDetailed() {
       .join("");
 
     tbody.innerHTML = feedsHtml;
-    console.log("✅ Feeds loaded successfully:", feeds.length);
+    console.log('✅ Feeds loaded successfully:', feeds.length);
   } catch (error) {
     console.error("Error loading feeds:", error);
     const tbody = document.getElementById("feed-list-detailed");
     if (tbody) {
-      tbody.innerHTML =
-        '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff0000;">Error loading feeds: ' +
-        error.message +
-        "</td></tr>";
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff0000;">Error loading feeds: ' + error.message + '</td></tr>';
     }
   }
 }
@@ -767,171 +739,132 @@ console.log("✅ Feed management functions loaded");
 
 // Load strategy signals (for terminal dashboard)
 async function loadStrategies() {
-  try {
-    const response = await fetch("/api/strategy/current");
-    const data = await response.json();
-
-    const signals = data.signals || [];
-
-    const signalCountEl = document.getElementById("signal-count");
-    if (signalCountEl) signalCountEl.textContent = signals.length;
-
-    const strategySignalCountEl = document.getElementById(
-      "strategy-signal-count"
-    );
-    if (strategySignalCountEl)
-      strategySignalCountEl.textContent = signals.length;
-
-    // Recent signals (overview tab)
-    const recentSignalsEl = document.getElementById("recent-signals");
-    if (recentSignalsEl) {
-      const recentHtml = signals
-        .slice(0, 5)
-        .map(
-          (sig) => `
+    try {
+        const response = await fetch('/api/strategy/current');
+        const data = await response.json();
+        
+        const signals = data.signals || [];
+        
+        const signalCountEl = document.getElementById('signal-count');
+        if (signalCountEl) signalCountEl.textContent = signals.length;
+        
+        const strategySignalCountEl = document.getElementById('strategy-signal-count');
+        if (strategySignalCountEl) strategySignalCountEl.textContent = signals.length;
+        
+        // Recent signals (overview tab)
+        const recentSignalsEl = document.getElementById('recent-signals');
+        if (recentSignalsEl) {
+            const recentHtml = signals.slice(0, 5).map(sig => `
                 <tr>
-                    <td class="timestamp">${formatTimeShort(sig.timestamp)}</td>
+                    <td class="timestamp">${formatTime(sig.timestamp)}</td>
                     <td>${sig.symbol}</td>
                     <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal.toUpperCase()}</span></td>
                     <td class="price">$${sig.price.toLocaleString()}</td>
                 </tr>
-            `
-        )
-        .join("");
-      recentSignalsEl.innerHTML =
-        recentHtml || '<tr><td colspan="4">No signals yet</td></tr>';
-    }
-
-    // All signals (strategies tab)
-    const strategySignalsEl = document.getElementById("strategy-signals");
-    if (strategySignalsEl) {
-      const allSignalsHtml = signals
-        .map(
-          (sig) => `
+            `).join('');
+            recentSignalsEl.innerHTML = recentHtml || '<tr><td colspan="4">No signals yet</td></tr>';
+        }
+        
+        // All signals (strategies tab)
+        const strategySignalsEl = document.getElementById('strategy-signals');
+        if (strategySignalsEl) {
+            const allSignalsHtml = signals.map(sig => `
                 <tr>
-                    <td class="timestamp">${formatTimeShort(sig.timestamp)}</td>
+                    <td class="timestamp">${formatTime(sig.timestamp)}</td>
                     <td>${sig.symbol}</td>
                     <td>${Object.keys(sig.strategies || {})[0] || "N/A"}</td>
                     <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal.toUpperCase()}</span></td>
                     <td>${Math.round((sig.confidence || 0) * 100)}%</td>
                     <td class="price">$${sig.price.toLocaleString()}</td>
-                    <td style="font-size: 9px;">${
-                      Object.values(sig.strategies || {})[0]?.reason || ""
-                    }</td>
+                    <td style="font-size: 9px;">${Object.values(sig.strategies || {})[0]?.reason || ''}</td>
                 </tr>
-            `
-        )
-        .join("");
-      strategySignalsEl.innerHTML =
-        allSignalsHtml || '<tr><td colspan="7">No signals yet</td></tr>';
+            `).join('');
+            strategySignalsEl.innerHTML = allSignalsHtml || '<tr><td colspan="7">No signals yet</td></tr>';
+        }
+    } catch (error) {
+        console.error('Error loading strategies:', error);
     }
-  } catch (error) {
-    console.error("Error loading strategies:", error);
-  }
 }
 
 // Load health status (for terminal dashboard)
 async function loadHealth() {
-  try {
-    const response = await fetch("/api/health");
-    const data = await response.json();
-
-    const services = [
-      { name: "OpenAI API", status: data.openai },
-      { name: "Kraken API", status: data.kraken || data.exchange },
-      { name: "RSS Feeds", status: data.rss || data.rssFeeds },
-      { name: "Database", status: data.database },
-    ];
-
-    const healthGridEl = document.getElementById("health-grid");
-    if (healthGridEl) {
-      const healthHtml = services
-        .map(
-          (svc) => `
+    try {
+        const response = await fetch('/api/health');
+        const data = await response.json();
+        
+        const services = [
+            { name: 'OpenAI API', status: data.openai },
+            { name: 'Kraken API', status: data.kraken || data.exchange },
+            { name: 'RSS Feeds', status: data.rss || data.rssFeeds },
+            { name: 'Database', status: data.database }
+        ];
+        
+        const healthGridEl = document.getElementById('health-grid');
+        if (healthGridEl) {
+            const healthHtml = services.map(svc => `
                 <div class="health-item">
                     <div class="health-label">${svc.name}</div>
-                    <div class="health-value ${
-                      svc.status?.status === "operational"
-                        ? "positive"
-                        : "negative"
-                    }">●</div>
-                    <div class="health-status">${
-                      svc.status?.status || "--"
-                    }</div>
+                    <div class="health-value ${svc.status?.status === 'operational' ? 'positive' : 'negative'}">●</div>
+                    <div class="health-status">${svc.status?.status || '--'}</div>
                 </div>
-            `
-        )
-        .join("");
-      healthGridEl.innerHTML = healthHtml;
+            `).join('');
+            healthGridEl.innerHTML = healthHtml;
+        }
+        
+        // Update header status
+        const allOk = services.every(s => s.status?.status === 'operational');
+        const statusDotEl = document.getElementById('status-dot');
+        const statusTextEl = document.getElementById('status-text');
+        
+        if (statusDotEl) statusDotEl.className = 'status-dot ' + (allOk ? '' : 'red');
+        if (statusTextEl) statusTextEl.textContent = allOk ? 'LIVE' : 'ERROR';
+    } catch (error) {
+        console.error('Error loading health:', error);
     }
-
-    // Update header status
-    const allOk = services.every((s) => s.status?.status === "operational");
-    const statusDotEl = document.getElementById("status-dot");
-    const statusTextEl = document.getElementById("status-text");
-
-    if (statusDotEl)
-      statusDotEl.className = "status-dot " + (allOk ? "" : "red");
-    if (statusTextEl) statusTextEl.textContent = allOk ? "LIVE" : "ERROR";
-  } catch (error) {
-    console.error("Error loading health:", error);
-  }
 }
 
 // Load portfolio data (for terminal dashboard)
 async function loadPortfolio() {
-  try {
-    const response = await fetch("/partial");
-    const data = await response.json();
-
-    const summary = data.summary || {};
-
-    const totalTradesEl = document.getElementById("total-trades");
-    if (totalTradesEl) totalTradesEl.textContent = summary.total_trades || 0;
-
-    const symbols = summary.symbols || {};
-    const winners = Object.values(symbols).filter(
-      (s) => (s.pnl || 0) > 0
-    ).length;
-    const total = Object.keys(symbols).length;
-    const winRate = total > 0 ? Math.round((winners / total) * 100) : 0;
-
-    const winRateEl = document.getElementById("win-rate");
-    if (winRateEl) winRateEl.textContent = winRate + "%";
-
-    const trades = data.trades || [];
-    const tradeCountEl = document.getElementById("trade-count");
-    if (tradeCountEl) tradeCountEl.textContent = trades.length;
-
-    const recentTradesEl = document.getElementById("recent-trades");
-    if (recentTradesEl) {
-      const tradesHtml = trades
-        .slice(0, 5)
-        .map(
-          (trade) => `
+    try {
+        const response = await fetch('/partial');
+        const data = await response.json();
+        
+        const summary = data.summary || {};
+        
+        const totalTradesEl = document.getElementById('total-trades');
+        if (totalTradesEl) totalTradesEl.textContent = summary.total_trades || 0;
+        
+        const symbols = summary.symbols || {};
+        const winners = Object.values(symbols).filter(s => (s.pnl || 0) > 0).length;
+        const total = Object.keys(symbols).length;
+        const winRate = total > 0 ? Math.round((winners / total) * 100) : 0;
+        
+        const winRateEl = document.getElementById('win-rate');
+        if (winRateEl) winRateEl.textContent = winRate + '%';
+        
+        const trades = data.trades || [];
+        const tradeCountEl = document.getElementById('trade-count');
+        if (tradeCountEl) tradeCountEl.textContent = trades.length;
+        
+        const recentTradesEl = document.getElementById('recent-trades');
+        if (recentTradesEl) {
+            const tradesHtml = trades.slice(0, 5).map(trade => `
                 <tr>
-                    <td class="timestamp">${formatTimeShort(
-                      trade.timestamp
-                    )}</td>
+                    <td class="timestamp">${formatTime(trade.timestamp)}</td>
                     <td>${trade.symbol}</td>
                     <td><span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action.toUpperCase()}</span></td>
                     <td class="price">$${trade.price.toLocaleString()}</td>
                 </tr>
-            `
-        )
-        .join("");
-      recentTradesEl.innerHTML =
-        tradesHtml || '<tr><td colspan="4">No trades yet</td></tr>';
-    }
-
-    const allTradeCountEl = document.getElementById("all-trade-count");
-    if (allTradeCountEl) allTradeCountEl.textContent = trades.length;
-
-    const allTradesEl = document.getElementById("all-trades");
-    if (allTradesEl) {
-      const allTradesHtml = trades
-        .map(
-          (trade) => `
+            `).join('');
+            recentTradesEl.innerHTML = tradesHtml || '<tr><td colspan="4">No trades yet</td></tr>';
+        }
+        
+        const allTradeCountEl = document.getElementById('all-trade-count');
+        if (allTradeCountEl) allTradeCountEl.textContent = trades.length;
+        
+        const allTradesEl = document.getElementById('all-trades');
+        if (allTradesEl) {
+            const allTradesHtml = trades.map(trade => `
                 <tr>
                     <td class="timestamp">${trade.timestamp}</td>
                     <td>${trade.symbol}</td>
@@ -939,51 +872,46 @@ async function loadPortfolio() {
                     <td class="price">$${trade.price.toLocaleString()}</td>
                     <td>${trade.amount || 0.01}</td>
                     <td class="price">$${(trade.value || 0).toFixed(2)}</td>
-                    <td style="font-size: 9px;">${trade.reason || ""}</td>
+                    <td style="font-size: 9px;">${trade.reason || ''}</td>
                 </tr>
-            `
-        )
-        .join("");
-      allTradesEl.innerHTML =
-        allTradesHtml || '<tr><td colspan="7">No trades yet</td></tr>';
+            `).join('');
+            allTradesEl.innerHTML = allTradesHtml || '<tr><td colspan="7">No trades yet</td></tr>';
+        }
+    } catch (error) {
+        console.error('Error loading portfolio:', error);
     }
-  } catch (error) {
-    console.error("Error loading portfolio:", error);
-  }
 }
 
 // Also add loadStatus for the status section
 async function loadStatus() {
-  try {
-    const response = await fetch("/status");
-    const data = await response.json();
-
-    const status = data.last_status || {};
-
-    const lastRunEl = document.getElementById("last-run");
-    if (lastRunEl) {
-      lastRunEl.textContent = status.time
-        ? new Date(status.time).toTimeString().split(" ")[0]
-        : "--";
+    try {
+        const response = await fetch('/status');
+        const data = await response.json();
+        
+        const status = data.last_status || {};
+        
+        const lastRunEl = document.getElementById('last-run');
+        if (lastRunEl) {
+            lastRunEl.textContent = status.time ? new Date(status.time).toTimeString().split(' ')[0] : '--';
+        }
+        
+        const nextRunEl = document.getElementById('next-run');
+        if (nextRunEl) nextRunEl.textContent = status.next_run || '--';
+        
+        const statusMsgEl = document.getElementById('status-msg');
+        if (statusMsgEl) statusMsgEl.textContent = status.message || '--';
+    } catch (error) {
+        console.error('Error loading status:', error);
     }
-
-    const nextRunEl = document.getElementById("next-run");
-    if (nextRunEl) nextRunEl.textContent = status.next_run || "--";
-
-    const statusMsgEl = document.getElementById("status-msg");
-    if (statusMsgEl) statusMsgEl.textContent = status.message || "--";
-  } catch (error) {
-    console.error("Error loading status:", error);
-  }
 }
 
 // Update refreshData to call all the functions
 function refreshData() {
-  refreshBalance();
-  loadPortfolio();
-  loadStrategies();
-  loadStatus();
-  loadHealth();
+    refreshBalance();
+    loadPortfolio();
+    loadStrategies();
+    loadStatus();
+    loadHealth();
 }
 
-console.log("✅ Terminal dashboard functions loaded");
+console.log('✅ Terminal dashboard functions loaded');

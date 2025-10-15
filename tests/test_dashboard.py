@@ -51,11 +51,10 @@ class TestDashboardRoute:
         assert response.status_code == 200
         assert "text/html" in response.headers["content-type"]
 
-    def test_dashboard_contains_chart_script(self, client, temp_logs_dir):
-        """Test that dashboard includes Chart.js."""
+    def test_dashboard_loads_terminal_ui(self, client, temp_logs_dir):
+        """Test that dashboard includes terminal UI elements."""
         response = client.get("/")
-        
-        assert b"Chart" in response.content or b"chart.js" in response.content
+        assert b"AI TRADING TERMINAL" in response.content or b"terminal-header" in response.content
 
 
 class TestPartialRoute:
