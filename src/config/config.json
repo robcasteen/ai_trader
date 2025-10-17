@@ -1,5 +1,29 @@
 {
   "strategy": "gpt-sentiment",
   "interval_minutes": 10,
-  "trading_fee_percent": 0.26
+  "trading_fee_percent": 0.26,
+  "strategies": {
+    "sentiment": {
+      "enabled": true,
+      "weight": 1.5
+    },
+    "technical": {
+      "enabled": true,
+      "weight": 1.0
+    },
+    "volume": {
+      "enabled": false,
+      "weight": 0.8
+    }
+  },
+  "aggregation": {
+    "method": "weighted_vote",
+    "min_confidence": 0.777
+  },
+  "risk_management": {
+    "position_size_percent": 5.0,
+    "max_daily_loss_percent": 10.0,
+    "max_open_positions": 5
+  },
+  "trading_mode": "live"
 }

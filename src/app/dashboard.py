@@ -7,7 +7,7 @@ from typing import Dict, Any, List, Tuple
 import json
 import logging
 from app.strategy_signal_logger import StrategySignalLogger
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import time
 
 router = APIRouter()
@@ -22,6 +22,7 @@ signal_logger = StrategySignalLogger(data_dir=str(LOGS_DIR))
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 RSS_FEEDS_FILE = LOGS_DIR / "rss_feeds.json"
 
+
 # ---------- Utilities ----------
 def _safe_load_json(p: Path, default):
     try:
@@ -32,12 +33,14 @@ def _safe_load_json(p: Path, default):
         logging.error(f"[Dashboard] Failed to load {p.name}: {e}")
     return default
 
+
 def _load_trades() -> List[Dict[str, Any]]:
     trades_file = LOGS_DIR / "trades.json"
     trades = _safe_load_json(trades_file, [])
     if isinstance(trades, list):
         trades.sort(key=lambda t: t.get("timestamp", ""))
     return trades
+
 
 def _load_status() -> Dict[str, Any]:
     status_file = LOGS_DIR / "bot_status.json"
@@ -48,11 +51,13 @@ def _load_status() -> Dict[str, Any]:
         data["next_run"] = None
     return data
 
+
 def _load_rss_feeds() -> List[Dict[str, Any]]:
     feeds = _safe_load_json(RSS_FEEDS_FILE, [])
     if not isinstance(feeds, list):
         return []
     return feeds
+
 
 def _save_rss_feeds(feeds: List[Dict[str, Any]]) -> bool:
     try:
@@ -62,6 +67,7 @@ def _save_rss_feeds(feeds: List[Dict[str, Any]]) -> bool:
     except Exception as e:
         logging.error(f"[Feeds] Failed to save feeds: {e}")
         return False
+
 
 # ---------- PnL ----------
 def load_pnl_data() -> Tuple[List[str], List[float]]:
@@ -91,7 +97,9 @@ def load_pnl_data() -> Tuple[List[str], List[float]]:
             elif pos["side"] == "long":
                 total_cost = pos["price"] * pos["amount"] + price * amount
                 total_amount = pos["amount"] + amount
-                pos["price"] = total_cost / total_amount if total_amount else pos["price"]
+                pos["price"] = (
+                    total_cost / total_amount if total_amount else pos["price"]
+                )
                 pos["amount"] = total_amount
             elif pos["side"] == "short":
                 cover_amount = min(amount, pos["amount"])
@@ -107,7 +115,9 @@ def load_pnl_data() -> Tuple[List[str], List[float]]:
             elif pos["side"] == "short":
                 total_cost = pos["price"] * pos["amount"] + price * amount
                 total_amount = pos["amount"] + amount
-                pos["price"] = total_cost / total_amount if total_amount else pos["price"]
+                pos["price"] = (
+                    total_cost / total_amount if total_amount else pos["price"]
+                )
                 pos["amount"] = total_amount
             elif pos["side"] == "long":
                 sell_amount = min(amount, pos["amount"])
@@ -132,6 +142,7 @@ def load_pnl_data() -> Tuple[List[str], List[float]]:
     logging.info(f"[PnL] Labels: {labels}")
     logging.info(f"[PnL] Data: {pnl_data}")
     return labels, pnl_data
+
 
 # ---------- Summary & Sentiment ----------
 def build_summary(trades: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -184,6 +195,7 @@ def build_summary(trades: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     return summary
 
+
 def load_sentiment() -> Dict[str, Dict[str, Any]]:
     sentiment_file = LOGS_DIR / "sentiment.json"
     data = _safe_load_json(sentiment_file, {})
@@ -200,6 +212,7 @@ def load_sentiment() -> Dict[str, Dict[str, Any]]:
         }
     return out
 
+
 # ---------- Routes ----------
 @router.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
@@ -208,6 +221,7 @@ async def dashboard(request: Request):
         "dashboard.html",
         {"request": request, "labels": labels, "pnl_data": pnl_data},
     )
+
 
 @router.get("/partial")
 async def partial():
@@ -236,6 +250,7 @@ async def partial():
         "trades": real_trades,
     }
 
+
 @router.get("/status")
 async def status():
     status_data = _load_status()
@@ -249,6 +264,7 @@ async def status():
         }
     )
 
+
 @router.get("/api/balance")
 async def get_balance():
     balance_data = {
@@ -256,53 +272,53 @@ async def get_balance():
             "initial": 100000.0,
             "current": 100000.0,
             "pnl": 0.0,
-            "active": True
+            "active": True,
         },
-        "kraken_live": {
-            "total_usd": 0.0,
-            "balances": {},
-            "connected": False
-        },
+        "kraken_live": {"total_usd": 0.0, "balances": {}, "connected": False},
         "mode": "paper",
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
-    
+
     try:
         labels, pnl_data = load_pnl_data()
         total_pnl = sum(pnl_data) if pnl_data else 0.0
-        
+
         balance_data["paper_trading"]["pnl"] = round(total_pnl, 2)
         balance_data["paper_trading"]["current"] = round(100000.0 + total_pnl, 2)
-        
-        logging.info(f"[Balance] Paper trading: ${balance_data['paper_trading']['current']:.2f} (P&L: ${total_pnl:+.2f})")
+
+        logging.info(
+            f"[Balance] Paper trading: ${balance_data['paper_trading']['current']:.2f} (P&L: ${total_pnl:+.2f})"
+        )
     except Exception as e:
         logging.error(f"[Balance] Error calculating paper P&L: {e}")
-    
+
     try:
         from app.client.kraken import KrakenClient
-        
+
         client = KrakenClient()
         kraken_balances = await client.get_balance()
-        
+
         if kraken_balances:
             balance_data["kraken_live"]["connected"] = True
             balance_data["kraken_live"]["balances"] = kraken_balances
-            
+
             total_usd = 0.0
             for currency in ["ZUSD", "USD", "USDT", "USDC"]:
                 if currency in kraken_balances:
                     amount = float(kraken_balances[currency])
                     total_usd += amount
-            
+
             balance_data["kraken_live"]["total_usd"] = round(total_usd, 2)
-            logging.info(f"[Balance] Real Kraken balance: ${total_usd:.2f} (available for live trading)")
+            logging.info(
+                f"[Balance] Real Kraken balance: ${total_usd:.2f} (available for live trading)"
+            )
         else:
             logging.warning("[Balance] Kraken returned no balances")
-            
+
     except Exception as e:
         logging.warning(f"[Balance] Could not fetch Kraken balance: {e}")
         balance_data["kraken_live"]["error"] = str(e)
-    
+
     return {
         "total": balance_data["paper_trading"]["current"],
         "available": balance_data["paper_trading"]["current"],
@@ -312,59 +328,66 @@ async def get_balance():
         "paper_initial": balance_data["paper_trading"]["initial"],
         "kraken_balance": balance_data["kraken_live"]["total_usd"],
         "kraken_connected": balance_data["kraken_live"]["connected"],
-        "details": balance_data
+        "details": balance_data,
     }
+
 
 @router.get("/api/holdings")
 async def get_holdings():
     """Get current holdings/positions calculated from trade history."""
     trades_file = LOGS_DIR / "trades.json"
     TRADING_FEE = 0.0026  # 0.26% trading fee
-    
+
     try:
         holdings = {}
-        
+
         if trades_file.exists():
             with open(trades_file, "r") as f:
                 trades = json.load(f)
-            
+
             for trade in trades:
                 symbol = trade.get("symbol", "")
                 action = trade.get("action", "").lower()
                 amount = trade.get("amount", 0)
                 price = trade.get("price", 0)
-                
+
                 if action == "hold":
                     continue
-                
+
                 if action == "buy":
                     if symbol not in holdings:
-                        holdings[symbol] = {"amount": 0.0, "total_cost": 0.0, "trades": []}
-                    
+                        holdings[symbol] = {
+                            "amount": 0.0,
+                            "total_cost": 0.0,
+                            "trades": [],
+                        }
+
                     # Add trading fee to cost basis
                     cost_with_fee = (amount * price) * (1 + TRADING_FEE)
                     holdings[symbol]["amount"] += amount
                     holdings[symbol]["total_cost"] += cost_with_fee
                     holdings[symbol]["trades"].append(trade)
-                    
+
                 elif action == "sell":
                     if symbol in holdings and holdings[symbol]["amount"] > 0:
                         # Reduce position proportionally
                         proportion_sold = amount / holdings[symbol]["amount"]
-                        cost_reduction = holdings[symbol]["total_cost"] * proportion_sold
-                        
+                        cost_reduction = (
+                            holdings[symbol]["total_cost"] * proportion_sold
+                        )
+
                         holdings[symbol]["amount"] -= amount
                         holdings[symbol]["total_cost"] -= cost_reduction
                         holdings[symbol]["trades"].append(trade)
-                        
+
                         if holdings[symbol]["amount"] <= 0.0001:
                             del holdings[symbol]
-        
+
         # Get current prices
         from app.client.kraken import KrakenClient
-        
+
         kraken_client = KrakenClient()
-        
+
         formatted_holdings = {}
         for symbol, data in holdings.items():
             current_price = kraken_client.get_price(symbol)
@@ -373,7 +396,7 @@ async def get_holdings():
             market_value = amount * current_price
             cost_basis = data["total_cost"]
             unrealized_pnl = market_value - cost_basis
-            
+
             formatted_holdings[symbol] = {
                 "amount": round(amount, 8),
                 "avg_price": round(avg_price, 2),
@@ -381,14 +404,16 @@ async def get_holdings():
                 "market_value": round(market_value, 2),
                 "cost_basis": round(cost_basis, 2),
                 "unrealized_pnl": round(unrealized_pnl, 2),
-                "unrealized_pnl_percent": round((unrealized_pnl / cost_basis * 100) if cost_basis > 0 else 0, 2),
-                "num_trades": len(data["trades"])
+                "unrealized_pnl_percent": round(
+                    (unrealized_pnl / cost_basis * 100) if cost_basis > 0 else 0, 2
+                ),
+                "num_trades": len(data["trades"]),
             }
-        
+
         total_value = sum(h["market_value"] for h in formatted_holdings.values())
         total_cost = sum(h["cost_basis"] for h in formatted_holdings.values())
         total_pnl = total_value - total_cost
-        
+
         return {
             "holdings": formatted_holdings,
             "summary": {
@@ -396,10 +421,12 @@ async def get_holdings():
                 "total_market_value": round(total_value, 2),
                 "total_cost_basis": round(total_cost, 2),
                 "total_unrealized_pnl": round(total_pnl, 2),
-                "total_unrealized_pnl_percent": round((total_pnl / total_cost * 100) if total_cost > 0 else 0, 2)
-            }
+                "total_unrealized_pnl_percent": round(
+                    (total_pnl / total_cost * 100) if total_cost > 0 else 0, 2
+                ),
+            },
         }
-        
+
     except Exception as e:
         logging.error(f"[Holdings] Error calculating from trades: {e}")
         return {
@@ -409,9 +436,10 @@ async def get_holdings():
                 "total_market_value": 0.0,
                 "total_cost_basis": 0.0,
                 "total_unrealized_pnl": 0.0,
-                "total_unrealized_pnl_percent": 0.0
-            }
+                "total_unrealized_pnl_percent": 0.0,
+            },
         }
+
 
 # Strategy API endpoints
 @router.get("/api/strategy/current")
@@ -425,10 +453,13 @@ async def get_current_signals():
                 symbol_signals[symbol] = signal
 
         signals_list = list(symbol_signals.values())
-        return JSONResponse({"signals": signals_list, "count": len(signals_list), "status": "success"})
+        return JSONResponse(
+            {"signals": signals_list, "count": len(signals_list), "status": "success"}
+        )
     except Exception as e:
         logging.error(f"[API] Error in get_current_signals: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 @router.get("/api/strategy/history")
 async def get_signal_history(request: Request):
@@ -439,13 +470,23 @@ async def get_signal_history(request: Request):
         try:
             limit = min(int(limit_str), 1000)
         except ValueError:
-            return JSONResponse({"error": "Invalid limit parameter", "status": "error"}, status_code=400)
+            return JSONResponse(
+                {"error": "Invalid limit parameter", "status": "error"}, status_code=400
+            )
 
         signals = signal_logger.get_recent_signals(limit=limit, symbol=symbol)
-        return JSONResponse({"signals": signals, "count": len(signals), "filtered_by": symbol, "status": "success"})
+        return JSONResponse(
+            {
+                "signals": signals,
+                "count": len(signals),
+                "filtered_by": symbol,
+                "status": "success",
+            }
+        )
     except Exception as e:
         logging.error(f"[API] Error in get_signal_history: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 @router.get("/api/strategy/performance")
 async def get_strategy_performance(request: Request):
@@ -455,13 +496,23 @@ async def get_strategy_performance(request: Request):
         try:
             lookback_days = min(int(lookback_str), 90)
         except ValueError:
-            return JSONResponse({"error": "Invalid lookback_days parameter", "status": "error"}, status_code=400)
+            return JSONResponse(
+                {"error": "Invalid lookback_days parameter", "status": "error"},
+                status_code=400,
+            )
 
         performance = signal_logger.get_all_strategies_performance(lookback_days)
-        return JSONResponse({"strategies": performance, "lookback_days": lookback_days, "status": "success"})
+        return JSONResponse(
+            {
+                "strategies": performance,
+                "lookback_days": lookback_days,
+                "status": "success",
+            }
+        )
     except Exception as e:
         logging.error(f"[API] Error in get_strategy_performance: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 @router.get("/api/strategy/performance/{strategy_name}")
 async def get_single_strategy_performance(strategy_name: str, request: Request):
@@ -471,17 +522,29 @@ async def get_single_strategy_performance(strategy_name: str, request: Request):
         try:
             lookback_days = int(lookback_str)
         except ValueError:
-            return JSONResponse({"error": "Invalid lookback_days parameter", "status": "error"}, status_code=400)
+            return JSONResponse(
+                {"error": "Invalid lookback_days parameter", "status": "error"},
+                status_code=400,
+            )
 
-        performance = signal_logger.get_strategy_performance(strategy_name, lookback_days)
+        performance = signal_logger.get_strategy_performance(
+            strategy_name, lookback_days
+        )
 
         if performance["total_signals"] == 0:
-            return JSONResponse({"error": f"No data found for strategy '{strategy_name}'", "status": "not_found"}, status_code=404)
+            return JSONResponse(
+                {
+                    "error": f"No data found for strategy '{strategy_name}'",
+                    "status": "not_found",
+                },
+                status_code=404,
+            )
 
         return JSONResponse({**performance, "status": "success"})
     except Exception as e:
         logging.error(f"[API] Error in get_single_strategy_performance: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 @router.get("/api/strategy/correlation")
 async def get_strategy_correlation():
@@ -489,12 +552,25 @@ async def get_strategy_correlation():
         correlations = signal_logger.get_signal_correlation()
 
         if not correlations:
-            return JSONResponse({"correlations": {}, "message": "No signal data available", "status": "success"})
+            return JSONResponse(
+                {
+                    "correlations": {},
+                    "message": "No signal data available",
+                    "status": "success",
+                }
+            )
 
-        return JSONResponse({"correlations": correlations, "description": "1.0 = always agree, 0.0 = never agree", "status": "success"})
+        return JSONResponse(
+            {
+                "correlations": correlations,
+                "description": "1.0 = always agree, 0.0 = never agree",
+                "status": "success",
+            }
+        )
     except Exception as e:
         logging.error(f"[API] Error in get_strategy_correlation: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 @router.get("/api/strategy/summary")
 async def get_strategy_summary():
@@ -502,7 +578,13 @@ async def get_strategy_summary():
         all_signals = signal_logger.get_recent_signals(limit=10000)
 
         if not all_signals:
-            return JSONResponse({"total_decisions": 0, "message": "No signal data available", "status": "success"})
+            return JSONResponse(
+                {
+                    "total_decisions": 0,
+                    "message": "No signal data available",
+                    "status": "success",
+                }
+            )
 
         symbols = set(s["symbol"] for s in all_signals)
         aggregation_counts = {}
@@ -516,18 +598,21 @@ async def get_strategy_summary():
         for signal in all_signals:
             all_strategy_names.update(signal.get("strategies", {}).keys())
 
-        return JSONResponse({
-            "total_decisions": len(all_signals),
-            "total_strategies": len(all_strategy_names),
-            "strategy_names": sorted(list(all_strategy_names)),
-            "date_range": {"oldest": min(timestamps), "newest": max(timestamps)},
-            "symbols_tracked": sorted(list(symbols)),
-            "aggregation_methods": aggregation_counts,
-            "status": "success",
-        })
+        return JSONResponse(
+            {
+                "total_decisions": len(all_signals),
+                "total_strategies": len(all_strategy_names),
+                "strategy_names": sorted(list(all_strategy_names)),
+                "date_range": {"oldest": min(timestamps), "newest": max(timestamps)},
+                "symbols_tracked": sorted(list(symbols)),
+                "aggregation_methods": aggregation_counts,
+                "status": "success",
+            }
+        )
     except Exception as e:
         logging.error(f"[API] Error in get_strategy_summary: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 @router.get("/api/strategy/signals/latest")
 async def get_latest_signal():
@@ -535,17 +620,23 @@ async def get_latest_signal():
         signals = signal_logger.get_recent_signals(limit=1)
 
         if not signals:
-            return JSONResponse({"error": "No signals available", "status": "not_found"}, status_code=404)
+            return JSONResponse(
+                {"error": "No signals available", "status": "not_found"},
+                status_code=404,
+            )
 
         latest = signals[0]
         signal_time = datetime.fromisoformat(latest["timestamp"])
         now = datetime.now(timezone.utc)
         age_seconds = (now - signal_time).total_seconds()
 
-        return JSONResponse({"signal": latest, "age_seconds": age_seconds, "status": "success"})
+        return JSONResponse(
+            {"signal": latest, "age_seconds": age_seconds, "status": "success"}
+        )
     except Exception as e:
         logging.error(f"[API] Error in get_latest_signal: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 # Health monitoring
 @router.get("/api/health")
@@ -603,6 +694,7 @@ async def get_system_health():
         logging.error(f"[API] Error in get_system_health: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
 
+
 async def check_openai_health() -> Dict[str, Any]:
     try:
         error_count = 0
@@ -613,6 +705,7 @@ async def check_openai_health() -> Dict[str, Any]:
     except Exception as e:
         logging.error(f"[Health] OpenAI check failed: {e}")
         return {"status": "error", "errors": 1}
+
 
 async def check_exchange_health() -> Dict[str, Any]:
     try:
@@ -651,6 +744,7 @@ async def check_exchange_health() -> Dict[str, Any]:
         logging.error(f"[Health] Exchange check failed: {e}")
         return {"status": "error", "errors": 1}
 
+
 async def check_rss_feeds_health() -> Dict[str, Any]:
     try:
         feeds = _load_rss_feeds()
@@ -671,6 +765,7 @@ async def check_rss_feeds_health() -> Dict[str, Any]:
         logging.error(f"[Health] RSS feeds check failed: {e}")
         return {"status": "error", "errors": 1}
 
+
 def check_database_health() -> Dict[str, Any]:
     try:
         test_file = LOGS_DIR / ".health_check"
@@ -688,6 +783,7 @@ def check_database_health() -> Dict[str, Any]:
         logging.error(f"[Health] Database check failed: {e}")
         return {"status": "error", "errors": 1}
 
+
 # RSS Feed Management
 @router.get("/api/feeds")
 async def get_rss_feeds():
@@ -698,6 +794,7 @@ async def get_rss_feeds():
         logging.error(f"[API] Error in get_rss_feeds: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
 
+
 @router.post("/api/feeds")
 async def add_rss_feed(request: Request):
     try:
@@ -706,17 +803,24 @@ async def add_rss_feed(request: Request):
         name = body.get("name", "").strip()
 
         if not url:
-            return JSONResponse({"error": "URL is required", "status": "error"}, status_code=400)
+            return JSONResponse(
+                {"error": "URL is required", "status": "error"}, status_code=400
+            )
 
         from urllib.parse import urlparse
+
         parsed = urlparse(url)
         if not parsed.scheme or not parsed.netloc:
-            return JSONResponse({"error": "Invalid URL format", "status": "error"}, status_code=400)
+            return JSONResponse(
+                {"error": "Invalid URL format", "status": "error"}, status_code=400
+            )
 
         feeds = _load_rss_feeds()
 
         if any(f.get("url") == url for f in feeds):
-            return JSONResponse({"error": "Feed URL already exists", "status": "error"}, status_code=400)
+            return JSONResponse(
+                {"error": "Feed URL already exists", "status": "error"}, status_code=400
+            )
 
         new_id = max([f.get("id", 0) for f in feeds], default=0) + 1
 
@@ -737,17 +841,24 @@ async def add_rss_feed(request: Request):
         feeds.append(new_feed)
 
         if not _save_rss_feeds(feeds):
-            return JSONResponse({"error": "Failed to save feed", "status": "error"}, status_code=500)
+            return JSONResponse(
+                {"error": "Failed to save feed", "status": "error"}, status_code=500
+            )
 
         logging.info(f"[Feeds] Added new feed: {name} ({url})")
 
-        return JSONResponse({**new_feed, "message": "Feed added successfully", "status": "success"})
+        return JSONResponse(
+            {**new_feed, "message": "Feed added successfully", "status": "success"}
+        )
 
     except json.JSONDecodeError:
-        return JSONResponse({"error": "Invalid JSON body", "status": "error"}, status_code=400)
+        return JSONResponse(
+            {"error": "Invalid JSON body", "status": "error"}, status_code=400
+        )
     except Exception as e:
         logging.error(f"[API] Error in add_rss_feed: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 @router.delete("/api/feeds/{feed_id}")
 async def delete_rss_feed(feed_id: int):
@@ -761,18 +872,135 @@ async def delete_rss_feed(feed_id: int):
                 break
 
         if not feed_to_delete:
-            return JSONResponse({"error": f"Feed with ID {feed_id} not found", "status": "error"}, status_code=404)
+            return JSONResponse(
+                {"error": f"Feed with ID {feed_id} not found", "status": "error"},
+                status_code=404,
+            )
 
         if not _save_rss_feeds(feeds):
-            return JSONResponse({"error": "Failed to save feeds", "status": "error"}, status_code=500)
+            return JSONResponse(
+                {"error": "Failed to save feeds", "status": "error"}, status_code=500
+            )
 
-        logging.info(f"[Feeds] Deleted feed: {feed_to_delete.get('name')} (ID: {feed_id})")
+        logging.info(
+            f"[Feeds] Deleted feed: {feed_to_delete.get('name')} (ID: {feed_id})"
+        )
 
-        return JSONResponse({"message": "Feed deleted successfully", "id": feed_id, "status": "success"})
+        return JSONResponse(
+            {"message": "Feed deleted successfully", "id": feed_id, "status": "success"}
+        )
 
     except Exception as e:
         logging.error(f"[API] Error in delete_rss_feed: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
+
+# Configuration Management
+@router.get("/api/config")
+async def get_config():
+    """Get current trading configuration."""
+    config_file = Path("src/config/config.json")
+
+    try:
+        with open(config_file, "r") as f:
+            config = json.load(f)
+
+        # Add defaults for any missing values
+        defaults = {
+            "strategy": config.get("strategy", "gpt-sentiment"),
+            "interval_minutes": config.get("interval_minutes", 5),
+            "trading_fee_percent": config.get("trading_fee_percent", 0.26),
+            "trading_mode": config.get("trading_mode", "paper"),
+            "paper_starting_capital": config.get("paper_starting_capital", 100000),
+            "strategies": config.get(
+                "strategies",
+                {
+                    "sentiment": {"enabled": True, "weight": 1.0},
+                    "technical": {"enabled": True, "weight": 1.0},
+                    "volume": {"enabled": True, "weight": 0.8},
+                },
+            ),
+            "risk_management": config.get(
+                "risk_management",
+                {
+                    "position_size_percent": 3.0,
+                    "max_daily_loss_percent": 5.0,
+                    "max_open_positions": None,
+                },
+            ),
+            "aggregation": config.get(
+                "aggregation", {"method": "weighted_vote", "min_confidence": 0.5}
+            ),
+        }
+
+        # Merge defaults with existing config
+        for key, value in defaults.items():
+            if key not in config:
+                config[key] = value
+
+        return JSONResponse({"config": config, "status": "success"})
+
+    except Exception as e:
+        logging.error(f"[API] Error loading config: {e}")
+        return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
+
+@router.post("/api/config")
+async def update_config(request: Request):
+    """Update trading configuration."""
+    config_file = Path("src/config/config.json")
+
+    try:
+        body = await request.json()
+        new_config = body.get("config", {})
+
+        # Validate trading mode
+        if "trading_mode" in new_config:
+            if new_config["trading_mode"] not in ["paper", "live"]:
+                return JSONResponse(
+                    {
+                        "error": "trading_mode must be 'paper' or 'live'",
+                        "status": "error",
+                    },
+                    status_code=400,
+                )
+
+        # Load current config
+        with open(config_file, "r") as f:
+            config = json.load(f)
+
+        # Deep merge new config
+        def deep_merge(base, updates):
+            for key, value in updates.items():
+                if (
+                    isinstance(value, dict)
+                    and key in base
+                    and isinstance(base[key], dict)
+                ):
+                    deep_merge(base[key], value)
+                else:
+                    base[key] = value
+
+        deep_merge(config, new_config)
+
+        # Save
+        with open(config_file, "w") as f:
+            json.dump(config, f, indent=2)
+
+        logging.info(f"[Config] Updated configuration: {list(new_config.keys())}")
+
+        return JSONResponse(
+            {
+                "message": "Configuration updated successfully",
+                "config": config,
+                "status": "success",
+            }
+        )
+
+    except Exception as e:
+        logging.error(f"[API] Error updating config: {e}")
+        return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
 
 @router.put("/api/feeds/{feed_id}")
 async def update_rss_feed(feed_id: int, request: Request):
@@ -787,9 +1015,19 @@ async def update_rss_feed(feed_id: int, request: Request):
                 break
 
         if not feed_to_update:
-            return JSONResponse({"error": f"Feed with ID {feed_id} not found", "status": "error"}, status_code=404)
+            return JSONResponse(
+                {"error": f"Feed with ID {feed_id} not found", "status": "error"},
+                status_code=404,
+            )
 
-        updatable_fields = ["name", "status", "last_fetch", "headlines_count", "relevant_count", "error"]
+        updatable_fields = [
+            "name",
+            "status",
+            "last_fetch",
+            "headlines_count",
+            "relevant_count",
+            "error",
+        ]
 
         for field in updatable_fields:
             if field in body:
@@ -798,14 +1036,24 @@ async def update_rss_feed(feed_id: int, request: Request):
         feed_to_update["updated_at"] = datetime.now(timezone.utc).isoformat()
 
         if not _save_rss_feeds(feeds):
-            return JSONResponse({"error": "Failed to save feeds", "status": "error"}, status_code=500)
+            return JSONResponse(
+                {"error": "Failed to save feeds", "status": "error"}, status_code=500
+            )
 
         logging.info(f"[Feeds] Updated feed ID {feed_id}")
 
-        return JSONResponse({"message": "Feed updated successfully", "feed": feed_to_update, "status": "success"})
+        return JSONResponse(
+            {
+                "message": "Feed updated successfully",
+                "feed": feed_to_update,
+                "status": "success",
+            }
+        )
 
     except json.JSONDecodeError:
-        return JSONResponse({"error": "Invalid JSON body", "status": "error"}, status_code=400)
+        return JSONResponse(
+            {"error": "Invalid JSON body", "status": "error"}, status_code=400
+        )
     except Exception as e:
         logging.error(f"[API] Error in update_rss_feed: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
