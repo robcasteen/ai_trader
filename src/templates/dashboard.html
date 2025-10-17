@@ -1,642 +1,1139 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Trading Terminal</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      /* Settings Button */
+      .settings-btn {
+        background: rgba(0, 255, 0, 0.1);
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        padding: 4px 12px;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        margin-left: 10px;
+      }
 
-        body {
-            font-family: 'Courier New', monospace;
-            background: #000000;
-            color: #00ff00;
-            font-size: 11px;
-            line-height: 1.2;
-            overflow: hidden;
-        }
+      .settings-btn:hover {
+        background: rgba(0, 255, 0, 0.2);
+      }
 
-        .terminal-header {
-            background: #0a0a0a;
-            border-bottom: 1px solid #00ff00;
-            padding: 6px 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 36px;
-        }
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
 
-        .terminal-title {
-            color: #00ff00;
-            font-weight: bold;
-            font-size: 12px;
-            letter-spacing: 2px;
-        }
+      .modal-content {
+        background-color: #0a0a0a;
+        border: 2px solid #00ff00;
+        margin: 5% auto;
+        padding: 0;
+        width: 80%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+        font-family: "Courier New", monospace;
+      }
 
-        .terminal-time {
-            color: #ffaa00;
-            font-size: 11px;
-        }
+      .modal-header {
+        background: rgba(0, 255, 0, 0.1);
+        padding: 20px;
+        border-bottom: 1px solid #00ff00;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-        .status-bar {
-            display: flex;
-            gap: 15px;
-            font-size: 10px;
-        }
+      .modal-header h2 {
+        margin: 0;
+        color: #00ff00;
+        font-size: 18px;
+      }
 
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+      .close {
+        color: #00ff00;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
 
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #00ff00;
-            animation: pulse 2s infinite;
-        }
+      .close:hover {
+        color: #00ff00;
+        text-shadow: 0 0 10px #00ff00;
+      }
 
-        .status-dot.red {
-            background: #ff0000;
-        }
+      .modal-body {
+        padding: 20px;
+      }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
+      .config-section {
+        margin-bottom: 30px;
+        border: 1px solid rgba(0, 255, 0, 0.3);
+        padding: 15px;
+      }
 
-        .nav-tabs {
-            background: #0a0a0a;
-            border-bottom: 1px solid #333;
-            display: flex;
-            padding: 0 8px;
-            height: 22px;
-        }
+      .config-section h3 {
+        color: #00ff00;
+        font-size: 14px;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+      }
 
-        .nav-tab {
-            padding: 2px 12px;
-            cursor: pointer;
-            border-right: 1px solid #333;
-            color: #666;
-            font-size: 10px;
-            transition: all 0.1s;
-            display: flex;
-            align-items: center;
-        }
+      .config-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
+      }
 
-        .nav-tab:hover {
-            background: #1a1a1a;
-            color: #00ff00;
-        }
+      .config-row label {
+        color: #00ff00;
+        min-width: 200px;
+      }
 
-        .nav-tab.active {
-            background: #1a1a1a;
-            color: #00ff00;
-            border-bottom: 2px solid #00ff00;
-        }
+      .config-row input[type="number"],
+      .config-row select {
+        background: #000;
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        padding: 5px 10px;
+        font-family: "Courier New", monospace;
+        width: 100px;
+      }
 
-        .content-area {
-            height: calc(100vh - 58px);
-            overflow-y: auto;
-            padding: 8px;
-        }
+      .config-row input[type="checkbox"],
+      .config-row input[type="radio"] {
+        margin-right: 5px;
+      }
 
-        .content-area::-webkit-scrollbar {
-            width: 4px;
-        }
+      .config-hint {
+        color: rgba(0, 255, 0, 0.6);
+        font-size: 11px;
+        margin-left: 10px;
+      }
 
-        .content-area::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
+      .modal-footer {
+        background: rgba(0, 255, 0, 0.1);
+        padding: 20px;
+        border-top: 1px solid #00ff00;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
 
-        .content-area::-webkit-scrollbar-thumb {
-            background: #333;
-        }
+      .btn-primary,
+      .btn-secondary {
+        padding: 10px 20px;
+        font-family: "Courier New", monospace;
+        cursor: pointer;
+        border: 1px solid #00ff00;
+      }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
+      .btn-primary {
+        background: #00ff00;
+        color: #000;
+      }
 
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 8px;
-        }
+      .btn-primary:hover {
+        background: #00cc00;
+      }
 
-        .terminal-panel {
-            background: #0a0a0a;
-            border: 1px solid #1a4d1a;
-            padding: 6px;
-            margin-bottom: 8px;
-        }
+      .btn-secondary {
+        background: transparent;
+        color: #00ff00;
+      }
 
-        .panel-header {
-            color: #ffaa00;
-            font-size: 10px;
-            font-weight: bold;
-            margin-bottom: 4px;
-            padding-bottom: 2px;
-            border-bottom: 1px solid #1a4d1a;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+      .btn-secondary:hover {
+        background: rgba(0, 255, 0, 0.1);
+      }
+      body {
+        font-family: "Courier New", monospace;
+        background: #000000;
+        color: #00ff00;
+        font-size: 11px;
+        line-height: 1.2;
+        overflow: hidden;
+      }
 
-        .panel-content {
-            font-size: 10px;
-        }
+      .terminal-header {
+        background: #0a0a0a;
+        border-bottom: 1px solid #00ff00;
+        padding: 6px 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 36px;
+      }
 
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            padding: 2px 0;
-            font-size: 10px;
-        }
+      .terminal-title {
+        color: #00ff00;
+        font-weight: bold;
+        font-size: 12px;
+        letter-spacing: 2px;
+      }
 
-        .metric-label {
-            color: #666;
-        }
+      .terminal-time {
+        color: #ffaa00;
+        font-size: 11px;
+      }
 
-        .metric-value {
-            color: #00ff00;
-            font-weight: bold;
-        }
+      .status-bar {
+        display: flex;
+        gap: 15px;
+        font-size: 10px;
+      }
 
-        .positive {
-            color: #00ff00;
-        }
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
 
-        .negative {
-            color: #ff0000;
-        }
+      .status-dot {
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.8); /* Add dark background */
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
 
-        .neutral {
-            color: #ffaa00;
-        }
+      .status-dot.error {
+        color: #ff0000;
+        border-color: #ff0000;
+        animation: none; /* Remove the pulsing animation */
+      }
 
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 10px;
-        }
+      .status-dot.red {
+        background: #ff0000;
+      }
 
-        .data-table th {
-            background: #0d0d0d;
-            color: #ffaa00;
-            text-align: left;
-            padding: 3px 6px;
-            border-bottom: 1px solid #1a4d1a;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 9px;
-            letter-spacing: 0.5px;
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
         }
+        50% {
+          opacity: 0.4;
+        }
+      }
 
-        .data-table td {
-            padding: 2px 6px;
-            border-bottom: 1px solid #0d0d0d;
-        }
+      .nav-tabs {
+        background: #0a0a0a;
+        border-bottom: 1px solid #333;
+        display: flex;
+        padding: 0 8px;
+        height: 22px;
+      }
 
-        .data-table tr:hover {
-            background: #0f0f0f;
-        }
+      .nav-tab {
+        padding: 2px 12px;
+        cursor: pointer;
+        border-right: 1px solid #333;
+        color: #666;
+        font-size: 10px;
+        transition: all 0.1s;
+        display: flex;
+        align-items: center;
+      }
 
-        .signal-badge {
-            display: inline-block;
-            padding: 1px 6px;
-            font-size: 9px;
-            font-weight: bold;
-            border-radius: 2px;
-            min-width: 35px;
-            text-align: center;
-        }
+      .nav-tab:hover {
+        background: #1a1a1a;
+        color: #00ff00;
+      }
 
-        .signal-buy {
-            background: #003300;
-            color: #00ff00;
-            border: 1px solid #00ff00;
-        }
+      .nav-tab.active {
+        background: #1a1a1a;
+        color: #00ff00;
+        border-bottom: 2px solid #00ff00;
+      }
 
-        .signal-sell {
-            background: #330000;
-            color: #ff0000;
-            border: 1px solid #ff0000;
-        }
+      .content-area {
+        height: calc(100vh - 58px);
+        overflow-y: auto;
+        padding: 8px;
+      }
 
-        .signal-hold {
-            background: #332200;
-            color: #ffaa00;
-            border: 1px solid #ffaa00;
-        }
+      .content-area::-webkit-scrollbar {
+        width: 4px;
+      }
 
-        .btn {
-            background: #0d0d0d;
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            padding: 4px 12px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            transition: all 0.1s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            width: 100%;
-        }
+      .content-area::-webkit-scrollbar-track {
+        background: #0a0a0a;
+      }
 
-        .btn:hover {
-            background: #00ff00;
-            color: #000;
-        }
+      .content-area::-webkit-scrollbar-thumb {
+        background: #333;
+      }
 
-        .btn:active {
-            transform: scale(0.98);
-        }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 8px;
+      }
 
-        .timestamp {
-            color: #666;
-            font-size: 9px;
-        }
+      .terminal-panel {
+        background: #0a0a0a;
+        border: 1px solid #1a4d1a;
+        padding: 6px;
+        margin-bottom: 8px;
+      }
 
-        .price {
-            font-family: 'Courier New', monospace;
-            letter-spacing: -0.5px;
-        }
+      .panel-header {
+        color: #ffaa00;
+        font-size: 10px;
+        font-weight: bold;
+        margin-bottom: 4px;
+        padding-bottom: 2px;
+        border-bottom: 1px solid #1a4d1a;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-        .tab-content {
-            display: none;
-        }
+      .panel-content {
+        font-size: 10px;
+      }
 
-        .tab-content.active {
-            display: block;
-        }
+      .metric {
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 0;
+        font-size: 10px;
+      }
 
-        .compact {
-            line-height: 1.1;
-        }
+      .metric-label {
+        color: #666;
+      }
 
-        .loading {
-            color: #ffaa00;
-            text-align: center;
-            padding: 20px;
-        }
+      .metric-value {
+        color: #00ff00;
+        font-weight: bold;
+      }
 
-        .feed-item {
-            padding: 3px 0;
-            border-bottom: 1px solid #0d0d0d;
-            font-size: 10px;
-        }
+      .positive {
+        color: #00ff00;
+      }
 
-        .feed-time {
-            color: #666;
-            font-size: 9px;
-            margin-right: 8px;
-        }
+      .negative {
+        color: #ff0000;
+      }
 
-        .feed-source {
-            color: #ffaa00;
-            margin-right: 8px;
-        }
+      .neutral {
+        color: #ffaa00;
+      }
 
-        .feed-text {
-            color: #00ff00;
-        }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+      }
 
-        .health-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
-        }
+      .data-table th {
+        background: #0d0d0d;
+        color: #ffaa00;
+        text-align: left;
+        padding: 3px 6px;
+        border-bottom: 1px solid #1a4d1a;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 9px;
+        letter-spacing: 0.5px;
+      }
 
-        .health-item {
-            background: #0d0d0d;
-            padding: 4px;
-            border: 1px solid #1a4d1a;
-            text-align: center;
-        }
+      .data-table td {
+        padding: 2px 6px;
+        border-bottom: 1px solid #0d0d0d;
+      }
 
-        .health-label {
-            font-size: 8px;
-            color: #666;
-            text-transform: uppercase;
-        }
+      .data-table tr:hover {
+        background: #0f0f0f;
+      }
 
-        .health-value {
-            font-size: 11px;
-            font-weight: bold;
-            margin: 2px 0;
-        }
+      .signal-badge {
+        display: inline-block;
+        padding: 1px 6px;
+        font-size: 9px;
+        font-weight: bold;
+        border-radius: 2px;
+        min-width: 35px;
+        text-align: center;
+      }
 
-        .health-status {
-            font-size: 8px;
-        }
+      .signal-buy {
+        background: #003300;
+        color: #00ff00;
+        border: 1px solid #00ff00;
+      }
+
+      .signal-sell {
+        background: #330000;
+        color: #ff0000;
+        border: 1px solid #ff0000;
+      }
+
+      .signal-hold {
+        background: #332200;
+        color: #ffaa00;
+        border: 1px solid #ffaa00;
+      }
+
+      .btn {
+        background: #0d0d0d;
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        padding: 4px 12px;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-size: 10px;
+        transition: all 0.1s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+      }
+
+      .btn:hover {
+        background: #00ff00;
+        color: #000;
+      }
+
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .timestamp {
+        color: #666;
+        font-size: 9px;
+      }
+
+      .price {
+        font-family: "Courier New", monospace;
+        letter-spacing: -0.5px;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .compact {
+        line-height: 1.1;
+      }
+
+      .loading {
+        color: #ffaa00;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .feed-item {
+        padding: 3px 0;
+        border-bottom: 1px solid #0d0d0d;
+        font-size: 10px;
+      }
+
+      .feed-time {
+        color: #666;
+        font-size: 9px;
+        margin-right: 8px;
+      }
+
+      .feed-source {
+        color: #ffaa00;
+        margin-right: 8px;
+      }
+
+      .feed-text {
+        color: #00ff00;
+      }
+
+      .health-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+      }
+
+      .health-item {
+        background: #0d0d0d;
+        padding: 4px;
+        border: 1px solid #1a4d1a;
+        text-align: center;
+      }
+
+      .health-label {
+        font-size: 8px;
+        color: #666;
+        text-transform: uppercase;
+      }
+
+      .health-value {
+        font-size: 11px;
+        font-weight: bold;
+        margin: 2px 0;
+      }
+
+      .health-status {
+        font-size: 8px;
+      }
+      .tooltip-icon {
+        cursor: help;
+        font-size: 0.85em;
+        color: #00ff00;
+        opacity: 0.6;
+        margin-left: 4px;
+      }
+
+      .tooltip-icon:hover {
+        opacity: 1;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <!-- Find the header, around line 20-30 -->
     <div class="terminal-header">
-        <div class="terminal-title">◢ AI TRADING TERMINAL v1.0</div>
-        <div class="status-bar">
-            <div class="status-item">
-                <div class="status-dot" id="status-dot"></div>
-                <span id="status-text">LIVE</span>
-            </div>
-            <div class="status-item">
-                <span id="kraken-status">KRAKEN</span>
-            </div>
-            <div class="status-item">
-                <span id="gpt-status">GPT-4</span>
-            </div>
-            <div class="status-item terminal-time" id="clock">--:--:--</div>
-        </div>
+      <div class="logo">▲ AI TRADING TERMINAL V1.0</div>
+      <div class="status-indicators">
+        <span class="status-dot error" id="status-error">● ERROR</span>
+        <span class="status-dot" id="status-kraken">KRAKEN</span>
+        <span class="status-dot" id="status-gpt">GPT-4</span>
+        <span class="status-dot" id="status-time">00:00:00</span>
+        <!-- ADD THIS SETTINGS ICON -->
+        <button
+          class="settings-btn"
+          onclick="openSettingsModal()"
+          title="Configuration"
+        >
+          ⚙️ SETTINGS
+        </button>
+      </div>
     </div>
 
     <div class="nav-tabs">
-        <div class="nav-tab active" onclick="switchTab('overview')">OVERVIEW</div>
-        <div class="nav-tab" onclick="switchTab('trades')">TRADES</div>
-        <div class="nav-tab" onclick="switchTab('strategies')">STRATEGIES</div>
-        <div class="nav-tab" onclick="switchTab('feeds')">FEEDS</div>
-        <div class="nav-tab" onclick="switchTab('health')">HEALTH</div>
+      <div class="nav-tab active" onclick="switchTab('overview')">OVERVIEW</div>
+      <div class="nav-tab" onclick="switchTab('trades')">TRADES</div>
+      <div class="nav-tab" onclick="switchTab('strategies')">STRATEGIES</div>
+      <div class="nav-tab" onclick="switchTab('feeds')">FEEDS</div>
+      <div class="nav-tab" onclick="switchTab('health')">HEALTH</div>
     </div>
 
     <div class="content-area">
-        <!-- Overview Tab -->
-        <div id="overview" class="tab-content active">
-            <div class="grid-3">
-                <div class="terminal-panel">
-                    <div class="panel-header">Portfolio</div>
-                    <div class="panel-content">
-                        <div class="metric">
-                            <span class="metric-label">BALANCE</span>
-                            <span class="metric-value price" id="balance">$--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">P&L TODAY</span>
-                            <span class="metric-value price" id="pnl-today">$--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">TOTAL TRADES</span>
-                            <span class="metric-value" id="total-trades">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">WIN RATE</span>
-                            <span class="metric-value" id="win-rate">--%</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="terminal-panel">
-                    <div class="panel-header">Holdings (<span id="holdings-count">0</span>)</div>
-                    <div class="panel-content">
-                        <div class="metric">
-                            <span class="metric-label">POSITIONS</span>
-                            <span class="metric-value" id="holdings-positions">0</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">MARKET VALUE</span>
-                            <span class="metric-value price positive" id="holdings-value">$0.00</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">UNREALIZED P&L</span>
-                            <span class="metric-value price positive" id="holdings-pnl">$0.00</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="terminal-panel">
-                    <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>System Status</span>
-                        <div style="display: flex; gap: 4px;">
-                            <button class="btn" id="runNowBtn" onclick="runNow()" style="width: auto; padding: 2px 12px; font-size: 9px;">▶ RUN</button>
-                            <button class="btn" onclick="refreshData()" style="width: auto; padding: 2px 12px; font-size: 9px;">↻</button>
-                        </div>
-                    </div>
-                    <div class="panel-content">
-                        <div class="metric">
-                            <span class="metric-label">LAST RUN</span>
-                            <span class="metric-value timestamp" id="last-run">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">NEXT RUN</span>
-                            <span class="metric-value timestamp" id="next-run">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">MESSAGE</span>
-                            <span class="metric-value" id="status-msg" style="font-size: 9px;">--</span>
-                        </div>
-                    </div>
-                </div>
+      <!-- Overview Tab -->
+      <div id="overview" class="tab-content active">
+        <div class="grid-3">
+          <div class="terminal-panel">
+            <div class="panel-header">Portfolio</div>
+            <div class="panel-content">
+              <div class="metric">
+                <span class="metric-label">BALANCE</span>
+                <span class="metric-value price" id="balance">$--</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">P&L TODAY</span>
+                <span class="metric-value price" id="pnl-today">$--</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">TOTAL TRADES</span>
+                <span class="metric-value" id="total-trades">--</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">WIN RATE</span>
+                <span class="metric-value" id="win-rate">--%</span>
+              </div>
             </div>
+          </div>
 
-            <div class="terminal-panel">
-                <div class="panel-header">Position Details</div>
-                <div class="panel-content compact">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>SYMBOL</th>
-                                <th>AMOUNT</th>
-                                <th>AVG PRICE</th>
-                                <th>CURRENT</th>
-                                <th>MKT VALUE</th>
-                                <th>COST BASIS</th>
-                                <th>P&L</th>
-                                <th>% GAIN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="holdings-table">
-                            <tr><td colspan="8" style="text-align: center; padding: 10px; color: #666;">No positions</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+          <div class="terminal-panel">
+            <div class="panel-header">
+              Holdings (<span id="holdings-count">0</span>)
             </div>
-
-            <div class="grid-2">
-                <div class="terminal-panel">
-                    <div class="panel-header">Recent Signals (<span id="signal-count">0</span>)</div>
-                    <div class="panel-content compact">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>TIME</th>
-                                    <th>SYMBOL</th>
-                                    <th>SIGNAL</th>
-                                    <th>PRICE</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-signals">
-                                <tr><td colspan="4" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="terminal-panel">
-                    <div class="panel-header">Recent Trades (<span id="trade-count">0</span>)</div>
-                    <div class="panel-content compact">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>TIME</th>
-                                    <th>SYMBOL</th>
-                                    <th>ACTION</th>
-                                    <th>PRICE</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-trades">
-                                <tr><td colspan="4" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="panel-content">
+              <div class="metric">
+                <span class="metric-label">POSITIONS</span>
+                <span class="metric-value" id="holdings-positions">0</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">MARKET VALUE</span>
+                <span class="metric-value price positive" id="holdings-value"
+                  >$0.00</span
+                >
+              </div>
+              <div class="metric">
+                <span class="metric-label">
+                  UNREALIZED P&L
+                  <span
+                    class="tooltip-icon"
+                    title="Includes 0.26% trading fees in cost basis"
+                    >ℹ️</span
+                  >
+                </span>
+                <span class="metric-value price positive" id="holdings-pnl"
+                  >$0.00</span
+                >
+              </div>
             </div>
+          </div>
+
+          <div class="terminal-panel">
+            <div
+              class="panel-header"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <span>System Status</span>
+              <div style="display: flex; gap: 4px">
+                <button
+                  class="btn"
+                  id="runNowBtn"
+                  onclick="runNow()"
+                  style="width: auto; padding: 2px 12px; font-size: 9px"
+                >
+                  ▶ RUN
+                </button>
+                <button
+                  class="btn"
+                  onclick="refreshData()"
+                  style="width: auto; padding: 2px 12px; font-size: 9px"
+                >
+                  ↻
+                </button>
+              </div>
+            </div>
+            <div class="panel-content">
+              <div class="metric">
+                <span class="metric-label">LAST RUN</span>
+                <span class="metric-value timestamp" id="last-run">--</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">NEXT RUN</span>
+                <span class="metric-value timestamp" id="next-run">--</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">MESSAGE</span>
+                <span
+                  class="metric-value"
+                  id="status-msg"
+                  style="font-size: 9px"
+                  >--</span
+                >
+              </div>
+            </div>
+          </div>
         </div>
 
-                <!-- Trades Tab -->
-        <div id="trades" class="tab-content">
-            <div class="terminal-panel">
-                <div class="panel-header">All Trades (<span id="all-trade-count">0</span>)</div>
-                <div class="panel-content">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>TIMESTAMP</th>
-                                <th>SYMBOL</th>
-                                <th>ACTION</th>
-                                <th>PRICE</th>
-                                <th>AMOUNT</th>
-                                <th>VALUE</th>
-                                <th>REASON</th>
-                            </tr>
-                        </thead>
-                        <tbody id="all-trades">
-                            <tr><td colspan="7" class="loading">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="terminal-panel">
+          <div class="panel-header">Position Details</div>
+          <div class="panel-content compact">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>SYMBOL</th>
+                  <th>AMOUNT</th>
+                  <th>AVG PRICE</th>
+                  <th>CURRENT</th>
+                  <th>MKT VALUE</th>
+                  <th>
+                    COST BASIS
+                    <span
+                      class="tooltip-icon"
+                      title="Includes 0.26% trading fees per transaction"
+                      >ℹ️</span
+                    >
+                  </th>
+                  <th>P&L</th>
+                  <th>% GAIN</th>
+                </tr>
+              </thead>
+              <tbody id="holdings-table">
+                <tr>
+                  <td
+                    colspan="8"
+                    style="text-align: center; padding: 10px; color: #666"
+                  >
+                    No positions
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <!-- Strategies Tab -->
-        <div id="strategies" class="tab-content">
-            <div class="terminal-panel">
-                <div class="panel-header">Strategy Signals (<span id="strategy-signal-count">0</span>)</div>
-                <div class="panel-content">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>TIME</th>
-                                <th>SYMBOL</th>
-                                <th>STRATEGY</th>
-                                <th>SIGNAL</th>
-                                <th>CONF</th>
-                                <th>PRICE</th>
-                                <th>REASONING</th>
-                            </tr>
-                        </thead>
-                        <tbody id="strategy-signals">
-                            <tr><td colspan="7" class="loading">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="grid-2">
+          <div class="terminal-panel">
+            <div class="panel-header">
+              Recent Signals (<span id="signal-count">0</span>)
             </div>
-        </div>
+            <div class="panel-content compact">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>TIME</th>
+                    <th>SYMBOL</th>
+                    <th>SIGNAL</th>
+                    <th>PRICE</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-signals">
+                  <tr>
+                    <td colspan="4" class="loading">Loading...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-        <!-- Feeds Tab -->
-        <div id="feeds" class="tab-content">
-            <div class="terminal-panel">
-                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>RSS Feeds (<span id="feed-count">0</span> Active)</span>
-                    <button class="btn" onclick="showAddFeedModal()" style="width: auto; padding: 2px 12px; font-size: 9px;">+ ADD FEED</button>
-                </div>
-                <div class="panel-content">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 150px;">SOURCE</th>
-                                <th style="width: 80px; text-align: center;">STATUS</th>
-                                <th style="width: 80px; text-align: center;">HEADLINES</th>
-                                <th style="width: 80px; text-align: center;">RELEVANT</th>
-                                <th style="width: 120px;">LAST FETCH</th>
-                                <th>URL</th>
-                                <th style="width: 100px; text-align: center;">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody id="feed-list-detailed">
-                            <tr><td colspan="7" class="loading">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+          <div class="terminal-panel">
+            <div class="panel-header">
+              Recent Trades (<span id="trade-count">0</span>)
             </div>
+            <div class="panel-content compact">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>TIME</th>
+                    <th>SYMBOL</th>
+                    <th>ACTION</th>
+                    <th>PRICE</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-trades">
+                  <tr>
+                    <td colspan="4" class="loading">Loading...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Add Feed Modal -->
-        <div id="add-feed-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;">
-            <div style="background: #000; border: 2px solid #00ff00; padding: 20px; width: 500px;">
-                <div style="color: #ffaa00; font-size: 12px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase;">Add New RSS Feed</div>
-                
-                <div style="margin: 10px 0;">
-                    <label style="display: block; margin-bottom: 3px; color: #666; font-size: 9px;">FEED NAME:</label>
-                    <input type="text" id="new-feed-name" style="width: 100%; padding: 6px; background: #0a0a0a; border: 1px solid #1a4d1a; color: #00ff00; font-family: 'Courier New', monospace; font-size: 10px;">
-                </div>
-                
-                <div style="margin: 10px 0;">
-                    <label style="display: block; margin-bottom: 3px; color: #666; font-size: 9px;">FEED URL:</label>
-                    <input type="text" id="new-feed-url" placeholder="https://example.com/rss" style="width: 100%; padding: 6px; background: #0a0a0a; border: 1px solid #1a4d1a; color: #00ff00; font-family: 'Courier New', monospace; font-size: 10px;">
-                </div>
-                
-                <div style="margin-top: 15px; display: flex; gap: 8px;">
-                    <button class="btn" onclick="addNewFeed()" style="flex: 1;">ADD FEED</button>
-                    <button class="btn" onclick="closeAddFeedModal()" style="flex: 1; border-color: #666; color: #666;">CANCEL</button>
-                </div>
-            </div>
+      <!-- Trades Tab -->
+      <div id="trades" class="tab-content">
+        <div class="terminal-panel">
+          <div class="panel-header">
+            All Trades (<span id="all-trade-count">0</span>)
+          </div>
+          <div class="panel-content">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>TIMESTAMP</th>
+                  <th>SYMBOL</th>
+                  <th>ACTION</th>
+                  <th>PRICE</th>
+                  <th>AMOUNT</th>
+                  <th>VALUE</th>
+                  <th>REASON</th>
+                </tr>
+              </thead>
+              <tbody id="all-trades">
+                <tr>
+                  <td colspan="7" class="loading">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
 
-        <!-- Health Tab -->
-        <div id="health" class="tab-content">
-            <div class="health-grid" id="health-grid">
-                <div class="health-item">
-                    <div class="health-label">Loading...</div>
-                    <div class="health-value">●</div>
-                    <div class="health-status">--</div>
-                </div>
-            </div>
+      <!-- Strategies Tab -->
+      <div id="strategies" class="tab-content">
+        <div class="terminal-panel">
+          <div class="panel-header">
+            Strategy Signals (<span id="strategy-signal-count">0</span>)
+          </div>
+          <div class="panel-content">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>TIME</th>
+                  <th>SYMBOL</th>
+                  <th>STRATEGY</th>
+                  <th>SIGNAL</th>
+                  <th>CONF</th>
+                  <th>PRICE</th>
+                  <th>REASONING</th>
+                </tr>
+              </thead>
+              <tbody id="strategy-signals">
+                <tr>
+                  <td colspan="7" class="loading">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
+
+      <!-- Feeds Tab -->
+      <div id="feeds" class="tab-content">
+        <div class="terminal-panel">
+          <div
+            class="panel-header"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>RSS Feeds (<span id="feed-count">0</span> Active)</span>
+            <button
+              class="btn"
+              onclick="showAddFeedModal()"
+              style="width: auto; padding: 2px 12px; font-size: 9px"
+            >
+              + ADD FEED
+            </button>
+          </div>
+          <div class="panel-content">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 150px">SOURCE</th>
+                  <th style="width: 80px; text-align: center">STATUS</th>
+                  <th style="width: 80px; text-align: center">HEADLINES</th>
+                  <th style="width: 80px; text-align: center">RELEVANT</th>
+                  <th style="width: 120px">LAST FETCH</th>
+                  <th>URL</th>
+                  <th style="width: 100px; text-align: center">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="feed-list-detailed">
+                <tr>
+                  <td colspan="7" class="loading">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Feed Modal -->
+      <div
+        id="add-feed-modal"
+        style="
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.9);
+          z-index: 1000;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <div
+          style="
+            background: #000;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            width: 500px;
+          "
+        >
+          <div
+            style="
+              color: #ffaa00;
+              font-size: 12px;
+              font-weight: bold;
+              margin-bottom: 15px;
+              text-transform: uppercase;
+            "
+          >
+            Add New RSS Feed
+          </div>
+
+          <div style="margin: 10px 0">
+            <label
+              style="
+                display: block;
+                margin-bottom: 3px;
+                color: #666;
+                font-size: 9px;
+              "
+              >FEED NAME:</label
+            >
+            <input
+              type="text"
+              id="new-feed-name"
+              style="
+                width: 100%;
+                padding: 6px;
+                background: #0a0a0a;
+                border: 1px solid #1a4d1a;
+                color: #00ff00;
+                font-family: 'Courier New', monospace;
+                font-size: 10px;
+              "
+            />
+          </div>
+
+          <div style="margin: 10px 0">
+            <label
+              style="
+                display: block;
+                margin-bottom: 3px;
+                color: #666;
+                font-size: 9px;
+              "
+              >FEED URL:</label
+            >
+            <input
+              type="text"
+              id="new-feed-url"
+              placeholder="https://example.com/rss"
+              style="
+                width: 100%;
+                padding: 6px;
+                background: #0a0a0a;
+                border: 1px solid #1a4d1a;
+                color: #00ff00;
+                font-family: 'Courier New', monospace;
+                font-size: 10px;
+              "
+            />
+          </div>
+
+          <div style="margin-top: 15px; display: flex; gap: 8px">
+            <button class="btn" onclick="addNewFeed()" style="flex: 1">
+              ADD FEED
+            </button>
+            <button
+              class="btn"
+              onclick="closeAddFeedModal()"
+              style="flex: 1; border-color: #666; color: #666"
+            >
+              CANCEL
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Health Tab -->
+      <div id="health" class="tab-content">
+        <div class="health-grid" id="health-grid">
+          <div class="health-item">
+            <div class="health-label">Loading...</div>
+            <div class="health-value">●</div>
+            <div class="health-status">--</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        // Update clock
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').textContent = now.toTimeString().split(' ')[0];
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
 
-        // Tab switching
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(navTab => navTab.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            if (tabName === 'feeds') loadFeedsDetailed();
-            if (tabName === 'health') loadHealth();
-            if (tabName === 'strategies') loadStrategies();
-            event.target.classList.add('active');
-        }
+      // Tab switching
+      function switchTab(tabName) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((tab) => tab.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-tab")
+          .forEach((navTab) => navTab.classList.remove("active"));
+        document.getElementById(tabName).classList.add("active");
+        if (tabName === "feeds") loadFeedsDetailed();
+        if (tabName === "health") loadHealth();
+        if (tabName === "strategies") loadStrategies();
+        event.target.classList.add("active");
+      }
     </script>
-    
+
     <script src="/static/js/dashboard.js"></script>
-</body>
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>⚙️ CONFIGURATION</h2>
+          <span class="close" onclick="closeSettingsModal()">&times;</span>
+        </div>
+
+        <div class="modal-body">
+          <!-- Trading Mode -->
+          <div class="config-section">
+            <h3>Trading Mode</h3>
+            <div class="config-row">
+              <label>
+                <input type="radio" name="trading_mode" value="paper" checked />
+                Paper Trading (Simulated)
+              </label>
+              <label>
+                <input type="radio" name="trading_mode" value="live" />
+                Live Trading (Real Money) ⚠️
+              </label>
+            </div>
+          </div>
+
+          <!-- Strategy Weights -->
+          <div class="config-section">
+            <h3>Strategy Weights</h3>
+            <div class="config-row">
+              <label>
+                <input type="checkbox" id="sentiment-enabled" checked />
+                Sentiment Analysis
+              </label>
+              <input
+                type="number"
+                id="sentiment-weight"
+                min="0"
+                max="5"
+                step="0.1"
+                value="1.0"
+              />
+            </div>
+            <div class="config-row">
+              <label>
+                <input type="checkbox" id="technical-enabled" checked />
+                Technical Analysis
+              </label>
+              <input
+                type="number"
+                id="technical-weight"
+                min="0"
+                max="5"
+                step="0.1"
+                value="1.0"
+              />
+            </div>
+            <div class="config-row">
+              <label>
+                <input type="checkbox" id="volume-enabled" checked />
+                Volume Analysis
+              </label>
+              <input
+                type="number"
+                id="volume-weight"
+                min="0"
+                max="5"
+                step="0.1"
+                value="0.8"
+              />
+            </div>
+          </div>
+
+          <!-- Aggregation -->
+          <div class="config-section">
+            <h3>Signal Aggregation</h3>
+            <div class="config-row">
+              <label>Aggregation Method:</label>
+              <select id="aggregation-method">
+                <option value="weighted_vote">Weighted Vote</option>
+                <option value="highest_confidence">Highest Confidence</option>
+                <option value="unanimous">Unanimous</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <label>Min Confidence Threshold:</label>
+              <input
+                type="number"
+                id="min-confidence"
+                min="0"
+                max="1"
+                step="0.05"
+                value="0.5"
+              />
+              <span class="config-hint"
+                >(<span id="min-confidence-percent">50</span>%)</span
+              >
+            </div>
+          </div>
+
+          <!-- Risk Management -->
+          <div class="config-section">
+            <h3>Risk Management</h3>
+            <div class="config-row">
+              <label>Position Size:</label>
+              <input
+                type="number"
+                id="position-size"
+                min="0.1"
+                max="100"
+                step="0.1"
+                value="3.0"
+              />
+              <span class="config-hint">% of capital per trade</span>
+            </div>
+            <div class="config-row">
+              <label>Max Daily Loss:</label>
+              <input
+                type="number"
+                id="max-daily-loss"
+                min="0.1"
+                max="100"
+                step="0.1"
+                value="5.0"
+              />
+              <span class="config-hint">% stop trading if exceeded</span>
+            </div>
+            <div class="config-row">
+              <label>Trading Fee:</label>
+              <input
+                type="number"
+                id="trading-fee"
+                min="0"
+                max="5"
+                step="0.01"
+                value="0.26"
+              />
+              <span class="config-hint">% per transaction</span>
+            </div>
+            <div class="config-row">
+              <label>Max Open Positions:</label>
+              <input
+                type="number"
+                id="max-positions"
+                min="1"
+                max="50"
+                step="1"
+                value=""
+              />
+              <span class="config-hint">(blank = unlimited)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeSettingsModal()">
+            Cancel
+          </button>
+          <button class="btn-primary" onclick="saveSettings()">
+            Save Configuration
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

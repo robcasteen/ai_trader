@@ -809,25 +809,29 @@ async function loadStrategies() {
         .map((sig) => {
           const strategies = sig.strategies || {};
           const strategyNames = Object.keys(strategies);
-          
+
           // Build strategy summary
-          const strategySummary = strategyNames.map(name => {
-            const s = strategies[name];
-            return `${name}:${s.signal}(${Math.round(s.confidence * 100)}%)`;
-          }).join(', ');
-          
+          const strategySummary = strategyNames
+            .map((name) => {
+              const s = strategies[name];
+              return `${name}:${s.signal}(${Math.round(s.confidence * 100)}%)`;
+            })
+            .join(", ");
+
           // Use final_confidence, fallback to confidence
           const confidence = sig.final_confidence || sig.confidence || 0;
-          
+
           return `
                 <tr>
                     <td class="timestamp">${formatTimeShort(sig.timestamp)}</td>
                     <td>${sig.symbol}</td>
-                    <td style="font-size: 9px;">${strategySummary || 'N/A'}</td>
+                    <td style="font-size: 9px;">${strategySummary || "N/A"}</td>
                     <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal.toUpperCase()}</span></td>
                     <td>${Math.round(confidence * 100)}%</td>
                     <td class="price">$${sig.price.toLocaleString()}</td>
-                    <td style="font-size: 9px; max-width: 300px;">${sig.reason || ''}</td>
+                    <td style="font-size: 9px; max-width: 300px;">${
+                      sig.reason || ""
+                    }</td>
                 </tr>
             `;
         })
@@ -979,7 +983,9 @@ async function loadStatus() {
 
     const nextRunEl = document.getElementById("next-run");
     if (nextRunEl) {
-      const nextRun = data.next_run ? new Date(data.next_run).toTimeString().split(" ")[0] : "--";
+      const nextRun = data.next_run
+        ? new Date(data.next_run).toTimeString().split(" ")[0]
+        : "--";
       nextRunEl.textContent = nextRun;
     }
 
@@ -990,59 +996,69 @@ async function loadStatus() {
   }
 }
 
-
-
 // Load holdings/positions
 async function loadHoldings() {
   try {
     const response = await fetch("/api/holdings");
     const data = await response.json();
-    
+
     const holdings = data.holdings || {};
     const summary = data.summary || {};
-    
+
     // Update summary metrics
     const countEl = document.getElementById("holdings-count");
     if (countEl) countEl.textContent = summary.total_positions || 0;
-    
+
     const positionsEl = document.getElementById("holdings-positions");
     if (positionsEl) positionsEl.textContent = summary.total_positions || 0;
-    
+
     const valueEl = document.getElementById("holdings-value");
     if (valueEl) {
       const value = summary.total_market_value || 0;
-      valueEl.textContent = "$" + value.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-      valueEl.className = "metric-value price " + (value >= 0 ? "positive" : "negative");
+      valueEl.textContent =
+        "$" +
+        value.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      valueEl.className =
+        "metric-value price " + (value >= 0 ? "positive" : "negative");
     }
-    
+
     const pnlEl = document.getElementById("holdings-pnl");
     if (pnlEl) {
       const pnl = summary.total_unrealized_pnl || 0;
-      pnlEl.textContent = (pnl >= 0 ? "+" : "") + "$" + Math.abs(pnl).toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-      pnlEl.className = "metric-value price " + (pnl >= 0 ? "positive" : "negative");
+      pnlEl.textContent =
+        (pnl >= 0 ? "+" : "") +
+        "$" +
+        Math.abs(pnl).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      pnlEl.className =
+        "metric-value price " + (pnl >= 0 ? "positive" : "negative");
     }
-    
+
     // Populate detailed table
     const tableEl = document.getElementById("holdings-table");
     if (tableEl) {
       const symbols = Object.keys(holdings);
-      
+
       if (symbols.length === 0) {
-        tableEl.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 10px; color: #666;">No positions</td></tr>';
+        tableEl.innerHTML =
+          '<tr><td colspan="8" style="text-align: center; padding: 10px; color: #666;">No positions</td></tr>';
       } else {
-        const rows = symbols.map(symbol => {
-          const h = holdings[symbol];
-          const pnl = h.unrealized_pnl || 0;
-          const pnlPct = h.cost_basis > 0 ? ((h.market_value - h.cost_basis) / h.cost_basis * 100) : 0;
-          const pnlClass = pnl >= 0 ? "positive" : "negative";
-          
-          return `
+        const rows = symbols
+          .map((symbol) => {
+            const h = holdings[symbol];
+            const pnl = h.unrealized_pnl || 0;
+            const pnlPct =
+              h.cost_basis > 0
+                ? ((h.market_value - h.cost_basis) / h.cost_basis) * 100
+                : 0;
+            const pnlClass = pnl >= 0 ? "positive" : "negative";
+
+            return `
             <tr>
               <td style="font-weight: bold;">${symbol}</td>
               <td>${h.amount.toFixed(6)}</td>
@@ -1050,12 +1066,17 @@ async function loadHoldings() {
               <td class="price">$${h.current_price.toLocaleString()}</td>
               <td class="price">$${h.market_value.toFixed(2)}</td>
               <td class="price">$${h.cost_basis.toFixed(2)}</td>
-              <td class="${pnlClass} price">${pnl >= 0 ? "+" : ""}$${pnl.toFixed(2)}</td>
-              <td class="${pnlClass}">${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(2)}%</td>
+              <td class="${pnlClass} price">${
+              pnl >= 0 ? "+" : ""
+            }$${pnl.toFixed(2)}</td>
+              <td class="${pnlClass}">${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(
+              2
+            )}%</td>
             </tr>
           `;
-        }).join('');
-        
+          })
+          .join("");
+
         tableEl.innerHTML = rows;
       }
     }
@@ -1063,7 +1084,133 @@ async function loadHoldings() {
     console.error("Error loading holdings:", error);
   }
 }
+// Settings Modal Functions
+function openSettingsModal() {
+  // Load current config
+  fetch("/api/config")
+    .then((r) => r.json())
+    .then((data) => {
+      const config = data.config;
 
+      // Trading mode
+      document.querySelector(
+        `input[name="trading_mode"][value="${config.trading_mode}"]`
+      ).checked = true;
+
+      // Strategies
+      document.getElementById("sentiment-enabled").checked =
+        config.strategies.sentiment.enabled;
+      document.getElementById("sentiment-weight").value =
+        config.strategies.sentiment.weight;
+      document.getElementById("technical-enabled").checked =
+        config.strategies.technical.enabled;
+      document.getElementById("technical-weight").value =
+        config.strategies.technical.weight;
+      document.getElementById("volume-enabled").checked =
+        config.strategies.volume.enabled;
+      document.getElementById("volume-weight").value =
+        config.strategies.volume.weight;
+
+      // Aggregation
+      document.getElementById("aggregation-method").value =
+        config.aggregation.method;
+      document.getElementById("min-confidence").value =
+        config.aggregation.min_confidence;
+      document.getElementById("min-confidence-percent").textContent =
+        Math.round(config.aggregation.min_confidence * 100);
+
+      // Risk management
+      document.getElementById("position-size").value =
+        config.risk_management.position_size_percent;
+      document.getElementById("max-daily-loss").value =
+        config.risk_management.max_daily_loss_percent;
+      document.getElementById("trading-fee").value = config.trading_fee_percent;
+      document.getElementById("max-positions").value =
+        config.risk_management.max_open_positions || "";
+
+      document.getElementById("settingsModal").style.display = "block";
+    });
+}
+
+function closeSettingsModal() {
+  document.getElementById("settingsModal").style.display = "none";
+}
+
+function saveSettings() {
+  const config = {
+    trading_mode: document.querySelector('input[name="trading_mode"]:checked')
+      .value,
+    strategies: {
+      sentiment: {
+        enabled: document.getElementById("sentiment-enabled").checked,
+        weight: parseFloat(document.getElementById("sentiment-weight").value),
+      },
+      technical: {
+        enabled: document.getElementById("technical-enabled").checked,
+        weight: parseFloat(document.getElementById("technical-weight").value),
+      },
+      volume: {
+        enabled: document.getElementById("volume-enabled").checked,
+        weight: parseFloat(document.getElementById("volume-weight").value),
+      },
+    },
+    aggregation: {
+      method: document.getElementById("aggregation-method").value,
+      min_confidence: parseFloat(
+        document.getElementById("min-confidence").value
+      ),
+    },
+    risk_management: {
+      position_size_percent: parseFloat(
+        document.getElementById("position-size").value
+      ),
+      max_daily_loss_percent: parseFloat(
+        document.getElementById("max-daily-loss").value
+      ),
+      max_open_positions: document.getElementById("max-positions").value
+        ? parseInt(document.getElementById("max-positions").value)
+        : null,
+    },
+    trading_fee_percent: parseFloat(
+      document.getElementById("trading-fee").value
+    ),
+  };
+
+  fetch("/api/config", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ config }),
+  })
+    .then((r) => r.json())
+    .then((data) => {
+      if (data.status === "success") {
+        alert("✅ Configuration saved successfully!");
+        closeSettingsModal();
+      } else {
+        alert("❌ Error saving configuration: " + data.error);
+      }
+    })
+    .catch((err) => alert("❌ Error: " + err));
+}
+
+// Update percentage display when min-confidence slider changes
+document.addEventListener("DOMContentLoaded", () => {
+  const minConfInput = document.getElementById("min-confidence");
+  if (minConfInput) {
+    minConfInput.addEventListener("input", (e) => {
+      document.getElementById("min-confidence-percent").textContent =
+        Math.round(e.target.value * 100);
+    });
+  }
+
+  // Close modal when clicking outside
+  window.onclick = (event) => {
+    const modal = document.getElementById("settingsModal");
+    if (event.target === modal) {
+      closeSettingsModal();
+    }
+  };
+});
 // Update refreshData to call all the functions
 function refreshData() {
   refreshBalance();
@@ -1073,5 +1220,16 @@ function refreshData() {
   loadHealth();
   loadHoldings();
 }
+// Clock update - moved from inline script
+function updateClock() {
+  const now = new Date();
+  const clockEl = document.getElementById("status-time");
+  if (clockEl) {
+    clockEl.textContent = now.toTimeString().split(" ")[0];
+  }
+}
 
+// Start clock on load
+setInterval(updateClock, 1000);
+updateClock(); // Initial call
 console.log("✅ Terminal dashboard functions loaded");

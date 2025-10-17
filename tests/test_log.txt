@@ -5,104 +5,37 @@ DEBUG    tzlocal:unix.py:120 /etc/localtime found
 DEBUG    tzlocal:unix.py:136 2 found:
  {'/etc/timezone': 'America/Chicago', '/etc/localtime is a symlink to': 'America/Chicago'}
 DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
-INFO     root:main.py:287 [Manual] Trade cycle triggered via /run-now endpoint
-INFO     root:main.py:86 [TradeCycle] === Starting cycle at 2025-10-16 19:59:45 ===
-INFO     root:strategy_manager.py:39 [StrategyManager] Logging to /home/rcasteen/kraken-ai-bot/src/app/logs/strategy_signals.jsonl
-DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): api.kraken.com:443
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=all HTTP/1.1" 200 39
-INFO     root:news_fetcher.py:132 [NewsFetcher] Processed https://cointelegraph.com/rss
-INFO     root:news_fetcher.py:132 [NewsFetcher] Processed https://www.coindesk.com/arc/outboundfeeds/rss/
-INFO     root:news_fetcher.py:132 [NewsFetcher] Processed https://decrypt.co/feed
-INFO     root:news_fetcher.py:137 [NewsFetcher] Found unseen headlines for 0 symbols
-INFO     root:main.py:116 [Scanner] Top 0 symbols: []
-INFO     root:main.py:117 [News] Retrieved 0 symbol groups with unseen headlines
-INFO     root:main.py:143 [TradeCycle] No scanner/news symbols, using fallback list
-INFO     root:main.py:147 [ETHUSD] Checking...
-DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): api.kraken.com:443
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=ETHUSD HTTP/1.1" 200 None
-INFO     root:main.py:152 [ETHUSD] Current price: 3925.69
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "POST /0/private/Balance HTTP/1.1" 200 41
-INFO     root:main.py:161 [ETHUSD] Current USD balance: 200.0
-INFO     root:risk_manager.py:61 [RiskManager] Position size: 0.001528 @ $3925.69 = $6.00
-INFO     root:main.py:165 [ETHUSD] Risk-adjusted position size: 0.001528
-INFO     root:strategy_manager.py:133 [sentiment] ETHUSD: HOLD (conf: 0.00) - No news headlines available
-INFO     root:strategy_manager.py:133 [technical] ETHUSD: HOLD (conf: 0.30) - Insufficient price history for technical analysis
-INFO     root:strategy_manager.py:133 [volume] ETHUSD: HOLD (conf: 0.00) - No volume data available
-INFO     root:strategy_manager.py:245 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.3
-INFO     root:strategy_manager.py:163 [StrategyManager] Final signal for ETHUSD: HOLD (conf: 0.11)
-INFO     root:strategy_manager.py:200 [StrategyManager] Confidence 0.11 below threshold 0.2, converting to HOLD
-INFO     root:main.py:187 [ETHUSD] Signal: HOLD | Reason: Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:199 [ETHUSD] Trade result: {'timestamp': '2025-10-16T19:59:47.479550', 'action': 'hold', 'symbol': 'ETHUSD', 'price': 3925.69, 'amount': 0.001528, 'gross_value': 6.0, 'fee': 0.02, 'net_value': 5.98, 'reason': 'Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis', 'value': 5.98}
-INFO     root:notifier.py:14 [ALERT] [ETHUSD] hold @ 3925.69 — Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:204 [ETHUSD] Notified result.
-INFO     root:main.py:147 [BTCUSD] Checking...
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=BTCUSD HTTP/1.1" 200 None
-INFO     root:main.py:152 [BTCUSD] Current price: 108759.9
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "POST /0/private/Balance HTTP/1.1" 200 41
-INFO     root:main.py:161 [BTCUSD] Current USD balance: 200.0
-INFO     root:risk_manager.py:61 [RiskManager] Position size: 0.000055 @ $108759.90 = $6.00
-INFO     root:main.py:165 [BTCUSD] Risk-adjusted position size: 5.5e-05
-INFO     root:strategy_manager.py:133 [sentiment] BTCUSD: HOLD (conf: 0.00) - No news headlines available
-INFO     root:strategy_manager.py:133 [technical] BTCUSD: HOLD (conf: 0.30) - Insufficient price history for technical analysis
-INFO     root:strategy_manager.py:133 [volume] BTCUSD: HOLD (conf: 0.00) - No volume data available
-INFO     root:strategy_manager.py:245 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.3
-INFO     root:strategy_manager.py:163 [StrategyManager] Final signal for BTCUSD: HOLD (conf: 0.11)
-INFO     root:strategy_manager.py:200 [StrategyManager] Confidence 0.11 below threshold 0.2, converting to HOLD
-INFO     root:main.py:187 [BTCUSD] Signal: HOLD | Reason: Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:199 [BTCUSD] Trade result: {'timestamp': '2025-10-16T19:59:47.870397', 'action': 'hold', 'symbol': 'BTCUSD', 'price': 108759.9, 'amount': 5.5e-05, 'gross_value': 5.98, 'fee': 0.02, 'net_value': 5.97, 'reason': 'Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis', 'value': 5.97}
-INFO     root:notifier.py:14 [ALERT] [BTCUSD] hold @ 108759.9 — Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:204 [BTCUSD] Notified result.
-INFO     root:main.py:147 [DOGEUSD] Checking...
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=DOGEUSD HTTP/1.1" 200 None
-INFO     root:main.py:152 [DOGEUSD] Current price: 0.1894421
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "POST /0/private/Balance HTTP/1.1" 200 41
-INFO     root:main.py:161 [DOGEUSD] Current USD balance: 200.0
-INFO     root:risk_manager.py:61 [RiskManager] Position size: 31.671946 @ $0.19 = $6.00
-INFO     root:main.py:165 [DOGEUSD] Risk-adjusted position size: 31.671946
-INFO     root:strategy_manager.py:133 [sentiment] DOGEUSD: HOLD (conf: 0.00) - No news headlines available
-INFO     root:strategy_manager.py:133 [technical] DOGEUSD: HOLD (conf: 0.30) - Insufficient price history for technical analysis
-INFO     root:strategy_manager.py:133 [volume] DOGEUSD: HOLD (conf: 0.00) - No volume data available
-INFO     root:strategy_manager.py:245 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.3
-INFO     root:strategy_manager.py:163 [StrategyManager] Final signal for DOGEUSD: HOLD (conf: 0.11)
-INFO     root:strategy_manager.py:200 [StrategyManager] Confidence 0.11 below threshold 0.2, converting to HOLD
-INFO     root:main.py:187 [DOGEUSD] Signal: HOLD | Reason: Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:199 [DOGEUSD] Trade result: {'timestamp': '2025-10-16T19:59:48.259648', 'action': 'hold', 'symbol': 'DOGEUSD', 'price': 0.1894421, 'amount': 31.671946, 'gross_value': 6.0, 'fee': 0.02, 'net_value': 5.98, 'reason': 'Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis', 'value': 5.98}
-INFO     root:notifier.py:14 [ALERT] [DOGEUSD] hold @ 0.1894421 — Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:204 [DOGEUSD] Notified result.
-INFO     root:main.py:147 [XRPUSD] Checking...
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=XRPUSD HTTP/1.1" 200 None
-INFO     root:main.py:152 [XRPUSD] Current price: 2.33536
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "POST /0/private/Balance HTTP/1.1" 200 41
-INFO     root:main.py:161 [XRPUSD] Current USD balance: 200.0
-INFO     root:risk_manager.py:61 [RiskManager] Position size: 2.569197 @ $2.34 = $6.00
-INFO     root:main.py:165 [XRPUSD] Risk-adjusted position size: 2.569197
-INFO     root:strategy_manager.py:133 [sentiment] XRPUSD: HOLD (conf: 0.00) - No news headlines available
-INFO     root:strategy_manager.py:133 [technical] XRPUSD: HOLD (conf: 0.30) - Insufficient price history for technical analysis
-INFO     root:strategy_manager.py:133 [volume] XRPUSD: HOLD (conf: 0.00) - No volume data available
-INFO     root:strategy_manager.py:245 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.3
-INFO     root:strategy_manager.py:163 [StrategyManager] Final signal for XRPUSD: HOLD (conf: 0.11)
-INFO     root:strategy_manager.py:200 [StrategyManager] Confidence 0.11 below threshold 0.2, converting to HOLD
-INFO     root:main.py:187 [XRPUSD] Signal: HOLD | Reason: Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:199 [XRPUSD] Trade result: {'timestamp': '2025-10-16T19:59:48.637947', 'action': 'hold', 'symbol': 'XRPUSD', 'price': 2.33536, 'amount': 2.569197, 'gross_value': 6.0, 'fee': 0.02, 'net_value': 5.98, 'reason': 'Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis', 'value': 5.98}
-INFO     root:notifier.py:14 [ALERT] [XRPUSD] hold @ 2.33536 — Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:204 [XRPUSD] Notified result.
-INFO     root:main.py:147 [SOLUSD] Checking...
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=SOLUSD HTTP/1.1" 200 None
-INFO     root:main.py:152 [SOLUSD] Current price: 186.07
-DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "POST /0/private/Balance HTTP/1.1" 200 41
-INFO     root:main.py:161 [SOLUSD] Current USD balance: 200.0
-INFO     root:risk_manager.py:61 [RiskManager] Position size: 0.032246 @ $186.07 = $6.00
-INFO     root:main.py:165 [SOLUSD] Risk-adjusted position size: 0.032246
-INFO     root:strategy_manager.py:133 [sentiment] SOLUSD: HOLD (conf: 0.00) - No news headlines available
-INFO     root:strategy_manager.py:133 [technical] SOLUSD: HOLD (conf: 0.30) - Insufficient price history for technical analysis
-INFO     root:strategy_manager.py:133 [volume] SOLUSD: HOLD (conf: 0.00) - No volume data available
-INFO     root:strategy_manager.py:245 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.3
-INFO     root:strategy_manager.py:163 [StrategyManager] Final signal for SOLUSD: HOLD (conf: 0.11)
-INFO     root:strategy_manager.py:200 [StrategyManager] Confidence 0.11 below threshold 0.2, converting to HOLD
-INFO     root:main.py:187 [SOLUSD] Signal: HOLD | Reason: Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:199 [SOLUSD] Trade result: {'timestamp': '2025-10-16T19:59:49.021691', 'action': 'hold', 'symbol': 'SOLUSD', 'price': 186.07, 'amount': 0.032246, 'gross_value': 6.0, 'fee': 0.02, 'net_value': 5.98, 'reason': 'Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis', 'value': 5.98}
-INFO     root:notifier.py:14 [ALERT] [SOLUSD] hold @ 186.07 — Low confidence: HOLD signal from 3 strategies: sentiment: No news headlines available; technical: Insufficient price history for technical analysis
-INFO     root:main.py:204 [SOLUSD] Notified result.
-INFO     root:main.py:68 [Status] Updated bot_status.json: {'time': '2025-10-16 19:59:49', 'message': 'Processed 5 symbols with multi-strategy analysis', 'next_run': '2025-10-16 20:04:49'}
-INFO     root:main.py:227 [TradeCycle] === Completed cycle at 2025-10-16 19:59:49 ===
-INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/run-now "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:990 [Config] Updated configuration: ['strategies']
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:990 [Config] Updated configuration: ['aggregation']
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:990 [Config] Updated configuration: ['risk_management']
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 400 Bad Request"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:990 [Config] Updated configuration: ['trading_mode']
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:990 [Config] Updated configuration: ['trading_mode']
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:990 [Config] Updated configuration: ['strategies']
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:990 [Config] Updated configuration: ['aggregation']
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/config "HTTP/1.1 200 OK"

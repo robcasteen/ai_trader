@@ -9,7 +9,7 @@
     },
     "technical": {
       "enabled": true,
-      "weight": 1.0
+      "weight": 1
     },
     "volume": {
       "enabled": false,
@@ -21,9 +21,9 @@
     "min_confidence": 0.777
   },
   "risk_management": {
-    "position_size_percent": 5.0,
-    "max_daily_loss_percent": 10.0,
-    "max_open_positions": 5
+    "position_size_percent": 5,
+    "max_daily_loss_percent": 10,
+    "max_open_positions": null
   },
   "trading_mode": "live"
 }
