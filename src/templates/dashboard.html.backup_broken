@@ -374,7 +374,7 @@
     <div class="content-area">
         <!-- Overview Tab -->
         <div id="overview" class="tab-content active">
-            <div class="grid-3">
+            <div class="grid-2">
                 <div class="terminal-panel">
                     <div class="panel-header">Portfolio</div>
                     <div class="panel-content">
@@ -397,23 +397,36 @@
                     </div>
                 </div>
 
-                <div class="terminal-panel">
-                    <div class="panel-header">Holdings (<span id="holdings-count">0</span>)</div>
-                    <div class="panel-content">
-                        <div class="metric">
-                            <span class="metric-label">POSITIONS</span>
-                            <span class="metric-value" id="holdings-positions">0</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">MARKET VALUE</span>
-                            <span class="metric-value price positive" id="holdings-value">$0.00</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">UNREALIZED P&L</span>
-                            <span class="metric-value price positive" id="holdings-pnl">$0.00</span>
-                        </div>
-                    </div>
+            </div>
+
+            <div class="terminal-panel">
+                <div class="panel-header">
+                    Holdings (<span id="holdings-count">0</span>) 
+                    <span style="margin-left: 20px; color: #666;">Market Value: <span id="holdings-value" class="positive">$0.00</span></span>
+                    <span style="margin-left: 20px; color: #666;">Unrealized P&L: <span id="holdings-pnl" class="positive">$0.00</span></span>
                 </div>
+                <div class="panel-content compact">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>SYMBOL</th>
+                                <th>AMOUNT</th>
+                                <th>AVG PRICE</th>
+                                <th>CURRENT</th>
+                                <th>MKT VALUE</th>
+                                <th>COST BASIS</th>
+                                <th>P&L</th>
+                                <th>% GAIN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdings-table">
+                            <tr><td colspan="8" style="text-align: center; padding: 20px; color: #666;">No positions yet. Click RUN to start trading.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid-2">
 
                 <div class="terminal-panel">
                     <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -438,29 +451,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="terminal-panel">
-                <div class="panel-header">Position Details</div>
-                <div class="panel-content compact">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>SYMBOL</th>
-                                <th>AMOUNT</th>
-                                <th>AVG PRICE</th>
-                                <th>CURRENT</th>
-                                <th>MKT VALUE</th>
-                                <th>COST BASIS</th>
-                                <th>P&L</th>
-                                <th>% GAIN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="holdings-table">
-                            <tr><td colspan="8" style="text-align: center; padding: 10px; color: #666;">No positions</td></tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
 
             <div class="grid-2">
@@ -504,7 +495,7 @@
             </div>
         </div>
 
-                <!-- Trades Tab -->
+        <!-- Trades Tab -->
         <div id="trades" class="tab-content">
             <div class="terminal-panel">
                 <div class="panel-header">All Trades (<span id="all-trade-count">0</span>)</div>

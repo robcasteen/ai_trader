@@ -207,61 +207,44 @@ class StrategyManager:
     def _weighted_vote_aggregation(self, results: List[Dict]) -> Tuple[str, float, str]:
         """
         Aggregate signals using weighted voting.
-        HOLD signals don't dilute BUY/SELL confidence.
+        Each strategy's signal is weighted by its confidence and strategy weight.
         """
         scores = defaultdict(float)
         reasons_by_signal = defaultdict(list)
-        actionable_weight = 0  # Weight of BUY/SELL signals
-        hold_weight = 0  # Weight of HOLD signals
-        
+
+        total_weight = 0
+
         for result in results:
             signal = result["signal"]
             confidence = result["confidence"]
             weight = result["weight"]
             weighted_score = confidence * weight
-            
+
             scores[signal] += weighted_score
+            total_weight += weight
             reasons_by_signal[signal].append(
                 f"{result['strategy']}: {result['reason']}"
             )
-            
-            # Track weights separately
-            if signal in ["BUY", "SELL"]:
-                actionable_weight += weight
-            else:
-                hold_weight += weight
-        
+
         # Find winning signal
         if not scores:
             return "HOLD", 0.0, "No valid signals"
-        
+
         winning_signal = max(scores.items(), key=lambda x: x[1])
         signal = winning_signal[0]
         raw_score = winning_signal[1]
-        
-        # Calculate confidence based on signal type
-       # Calculate confidence based on signal type
-        print(f"🔍 PRE-CALC: signal={signal}, actionable_weight={actionable_weight}, hold_weight={hold_weight}, raw_score={raw_score}")
-        logging.info(f"[StrategyManager] DEBUG: signal={signal}, actionable_weight={actionable_weight}, hold_weight={hold_weight}, raw_score={raw_score}")
-        if signal in ["BUY", "SELL"] and actionable_weight > 0:
-            # For actionable signals, only divide by actionable weight
-            confidence = min(raw_score / actionable_weight, 1.0)
-            print(f"✅ CALC BUY/SELL: {raw_score} / {actionable_weight} = {confidence}")
-        elif actionable_weight + hold_weight > 0:
-            # For HOLD, use total weight
-            confidence = min(raw_score / (actionable_weight + hold_weight), 1.0)
-            print(f"⚠️ CALC HOLD: {raw_score} / {actionable_weight + hold_weight} = {confidence}")
-        else:
-            confidence = 0.0
-            print(f"❌ NO WEIGHT")
-        
+
+        # Normalize confidence
+        confidence = min(raw_score / total_weight, 1.0) if total_weight > 0 else 0.0
+
         # Build reason
         reason = (
             f"{signal} signal from {len(reasons_by_signal[signal])} strategies: "
             + "; ".join(reasons_by_signal[signal][:2])
         )
-        
+
         return signal, confidence, reason
+
     def _highest_confidence_aggregation(
         self, results: List[Dict]
     ) -> Tuple[str, float, str]:

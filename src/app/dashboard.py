@@ -319,6 +319,7 @@ async def get_balance():
 async def get_holdings():
     """Get current holdings/positions calculated from trade history."""
     trades_file = LOGS_DIR / "trades.json"
+    TRADING_FEE = 0.0026  # 0.26% trading fee
     
     try:
         holdings = {}
@@ -338,19 +339,22 @@ async def get_holdings():
                 
                 if action == "buy":
                     if symbol not in holdings:
-                        holdings[symbol] = {
-                            "amount": 0.0,
-                            "total_cost": 0.0,
-                            "trades": []
-                        }
+                        holdings[symbol] = {"amount": 0.0, "total_cost": 0.0, "trades": []}
+                    
+                    # Add trading fee to cost basis
+                    cost_with_fee = (amount * price) * (1 + TRADING_FEE)
                     holdings[symbol]["amount"] += amount
-                    holdings[symbol]["total_cost"] += (amount * price)
+                    holdings[symbol]["total_cost"] += cost_with_fee
                     holdings[symbol]["trades"].append(trade)
                     
                 elif action == "sell":
-                    if symbol in holdings:
+                    if symbol in holdings and holdings[symbol]["amount"] > 0:
+                        # Reduce position proportionally
+                        proportion_sold = amount / holdings[symbol]["amount"]
+                        cost_reduction = holdings[symbol]["total_cost"] * proportion_sold
+                        
                         holdings[symbol]["amount"] -= amount
-                        holdings[symbol]["total_cost"] -= (amount * price)
+                        holdings[symbol]["total_cost"] -= cost_reduction
                         holdings[symbol]["trades"].append(trade)
                         
                         if holdings[symbol]["amount"] <= 0.0001:
@@ -358,12 +362,12 @@ async def get_holdings():
         
         # Get current prices
         from app.client.kraken import KrakenClient
+        
         kraken_client = KrakenClient()
         
         formatted_holdings = {}
         for symbol, data in holdings.items():
-            current_price = kraken_client.get_price(symbol)  # Changed from await get_price(symbol)
-
+            current_price = kraken_client.get_price(symbol)
             amount = data["amount"]
             avg_price = data["total_cost"] / amount if amount > 0 else 0
             market_value = amount * current_price

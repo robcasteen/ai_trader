@@ -102,7 +102,7 @@ def run_trade_cycle():
     strategy_config = {
         "use_technical": True,
         "use_volume": True,
-        "min_confidence": 0.5,
+        "min_confidence": 0.2,
         "aggregation_method": "weighted_vote",
         "logs_dir": str(LOGS_DIR),  # ADD THIS
     }
@@ -126,28 +126,21 @@ def run_trade_cycle():
     # Keep the slash format as canonical
     normalized_symbols = set()
     symbol_map = {}  # Map normalized -> original for news lookup
-    
+
     for symbol in all_symbols:
         # Normalize by removing slash
-        normalized = symbol.replace('/', '')
-        
-        # Keep the first version we see (prefer slashed version)
-        if normalized not in symbol_map or '/' in symbol:
-            symbol_map[normalized] = symbol
-            normalized_symbols.add(symbol if '/' in symbol else symbol)
-    
-    all_symbols = normalized_symbols
+        normalized = symbol.replace("/", "")
 
+        # Keep the first version we see (prefer slashed version)
+        if normalized not in symbol_map or "/" in symbol:
+            symbol_map[normalized] = symbol
+            normalized_symbols.add(symbol if "/" in symbol else symbol)
+
+    all_symbols = normalized_symbols
     if not all_symbols:
-        msg = "No actionable headlines or symbols."
-        logging.info(f"[TradeCycle] {msg}")
-        save_status_to_file(
-            {"time": start_time, "message": msg, "next_run": get_next_run_time()}
-        )
-        logging.info(
-            f"[TradeCycle] === Completed cycle at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ==="
-        )
-        return
+        # Fallback to default tracked symbols
+        all_symbols = {"BTCUSD", "ETHUSD", "SOLUSD", "XRPUSD", "DOGEUSD"}
+        logging.info("[TradeCycle] No scanner/news symbols, using fallback list")
 
     # Process each symbol
     for symbol in all_symbols:
@@ -176,10 +169,14 @@ def run_trade_cycle():
                 "headlines": headlines_by_symbol.get(symbol, []),
                 "price": price,
                 "symbol": symbol,
-                "price_history": data_collector.get_price_history(symbol, limit=50),  # CHANGED
-                "volume_history": data_collector.get_volume_history(symbol, limit=50),  # CHANGED
+                "price_history": data_collector.get_price_history(
+                    symbol, limit=50
+                ),  # CHANGED
+                "volume_history": data_collector.get_volume_history(
+                    symbol, limit=50
+                ),  # CHANGED
             }
-            
+
             # ADDED - Add current volume
             vol_hist = data_collector.get_volume_history(symbol, limit=1)
             context["volume"] = vol_hist[-1] if vol_hist else 0
@@ -278,7 +275,7 @@ def shutdown_scheduler():
     # ADDED - Stop data collector
     data_collector.stop()
     logging.info("[Shutdown] Data collector stopped")
-    
+
     if scheduler.running:
         scheduler.shutdown()
         logging.info("[Shutdown] Scheduler shutdown complete.")

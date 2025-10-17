@@ -1,4 +1,5 @@
 {
   "strategy": "gpt-sentiment",
-  "interval_minutes": 10
+  "interval_minutes": 10,
+  "trading_fee_percent": 0.26
 }

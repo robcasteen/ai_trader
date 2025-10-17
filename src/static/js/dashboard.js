@@ -782,7 +782,7 @@ async function loadStrategies() {
     if (strategySignalCountEl)
       strategySignalCountEl.textContent = signals.length;
 
-    // Recent signals (overview tab)
+    // Recent signals (overview tab) - show final signal only
     const recentSignalsEl = document.getElementById("recent-signals");
     if (recentSignalsEl) {
       const recentHtml = signals
@@ -802,25 +802,35 @@ async function loadStrategies() {
         recentHtml || '<tr><td colspan="4">No signals yet</td></tr>';
     }
 
-    // All signals (strategies tab)
+    // All signals (strategies tab) - show detailed breakdown
     const strategySignalsEl = document.getElementById("strategy-signals");
     if (strategySignalsEl) {
       const allSignalsHtml = signals
-        .map(
-          (sig) => `
+        .map((sig) => {
+          const strategies = sig.strategies || {};
+          const strategyNames = Object.keys(strategies);
+          
+          // Build strategy summary
+          const strategySummary = strategyNames.map(name => {
+            const s = strategies[name];
+            return `${name}:${s.signal}(${Math.round(s.confidence * 100)}%)`;
+          }).join(', ');
+          
+          // Use final_confidence, fallback to confidence
+          const confidence = sig.final_confidence || sig.confidence || 0;
+          
+          return `
                 <tr>
                     <td class="timestamp">${formatTimeShort(sig.timestamp)}</td>
                     <td>${sig.symbol}</td>
-                    <td>${Object.keys(sig.strategies || {})[0] || "N/A"}</td>
+                    <td style="font-size: 9px;">${strategySummary || 'N/A'}</td>
                     <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal.toUpperCase()}</span></td>
-                    <td>${Math.round((sig.confidence || 0) * 100)}%</td>
+                    <td>${Math.round(confidence * 100)}%</td>
                     <td class="price">$${sig.price.toLocaleString()}</td>
-                    <td style="font-size: 9px;">${
-                      Object.values(sig.strategies || {})[0]?.reason || ""
-                    }</td>
+                    <td style="font-size: 9px; max-width: 300px;">${sig.reason || ''}</td>
                 </tr>
-            `
-        )
+            `;
+        })
         .join("");
       strategySignalsEl.innerHTML =
         allSignalsHtml || '<tr><td colspan="7">No signals yet</td></tr>';
@@ -968,12 +978,89 @@ async function loadStatus() {
     }
 
     const nextRunEl = document.getElementById("next-run");
-    if (nextRunEl) nextRunEl.textContent = status.next_run || "--";
+    if (nextRunEl) {
+      const nextRun = data.next_run ? new Date(data.next_run).toTimeString().split(" ")[0] : "--";
+      nextRunEl.textContent = nextRun;
+    }
 
     const statusMsgEl = document.getElementById("status-msg");
     if (statusMsgEl) statusMsgEl.textContent = status.message || "--";
   } catch (error) {
     console.error("Error loading status:", error);
+  }
+}
+
+
+
+// Load holdings/positions
+async function loadHoldings() {
+  try {
+    const response = await fetch("/api/holdings");
+    const data = await response.json();
+    
+    const holdings = data.holdings || {};
+    const summary = data.summary || {};
+    
+    // Update summary metrics
+    const countEl = document.getElementById("holdings-count");
+    if (countEl) countEl.textContent = summary.total_positions || 0;
+    
+    const positionsEl = document.getElementById("holdings-positions");
+    if (positionsEl) positionsEl.textContent = summary.total_positions || 0;
+    
+    const valueEl = document.getElementById("holdings-value");
+    if (valueEl) {
+      const value = summary.total_market_value || 0;
+      valueEl.textContent = "$" + value.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      valueEl.className = "metric-value price " + (value >= 0 ? "positive" : "negative");
+    }
+    
+    const pnlEl = document.getElementById("holdings-pnl");
+    if (pnlEl) {
+      const pnl = summary.total_unrealized_pnl || 0;
+      pnlEl.textContent = (pnl >= 0 ? "+" : "") + "$" + Math.abs(pnl).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      pnlEl.className = "metric-value price " + (pnl >= 0 ? "positive" : "negative");
+    }
+    
+    // Populate detailed table
+    const tableEl = document.getElementById("holdings-table");
+    if (tableEl) {
+      const symbols = Object.keys(holdings);
+      
+      if (symbols.length === 0) {
+        tableEl.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 10px; color: #666;">No positions</td></tr>';
+      } else {
+        const rows = symbols.map(symbol => {
+          const h = holdings[symbol];
+          const pnl = h.unrealized_pnl || 0;
+          const pnlPct = h.cost_basis > 0 ? ((h.market_value - h.cost_basis) / h.cost_basis * 100) : 0;
+          const pnlClass = pnl >= 0 ? "positive" : "negative";
+          
+          return `
+            <tr>
+              <td style="font-weight: bold;">${symbol}</td>
+              <td>${h.amount.toFixed(6)}</td>
+              <td class="price">$${h.avg_price.toLocaleString()}</td>
+              <td class="price">$${h.current_price.toLocaleString()}</td>
+              <td class="price">$${h.market_value.toFixed(2)}</td>
+              <td class="price">$${h.cost_basis.toFixed(2)}</td>
+              <td class="${pnlClass} price">${pnl >= 0 ? "+" : ""}$${pnl.toFixed(2)}</td>
+              <td class="${pnlClass}">${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(2)}%</td>
+            </tr>
+          `;
+        }).join('');
+        
+        tableEl.innerHTML = rows;
+      }
+    }
+  } catch (error) {
+    console.error("Error loading holdings:", error);
   }
 }
 
@@ -984,6 +1071,7 @@ function refreshData() {
   loadStrategies();
   loadStatus();
   loadHealth();
+  loadHoldings();
 }
 
 console.log("✅ Terminal dashboard functions loaded");
