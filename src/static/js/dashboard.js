@@ -20,10 +20,14 @@ function formatPrice(price) {
   );
 }
 
-// Format time as HH:MM for terminal display
+// Format time with date for terminal display
 function formatTimeShort(timestamp) {
   const date = new Date(timestamp);
-  return date.toTimeString().split(" ")[0].substring(0, 5);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${month}/${day} ${hours}:${minutes}`;
 }
 
 // Utility: Format time with relative display
@@ -550,7 +554,10 @@ function initDashboard() {
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initDashboard);
 } else {
-  initDashboard();
+  // Don't auto-init during tests
+  if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+    initDashboard();
+  }
 }
 
 // Add these functions to the END of src/static/js/dashboard.js
@@ -829,9 +836,11 @@ async function loadStrategies() {
                     <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal.toUpperCase()}</span></td>
                     <td>${Math.round(confidence * 100)}%</td>
                     <td class="price">$${sig.price.toLocaleString()}</td>
-                    <td style="font-size: 9px; max-width: 300px;">${
-                      sig.reason || ""
-                    }</td>
+                    <td style="font-size: 9px; max-width: 300px;">
+                        ${strategyNames
+                          .map((name) => `${name}: ${strategies[name].reason}`)
+                          .join(" | ")}
+                    </td>
                 </tr>
             `;
         })
@@ -892,7 +901,6 @@ async function loadHealth() {
   }
 }
 
-// Load portfolio data (for terminal dashboard)
 async function loadPortfolio() {
   try {
     const response = await fetch("/partial");
@@ -913,48 +921,62 @@ async function loadPortfolio() {
     const winRateEl = document.getElementById("win-rate");
     if (winRateEl) winRateEl.textContent = winRate + "%";
 
+    // trades from /partial already has HOLDs filtered out by backend
     const trades = data.trades || [];
+
+    // Update all trade counts with the actual filtered count
     const tradeCountEl = document.getElementById("trade-count");
     if (tradeCountEl) tradeCountEl.textContent = trades.length;
 
-    const recentTradesEl = document.getElementById("recent-trades");
-    if (recentTradesEl) {
-      const tradesHtml = trades
-        .slice(0, 5)
-        .map(
-          (trade) => `
-                <tr>
-                    <td class="timestamp">${formatTimeShort(
-                      trade.timestamp
-                    )}</td>
-                    <td>${trade.symbol}</td>
-                    <td><span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action.toUpperCase()}</span></td>
-                    <td class="price">$${trade.price.toLocaleString()}</td>
-                </tr>
-            `
-        )
-        .join("");
-      recentTradesEl.innerHTML =
-        tradesHtml || '<tr><td colspan="4">No trades yet</td></tr>';
-    }
+    const totalTradeCountEl = document.getElementById("total-trade-count");
+    if (totalTradeCountEl) totalTradeCountEl.textContent = trades.length;
 
     const allTradeCountEl = document.getElementById("all-trade-count");
     if (allTradeCountEl) allTradeCountEl.textContent = trades.length;
 
-    const allTradesEl = document.getElementById("all-trades");
-    if (allTradesEl) {
-      const allTradesHtml = trades
+    // Recent trades (overview tab) - first 5, sorted
+    const recentTradesEl = document.getElementById("recent-trades");
+    if (recentTradesEl) {
+      const sortedRecent = [...trades]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 5);
+
+      const tradesHtml = sortedRecent
         .map(
           (trade) => `
-                <tr>
-                    <td class="timestamp">${trade.timestamp}</td>
-                    <td>${trade.symbol}</td>
-                    <td><span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action.toUpperCase()}</span></td>
-                    <td class="price">$${trade.price.toLocaleString()}</td>
-                    <td>${trade.amount || 0.01}</td>
-                    <td class="price">$${(trade.value || 0).toFixed(2)}</td>
-                    <td style="font-size: 9px;">${trade.reason || ""}</td>
-                </tr>
+      <tr>
+          <td class="timestamp">${formatTimeShort(trade.timestamp)}</td>
+          <td>${trade.symbol}</td>
+          <td><span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action.toUpperCase()}</span></td>
+          <td class="price">$${trade.price.toLocaleString()}</td>
+      </tr>
+  `
+        )
+        .join("");
+
+      recentTradesEl.innerHTML =
+        tradesHtml || '<tr><td colspan="4">No trades yet</td></tr>';
+    }
+
+    // All trades (trades tab) - everything, sorted
+    const allTradesEl = document.getElementById("all-trades");
+    if (allTradesEl) {
+      const sortedAll = [...trades].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+
+      const allTradesHtml = sortedAll
+        .map(
+          (trade) => `
+            <tr>
+                <td class="timestamp">${trade.timestamp}</td>
+                <td>${trade.symbol}</td>
+                <td><span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action.toUpperCase()}</span></td>
+                <td class="price">$${trade.price.toLocaleString()}</td>
+                <td>${trade.amount || 0.01}</td>
+                <td class="price">$${(trade.value || 0).toFixed(2)}</td>
+                <td style="font-size: 9px;">${trade.reason || ""}</td>
+            </tr>
             `
         )
         .join("");
@@ -1219,6 +1241,71 @@ function refreshData() {
   loadStatus();
   loadHealth();
   loadHoldings();
+  loadAllTradesTab();
+}
+// All Trades Modal Functions
+async function openAllTradesModal() {
+  document.getElementById("allTradesModal").style.display = "block";
+
+  try {
+    // Fetch ALL trades from the trades.json file directly
+    const response = await fetch("/api/trades/all");
+    const data = await response.json();
+
+    // data is already an array, no need to extract a property
+    const trades = Array.isArray(data) ? data : [];
+
+    const modalCountEl = document.getElementById("modal-trade-count");
+    if (modalCountEl) modalCountEl.textContent = trades.length;
+
+    const tableBody = document.getElementById("modal-trades-table");
+    if (tableBody) {
+      // Sort by timestamp descending
+      const sortedTrades = [...trades].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+      const html = sortedTrades
+        .map(
+          (trade) => `
+                <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.2);">
+                    <td style="padding: 8px; font-size: 11px;">${formatTimeShort(
+                      trade.timestamp
+                    )}</td>
+                    <td style="padding: 8px;">${trade.symbol}</td>
+                    <td style="padding: 8px;">
+                        <span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action.toUpperCase()}</span>
+                    </td>
+                    <td style="padding: 8px;" class="price">$${trade.price.toLocaleString()}</td>
+                    <td style="padding: 8px;">${(trade.amount || 0).toFixed(
+                      6
+                    )}</td>
+                    <td style="padding: 8px;" class="price">$${(
+                      trade.value || 0
+                    ).toFixed(2)}</td>
+                    <td style="padding: 8px; font-size: 9px; max-width: 400px; overflow: hidden; text-overflow: ellipsis;">${
+                      trade.reason || ""
+                    }</td>
+                </tr>
+            `
+        )
+        .join("");
+
+      tableBody.innerHTML =
+        html ||
+        '<tr><td colspan="7" style="text-align: center; padding: 20px;">No trades found</td></tr>';
+    }
+  } catch (error) {
+    console.error("Error loading all trades:", error);
+    const tableBody = document.getElementById("modal-trades-table");
+    if (tableBody) {
+      tableBody.innerHTML =
+        '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff0000;">Error loading trades</td></tr>';
+    }
+  }
+}
+
+function closeAllTradesModal() {
+  document.getElementById("allTradesModal").style.display = "none";
 }
 // Clock update - moved from inline script
 function updateClock() {
@@ -1228,8 +1315,58 @@ function updateClock() {
     clockEl.textContent = now.toTimeString().split(" ")[0];
   }
 }
+// Load ALL trades for the Trades tab
+async function loadAllTradesTab() {
+  try {
+    const response = await fetch("/api/trades/all");
+    const trades = await response.json();
 
-// Start clock on load
-setInterval(updateClock, 1000);
-updateClock(); // Initial call
+    // Update count
+    const allTradeCountEl = document.getElementById("all-trade-count");
+    if (allTradeCountEl) allTradeCountEl.textContent = trades.length;
+
+    // Populate table
+    const allTradesEl = document.getElementById("all-trades");
+    if (allTradesEl) {
+      const sortedAll = [...trades].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+
+      const allTradesHtml = sortedAll
+        .map(
+          (trade) => `
+            <tr>
+                <td class="timestamp">${trade.timestamp}</td>
+                <td>${trade.symbol}</td>
+                <td><span class="signal-badge signal-${trade.action.toLowerCase()}">${trade.action.toUpperCase()}</span></td>
+                <td class="price">$${trade.price.toLocaleString()}</td>
+                <td>${trade.amount || 0.01}</td>
+                <td class="price">$${(trade.value || 0).toFixed(2)}</td>
+                <td style="font-size: 9px;">${trade.reason || ""}</td>
+            </tr>
+            `
+        )
+        .join("");
+      allTradesEl.innerHTML =
+        allTradesHtml || '<tr><td colspan="7">No trades yet</td></tr>';
+    }
+  } catch (error) {
+    console.error("Error loading all trades:", error);
+  }
+}
+// Start clock on load (but not during tests)
+if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+  setInterval(updateClock, 1000);
+  updateClock(); // Initial call
+}
+
 console.log("✅ Terminal dashboard functions loaded");
+
+// At end of dashboard.js
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    loadAllTradesTab,
+    openAllTradesModal,
+    formatTimeShort,
+  };
+}

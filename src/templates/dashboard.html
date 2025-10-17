@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Trading Terminal</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
     <style>
       * {
         margin: 0;
@@ -716,7 +717,15 @@
 
           <div class="terminal-panel">
             <div class="panel-header">
-              Recent Trades (<span id="trade-count">0</span>)
+              RECENT TRADES (<span id="recent-trade-count">5</span> OF
+              <span id="total-trade-count">20</span>)
+              <button
+                class="btn"
+                onclick="openAllTradesModal()"
+                style="margin-left: 10px; padding: 4px 12px; font-size: 10px"
+              >
+                VIEW ALL
+              </button>
             </div>
             <div class="panel-content compact">
               <table class="data-table">
@@ -743,7 +752,7 @@
       <div id="trades" class="tab-content">
         <div class="terminal-panel">
           <div class="panel-header">
-            All Trades (<span id="all-trade-count">0</span>)
+            ALL TRADES (<span id="all-trade-count">0</span>)
           </div>
           <div class="panel-content">
             <table class="data-table">
@@ -955,7 +964,6 @@
     </div>
 
     <script>
-
       // Tab switching
       function switchTab(tabName) {
         document
@@ -1131,6 +1139,63 @@
           </button>
           <button class="btn-primary" onclick="saveSettings()">
             Save Configuration
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- All Trades Modal -->
+    <div id="allTradesModal" class="modal">
+      <div class="modal-content" style="max-width: 1200px; max-height: 90vh">
+        <div class="modal-header">
+          <h2>📊 ALL TRADES (<span id="modal-trade-count">0</span>)</h2>
+          <span class="close" onclick="closeAllTradesModal()">&times;</span>
+        </div>
+
+        <div
+          class="modal-body"
+          style="padding: 0; overflow-y: auto; max-height: calc(90vh - 120px)"
+        >
+          <table style="width: 100%; border-collapse: collapse">
+            <thead
+              style="position: sticky; top: 0; background: #0a0a0a; z-index: 10"
+            >
+              <tr>
+                <th style="padding: 10px; border-bottom: 1px solid #00ff00">
+                  TIMESTAMP
+                </th>
+                <th style="padding: 10px; border-bottom: 1px solid #00ff00">
+                  SYMBOL
+                </th>
+                <th style="padding: 10px; border-bottom: 1px solid #00ff00">
+                  ACTION
+                </th>
+                <th style="padding: 10px; border-bottom: 1px solid #00ff00">
+                  PRICE
+                </th>
+                <th style="padding: 10px; border-bottom: 1px solid #00ff00">
+                  AMOUNT
+                </th>
+                <th style="padding: 10px; border-bottom: 1px solid #00ff00">
+                  VALUE
+                </th>
+                <th style="padding: 10px; border-bottom: 1px solid #00ff00">
+                  REASON
+                </th>
+              </tr>
+            </thead>
+            <tbody id="modal-trades-table">
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 20px">
+                  Loading...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeAllTradesModal()">
+            Close
           </button>
         </div>
       </div>

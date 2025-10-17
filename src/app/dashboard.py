@@ -695,6 +695,30 @@ async def get_system_health():
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
 
 
+@router.get("/api/trades/all")
+async def get_all_trades():
+    """Get all trades without limit."""
+    trades_file = Path("src/app/logs/trades.json")
+    
+    try:
+        if not trades_file.exists():
+            return JSONResponse([])
+            
+        with open(trades_file, "r") as f:
+            all_trades = json.load(f)
+        
+        # Filter out HOLD actions - only return actual trades (BUY/SELL)
+        real_trades = [
+            t for t in all_trades 
+            if (t.get("action") or "").lower() in ("buy", "sell")
+        ]
+        
+        return JSONResponse(real_trades)
+    except Exception as e:
+        logging.error(f"[API] Error loading all trades: {e}")
+        return JSONResponse([], status_code=500)
+
+
 async def check_openai_health() -> Dict[str, Any]:
     try:
         error_count = 0
