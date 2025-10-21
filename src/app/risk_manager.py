@@ -48,17 +48,24 @@ class RiskManager:
         
         return True
     
-    def calculate_position_size(self, price: float) -> float:
+    def calculate_position_size(self, price: float, balance: float = None) -> float:
         """
         Calculate safe position size based on capital.
         
+        Args:
+            price: Current price of asset
+            balance: Current balance (if None, uses self.current_capital)
+            
         Returns:
             Amount of asset to trade (in base currency)
         """
-        max_position_value = self.current_capital * self.max_position_size_pct
+        # Use provided balance (from exchange) or fall back to internal tracking
+        capital = balance if balance is not None else self.current_capital
+        
+        max_position_value = capital * self.max_position_size_pct
         amount = max_position_value / price if price > 0 else 0
         
-        logging.info(f"[RiskManager] Position size: {amount:.6f} @ ${price:.2f} = ${max_position_value:.2f}")
+        logging.info(f"[RiskManager] Position size: {amount:.6f} @ ${price:.2f} = ${max_position_value:.2f} (capital: ${capital:.2f})")
         return round(amount, 6)
     
     def update_after_trade(self, pnl: float):

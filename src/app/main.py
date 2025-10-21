@@ -161,7 +161,7 @@ def run_trade_cycle():
             logging.info(f"[{symbol}] Current USD balance: {balance}")
 
             # ADDED - Calculate position size from risk manager
-            amount = risk_manager.calculate_position_size(price)
+            amount = risk_manager.calculate_position_size(price, balance)
             logging.info(f"[{symbol}] Risk-adjusted position size: {amount}")
 
             # Prepare context for strategies - UPDATED WITH DATA COLLECTOR

@@ -73,3 +73,5 @@ def test_run_now_endpoint_triggers_cycle():
     assert data["status"] == "ok"
     assert "last_status" in data
     assert "next_run" in data
+
+

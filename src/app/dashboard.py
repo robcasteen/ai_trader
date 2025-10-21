@@ -296,7 +296,7 @@ async def get_balance():
         from app.client.kraken import KrakenClient
 
         client = KrakenClient()
-        kraken_balances = await client.get_balance()
+        kraken_balances = client.get_balance()
 
         if kraken_balances:
             balance_data["kraken_live"]["connected"] = True
