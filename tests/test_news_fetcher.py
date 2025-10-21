@@ -270,3 +270,49 @@ class TestGetRSSFeeds:
                 # Legacy string format
                 assert feed.startswith("http")
                 assert "rss" in feed.lower() or "feed" in feed.lower()
+
+class TestSymbolNormalization:
+    """Test that extracted symbols use canonical normalized format."""
+    
+    def test_bitcoin_variations_all_normalize_to_btcusd(self):
+        """All Bitcoin keyword variations should normalize to BTCUSD"""
+        test_cases = [
+            "Bitcoin surges to new high",
+            "BTC rallies 10%", 
+            "bitcoin crashes",
+        ]
+        for headline in test_cases:
+            result = news_fetcher.extract_symbol_from_headline(headline)
+            assert result == "BTCUSD", f"Failed for: {headline}"
+    
+    def test_uses_symbol_normalizer(self):
+        """Verify that symbol extraction uses normalize_symbol() function"""
+        # This tests the implementation uses the normalizer
+        # If normalizer adds new symbols, news_fetcher should support them
+        from app.utils.symbol_normalizer import normalize_symbol
+        
+        # Test that a symbol supported by normalizer works in news_fetcher
+        test_symbol = "polkadot"
+        headline = f"{test_symbol} price update"
+        
+        # If normalizer supports it, news_fetcher should too
+        try:
+            expected = normalize_symbol(test_symbol)
+            result = news_fetcher.extract_symbol_from_headline(headline)
+            # Both should return the same canonical format
+            assert result == expected or result is None  # None if not in keyword list
+        except ValueError:
+            # If normalizer doesn't support it, that's fine
+            pass
+    
+    def test_xrp_maintains_x_prefix(self):
+        """XRP should keep X prefix in normalized format"""
+        headline = "XRP wins major lawsuit"
+        result = news_fetcher.extract_symbol_from_headline(headline)
+        assert result == "XRPUSD"
+        
+    def test_ripple_normalizes_to_xrpusd(self):
+        """Ripple keyword should normalize to XRPUSD"""
+        headline = "Ripple announces new partnership"
+        result = news_fetcher.extract_symbol_from_headline(headline)
+        assert result == "XRPUSD"

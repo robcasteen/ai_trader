@@ -1,19 +1,19 @@
 {
   "SOLUSD": {
-    "amount": 0.29098100000000005,
-    "avg_price": 177.11546461265746,
+    "amount": 0.3609810000000001,
+    "avg_price": 162.16154038150393,
     "current_price": 100.0,
-    "market_value": 29.098100000000006,
-    "cost_basis": 51.53723500845569,
-    "unrealized_pnl": -22.439135008455683
+    "market_value": 36.09810000000001,
+    "cost_basis": 58.53723500845569,
+    "unrealized_pnl": -22.43913500845568
   },
   "BTCUSD": {
-    "amount": 304.24218099999996,
-    "avg_price": 49138.56385334908,
+    "amount": 1013.9475729999997,
+    "avg_price": 49140.94949383741,
     "current_price": 50000.0,
-    "market_value": 15212109.049999999,
-    "cost_basis": 14950023.837950686,
-    "unrealized_pnl": 262085.2120493129
+    "market_value": 50697378.64999998,
+    "cost_basis": 49826346.47419201,
+    "unrealized_pnl": 871032.1758079752
   },
   "XRPUSD": {
     "amount": 22.410307,

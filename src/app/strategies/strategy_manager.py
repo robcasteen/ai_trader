@@ -12,6 +12,8 @@ from app.strategies.sentiment_strategy import SentimentStrategy
 from app.strategies.technical_strategy import TechnicalStrategy
 from app.strategies.volume_strategy import VolumeStrategy
 from app.strategy_signal_logger import StrategySignalLogger
+from app.utils.symbol_normalizer import normalize_symbol
+from app.utils.symbol_normalizer import normalize_symbol
 
 
 class StrategyManager:
@@ -92,6 +94,11 @@ class StrategyManager:
         self, symbol: str, context: Dict[str, Any]
     ) -> Tuple[str, float, str]:
         """
+        # Normalize symbol to canonical format (BTCUSD, ETHUSD, etc.)
+        try:
+            symbol = normalize_symbol(symbol)
+        except ValueError:
+            logging.warning(f"[StrategyManager] Unknown symbol format: {symbol}, using as-is")
         Get aggregated trading signal from all enabled strategies.
 
         Args:
@@ -109,6 +116,11 @@ class StrategyManager:
             - confidence: 0.0 to 1.0
             - reason: Detailed explanation
         """
+        # Normalize symbol to canonical format (BTCUSD, ETHUSD, etc.)
+        try:
+            symbol = normalize_symbol(symbol)
+        except ValueError:
+            logging.warning(f"[StrategyManager] Unknown symbol format: {symbol}, using as-is")
         if not self.strategies:
             return "HOLD", 0.0, "No strategies available"
 

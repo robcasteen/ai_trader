@@ -1,5 +1,17 @@
-# Remove the broken test
-sed -i '/def test_trade_cycle_uses_exchange_balance_for_position_sizing/,/^$/d' tests/test_main.py
+# Find ALL related processes
+ps aux | grep -E "uvicorn|python.*main.py|BackgroundScheduler" | grep -v grep
 
-# Run all tests again
-./run.sh test
+# Kill EVERYTHING
+pkill -9 -f uvicorn
+pkill -9 -f "python.*main"
+pkill -9 -f BackgroundScheduler
+
+# Verify nothing on port 8000
+lsof -i :8000
+
+# If still something there, kill by port
+lsof -ti :8000 | xargs kill -9
+
+# Verify it's dead
+ps aux | grep uvicorn | grep -v grep
+lsof -i :8000

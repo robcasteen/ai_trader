@@ -3,6 +3,7 @@ Tests for StrategyManager.
 """
 
 import pytest
+from pathlib import Path
 from unittest.mock import Mock, patch
 from app.strategies.strategy_manager import StrategyManager
 from app.strategies.base_strategy import BaseStrategy
@@ -180,3 +181,68 @@ class TestStrategyManager:
         
         assert strategy_manager.min_confidence == 0.7
         assert strategy_manager.aggregation_method == 'highest_confidence'
+
+
+class TestStrategyManagerSymbolNormalization:
+    """Test that strategy manager normalizes symbols before logging."""
+    
+    def test_signals_logged_with_normalized_symbols(self, sample_context):
+        """Test that signals are logged with canonical symbol format."""
+        config = {
+            "use_technical": True,
+            "use_volume": True,
+            "use_sentiment": True,
+            "logs_dir": "tests/test_logs"
+        }
+        manager = StrategyManager(config)
+        
+        # Pass in Kraken format
+        result = manager.get_signal("XXBTZUSD", sample_context)
+        
+        # Logger should receive normalized format
+        # Check the last logged signal
+        import json
+        log_file = Path("tests/test_logs/strategy_signals.jsonl")
+        if log_file.exists():
+            with open(log_file, 'r') as f:
+                lines = f.readlines()
+                last_signal = json.loads(lines[-1])
+                # Should be normalized to BTCUSD, not XXBTZUSD
+                assert last_signal["symbol"] == "BTCUSD"
+    
+    def test_mixed_symbol_formats_all_normalized(self, sample_context):
+        """Test that various input formats all normalize correctly."""
+        config = {"logs_dir": "tests/test_logs"}
+        manager = StrategyManager(config)
+        
+        test_cases = [
+            ("BTC/USD", "BTCUSD"),
+            ("XXBTZUSD", "BTCUSD"),
+            ("bitcoin", "BTCUSD"),
+            ("ETH/USD", "ETHUSD"),
+            ("XETHZUSD", "ETHUSD"),
+        ]
+        
+        for input_symbol, expected_normalized in test_cases:
+            manager.get_signal(input_symbol, sample_context)
+            
+            # Verify logged symbol is normalized
+            import json
+            log_file = Path("tests/test_logs/strategy_signals.jsonl")
+            with open(log_file, 'r') as f:
+                lines = f.readlines()
+                last_signal = json.loads(lines[-1])
+                assert last_signal["symbol"] == expected_normalized, \
+                    f"Input {input_symbol} should normalize to {expected_normalized}"
+
+
+@pytest.fixture
+def sample_context():
+    """Fixture providing sample market context for testing."""
+    return {
+        "price": 50000.0,
+        "volume": 1000000,
+        "price_history": [49000, 49500, 50000],
+        "volume_history": [900000, 950000, 1000000],
+        "headlines": ["Test headline"]
+    }

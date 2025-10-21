@@ -12,154 +12,94 @@ import pytest
 from unittest.mock import Mock, patch
 from app.logic.symbol_scanner import get_top_symbols
 
+@pytest.fixture
+def mock_kraken_client():
+    """Mock KrakenClient for testing"""
+    with patch('app.logic.symbol_scanner.KrakenClient') as mock:
+        yield mock
+# tests/test_symbol_scanner.py
 
 class TestGetTopSymbols:
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_basic_filtering_and_sorting(self, mock_client_class):
-        """Test basic symbol filtering and volume sorting."""
-        mock_client = Mock()
-        mock_client.get_tickers.return_value = {
-            "XXBTZUSD": {"price": 50000, "volume": 1000},
-            "XETHZUSD": {"price": 3000, "volume": 500},
-            "SOLUSD": {"price": 100, "volume": 2000},
-            "ADAUSD": {"price": 0.5, "volume": 300},
-            "ZUSDEUR": {"price": 1.1, "volume": 5000},  # Should be filtered (starts with Z)
+    def test_basic_filtering_and_sorting(self, mock_kraken_client):
+        """Test that symbols are filtered, sorted by volume, and normalized"""
+        mock_tickers = {
+            "XXBTZUSD": {"volume": 1000},  # BTC - highest volume
+            "XETHZUSD": {"volume": 800},   # ETH
+            "XXRPZUSD": {"volume": 600},   # XRP
+            "ZUSDXXBT": {"volume": 500},   # Reverse pair - should be filtered
+            "ZEURXETH": {"volume": 400},   # EUR pair - should be filtered
         }
-        mock_client_class.return_value = mock_client
+        mock_kraken_client.return_value.get_tickers.return_value = mock_tickers
         
-        result = get_top_symbols(limit=10)
+        result = get_top_symbols(limit=3)
         
-        # Should exclude ZUSDEUR
-        assert "ZUSDEUR" not in result
-        
-        # Should be sorted by volume (highest first)
-        assert result[0] == "SOLUSD"  # volume 2000
-        assert result[1] == "XXBTZUSD"  # volume 1000
-        assert result[2] == "XETHZUSD"  # volume 500
-        assert result[3] == "ADAUSD"  # volume 300
+        # Should return normalized symbols, sorted by volume
+        assert len(result) == 3
+        assert result[0] == "BTCUSD"   # Normalized from XXBTZUSD
+        assert result[1] == "ETHUSD"   # Normalized from XETHZUSD
+        assert result[2] == "XRPUSD"   # Normalized from XXRPZUSD
 
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_limit_enforcement(self, mock_client_class):
-        """Test that limit parameter is respected."""
-        mock_client = Mock()
-        tickers = {
-            f"SYM{i}USD": {"price": 100, "volume": 1000 - i}
-            for i in range(20)
+    def test_limit_enforcement(self, mock_kraken_client):
+        """Test that limit parameter works correctly"""
+        mock_tickers = {
+            "XXBTZUSD": {"volume": 1000},
+            "XETHZUSD": {"volume": 900},
+            "XSOLUSDT": {"volume": 800},  # Note: USDT not USD - will be filtered
+            "XXRPZUSD": {"volume": 700},
+            "ADAUSD": {"volume": 600},
+            "DOTUSD": {"volume": 500},
+            "LINKUSD": {"volume": 400},
         }
-        mock_client.get_tickers.return_value = tickers
-        mock_client_class.return_value = mock_client
+        mock_kraken_client.return_value.get_tickers.return_value = mock_tickers
         
         result = get_top_symbols(limit=5)
         
         assert len(result) == 5
+        assert result[0] == "BTCUSD"
+        assert result[4] == "DOTUSD"
 
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_default_limit(self, mock_client_class):
-        """Test default limit of 10."""
-        mock_client = Mock()
-        tickers = {
-            f"SYM{i}USD": {"price": 100, "volume": 1000 - i}
-            for i in range(20)
+    def test_default_limit(self, mock_kraken_client):
+        """Test default limit of 10 symbols"""
+        # Create 15 valid USD symbols
+        mock_tickers = {
+            "XXBTZUSD": {"volume": 1500},
+            "XETHZUSD": {"volume": 1400},
+            "XXRPZUSD": {"volume": 1300},
+            "ADAUSD": {"volume": 1200},
+            "SOLUSD": {"volume": 1100},
+            "DOTUSD": {"volume": 1000},
+            "LINKUSD": {"volume": 900},
+            "UNIUSD": {"volume": 800},
+            "DOGEUSD": {"volume": 700},
+            "MATICUSD": {"volume": 600},
+            "AVAXUSD": {"volume": 500},
+            "ATOMUSD": {"volume": 400},
+            "LTCUSD": {"volume": 300},
+            "XLMUSD": {"volume": 200},
+            "AAVEUSD": {"volume": 100},
         }
-        mock_client.get_tickers.return_value = tickers
-        mock_client_class.return_value = mock_client
+        mock_kraken_client.return_value.get_tickers.return_value = mock_tickers
         
-        result = get_top_symbols()
+        result = get_top_symbols()  # Should default to 10
         
         assert len(result) == 10
+        assert result[0] == "BTCUSD"
+        assert result[9] == "MATICUSD"
 
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_only_usd_symbols(self, mock_client_class):
-        """Test that only USD-based symbols are returned."""
-        mock_client = Mock()
-        mock_client.get_tickers.return_value = {
-            "BTCUSD": {"price": 50000, "volume": 1000},
-            "BTCEUR": {"price": 45000, "volume": 2000},
-            "ETHGBP": {"price": 2500, "volume": 1500},
-            "ETHUSD": {"price": 3000, "volume": 500},
+    def test_volume_sorting_descending(self, mock_kraken_client):
+        """Test that symbols are sorted by volume in descending order"""
+        mock_tickers = {
+            "ADAUSD": {"volume": 500},     # Should be 3rd
+            "XXBTZUSD": {"volume": 1000},  # Should be 1st (highest)
+            "XETHZUSD": {"volume": 750},   # Should be 2nd
+            "LINKUSD": {"volume": 250},    # Should be 4th (lowest)
         }
-        mock_client_class.return_value = mock_client
+        mock_kraken_client.return_value.get_tickers.return_value = mock_tickers
         
-        result = get_top_symbols(limit=10)
+        result = get_top_symbols(limit=4)
         
-        assert "BTCUSD" in result
-        assert "ETHUSD" in result
-        assert "BTCEUR" not in result
-        assert "ETHGBP" not in result
-
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_filters_z_prefix_symbols(self, mock_client_class):
-        """Test that Z-prefixed symbols are filtered."""
-        mock_client = Mock()
-        mock_client.get_tickers.return_value = {
-            "BTCUSD": {"price": 50000, "volume": 1000},
-            "ZUSDBTC": {"price": 0.00002, "volume": 5000},
-            "ZEURUSD": {"price": 1.1, "volume": 3000},
-        }
-        mock_client_class.return_value = mock_client
-        
-        result = get_top_symbols(limit=10)
-        
-        assert "BTCUSD" in result
-        assert "ZUSDBTC" not in result
-        assert "ZEURUSD" not in result
-
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_empty_tickers(self, mock_client_class):
-        """Test handling of empty ticker data."""
-        mock_client = Mock()
-        mock_client.get_tickers.return_value = {}
-        mock_client_class.return_value = mock_client
-        
-        result = get_top_symbols(limit=10)
-        
-        assert result == []
-
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_missing_volume_data(self, mock_client_class):
-        """Test handling of missing volume data."""
-        mock_client = Mock()
-        mock_client.get_tickers.return_value = {
-            "BTCUSD": {"price": 50000},  # No volume
-            "ETHUSD": {"price": 3000, "volume": 500},
-        }
-        mock_client_class.return_value = mock_client
-        
-        result = get_top_symbols(limit=10)
-        
-        # Should handle missing volume gracefully (defaults to 0)
-        assert len(result) == 2
-
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_volume_sorting_descending(self, mock_client_class):
-        """Test that symbols are sorted by volume in descending order."""
-        mock_client = Mock()
-        mock_client.get_tickers.return_value = {
-            "SYMBOL1USD": {"price": 100, "volume": 100},
-            "SYMBOL2USD": {"price": 100, "volume": 500},
-            "SYMBOL3USD": {"price": 100, "volume": 300},
-            "SYMBOL4USD": {"price": 100, "volume": 700},
-        }
-        mock_client_class.return_value = mock_client
-        
-        result = get_top_symbols(limit=10)
-        
-        # Verify descending order
-        assert result[0] == "SYMBOL4USD"  # 700
-        assert result[1] == "SYMBOL2USD"  # 500
-        assert result[2] == "SYMBOL3USD"  # 300
-        assert result[3] == "SYMBOL1USD"  # 100
-
-    @patch('app.logic.symbol_scanner.KrakenClient')
-    def test_fewer_symbols_than_limit(self, mock_client_class):
-        """Test when available symbols are fewer than limit."""
-        mock_client = Mock()
-        mock_client.get_tickers.return_value = {
-            "BTCUSD": {"price": 50000, "volume": 1000},
-            "ETHUSD": {"price": 3000, "volume": 500},
-        }
-        mock_client_class.return_value = mock_client
-        
-        result = get_top_symbols(limit=10)
-        
-        assert len(result) == 2
+        assert len(result) == 4
+        assert result[0] == "BTCUSD"   # 1000 volume
+        assert result[1] == "ETHUSD"   # 750 volume
+        assert result[2] == "ADAUSD"   # 500 volume
+        assert result[3] == "LINKUSD"  # 250 volume

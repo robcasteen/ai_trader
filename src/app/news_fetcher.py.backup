@@ -9,7 +9,6 @@ import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Optional
-from app.utils.symbol_normalizer import normalize_symbol
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 LOGS_DIR = PROJECT_ROOT / "logs"
@@ -27,40 +26,29 @@ def get_rss_feeds():
 
 
 # SYMBOL EXTRACTION
+SYMBOL_MAP = {
+    "bitcoin": "BTCUSD",
+    "btc": "BTCUSD",
+    "ethereum": "ETHUSD",
+    "eth": "ETHUSD",
+    "solana": "SOLUSD",
+    "sol": "SOLUSD",
+    "xrp": "XRPUSD",
+    "ripple": "XRPUSD",
+    "cardano": "ADAUSD",
+    "ada": "ADAUSD",
+    "dogecoin": "DOGEUSD",
+    "doge": "DOGEUSD",
+}
+
+
 def extract_symbol_from_headline(headline: str) -> Optional[str]:
-    """
-    Extract crypto symbol from headline text.
-    Returns canonical normalized symbol (e.g., BTCUSD, ETHUSD).
-    """
+    """Extract crypto symbol from headline text."""
     headline_lower = headline.lower()
     
-    # Keywords to search for in headlines
-    keywords = [
-        "bitcoin", "btc",
-        "ethereum", "eth",
-        "solana", "sol",
-        "xrp", "ripple",
-        "cardano", "ada",
-        "dogecoin", "doge",
-        "polkadot", "dot",
-        "chainlink", "link",
-        "uniswap", "uni",
-        "stellar", "xlm",
-        "litecoin", "ltc",
-        "cosmos", "atom",
-        "avalanche", "avax",
-        "polygon", "matic",
-        "aave",
-        "shiba", "shib",
-    ]
-    
-    for keyword in keywords:
+    for keyword, symbol in SYMBOL_MAP.items():
         if keyword in headline_lower:
-            try:
-                return normalize_symbol(keyword)
-            except ValueError:
-                # Symbol not recognized by normalizer, skip
-                continue
+            return symbol
     
     return None
 

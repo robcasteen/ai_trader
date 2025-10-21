@@ -239,6 +239,38 @@ def get_next_run_time():
 scheduler = BackgroundScheduler()
 
 
+# Add proper signal handling for graceful shutdown
+import signal
+import sys
+
+def handle_shutdown(signum, frame):
+    """Handle shutdown signals gracefully."""
+    logging.info(f"[Shutdown] Received signal {signum}")
+    
+    # Stop data collector
+    try:
+        data_collector.stop()
+        logging.info("[Shutdown] Data collector stopped")
+    except Exception as e:
+        logging.error(f"[Shutdown] Error stopping data collector: {e}")
+    
+    # Stop scheduler
+    try:
+        if scheduler.running:
+            scheduler.shutdown(wait=False)
+            logging.info("[Shutdown] Scheduler stopped")
+    except Exception as e:
+        logging.error(f"[Shutdown] Error stopping scheduler: {e}")
+    
+    logging.info("[Shutdown] Complete")
+    sys.exit(0)
+
+# Register signal handlers
+signal.signal(signal.SIGINT, handle_shutdown)   # Ctrl+C
+signal.signal(signal.SIGTERM, handle_shutdown)  # kill command
+
+logging.info("[Startup] Signal handlers registered")
+
 @app.on_event("startup")
 def start_scheduler():
     logging.info("[Startup] FastAPI app is launching...")

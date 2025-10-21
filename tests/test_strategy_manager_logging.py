@@ -98,7 +98,7 @@ class TestSignalLogging:
         # Verify top-level structure
         assert 'timestamp' in record
         assert 'symbol' in record
-        assert record['symbol'] == "BTC/USD"
+        assert record["symbol"] == "BTCUSD"
         assert 'price' in record
         assert record['price'] == 50000
         assert 'final_signal' in record

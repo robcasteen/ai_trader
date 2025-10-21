@@ -19,6 +19,8 @@ SYMBOL_MAPPINGS = {
     # Ethereum variations
     "ETH": "ETHUSD",
     "ETHEREUM": "ETHUSD",
+    "XETHZUSD": "ETHUSD",
+    "ETHZUSD": "ETHUSD",
     "ETH/USD": "ETHUSD",
     "ETHUSD": "ETHUSD",
     "XETH": "ETHUSD",
@@ -32,6 +34,8 @@ SYMBOL_MAPPINGS = {
     
     # XRP (Ripple) variations
     "XRP": "XRPUSD",
+    "XXRPZUSD": "XRPUSD",
+    "XRPZUSD": "XRPUSD",
     "RIPPLE": "XRPUSD",
     "XRP/USD": "XRPUSD",
     "XRPUSD": "XRPUSD",
