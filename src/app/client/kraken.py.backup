@@ -29,7 +29,7 @@ class KrakenClient:
 
     def get_tickers(self):
         try:
-            result = self.api.query_public("Ticker")
+            result = self.api.query_public("Ticker", {"pair": "all"})
             data = result["result"]
             formatted = {}
             for k, v in data.items():

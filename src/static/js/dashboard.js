@@ -555,7 +555,7 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initDashboard);
 } else {
   // Don't auto-init during tests
-  if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+  if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
     initDashboard();
   }
 }
@@ -993,28 +993,23 @@ async function loadStatus() {
   try {
     const response = await fetch("/status");
     const data = await response.json();
-
-    const status = data.last_status || {};
+    const status = data.last_status;
 
     const lastRunEl = document.getElementById("last-run");
     if (lastRunEl) {
-      lastRunEl.textContent = status.time
-        ? new Date(status.time).toTimeString().split(" ")[0]
-        : "--";
+      // Display time as-is (already in local timezone from backend)
+      lastRunEl.textContent = status.time || "--";
     }
 
     const nextRunEl = document.getElementById("next-run");
     if (nextRunEl) {
-      const nextRun = data.next_run
-        ? new Date(data.next_run).toTimeString().split(" ")[0]
-        : "--";
-      nextRunEl.textContent = nextRun;
+      nextRunEl.textContent = data.next_run || "--";
     }
 
     const statusMsgEl = document.getElementById("status-msg");
     if (statusMsgEl) statusMsgEl.textContent = status.message || "--";
   } catch (error) {
-    console.error("Error loading status:", error);
+    console.error("Failed to load status:", error);
   }
 }
 
@@ -1243,6 +1238,10 @@ function refreshData() {
   loadHoldings();
   loadAllTradesTab();
 }
+loadStatus();
+
+// Poll status every 5 seconds
+setInterval(loadStatus, 5000);
 // All Trades Modal Functions
 async function openAllTradesModal() {
   document.getElementById("allTradesModal").style.display = "block";
@@ -1355,7 +1354,7 @@ async function loadAllTradesTab() {
   }
 }
 // Start clock on load (but not during tests)
-if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
   setInterval(updateClock, 1000);
   updateClock(); // Initial call
 }

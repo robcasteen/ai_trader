@@ -1,19 +1,19 @@
 {
   "SOLUSD": {
-    "amount": 0.3609810000000001,
-    "avg_price": 162.16154038150393,
+    "amount": 0.3500880000000001,
+    "avg_price": 158.6103452316271,
     "current_price": 100.0,
-    "market_value": 36.09810000000001,
-    "cost_basis": 58.53723500845569,
-    "unrealized_pnl": -22.43913500845568
+    "market_value": 35.008800000000015,
+    "cost_basis": 55.527578541449884,
+    "unrealized_pnl": -20.51877854144987
   },
   "BTCUSD": {
-    "amount": 1013.9475729999997,
-    "avg_price": 49140.94949383741,
+    "amount": 1216.7198099999994,
+    "avg_price": 49141.1784818527,
     "current_price": 50000.0,
-    "market_value": 50697378.64999998,
-    "cost_basis": 49826346.47419201,
-    "unrealized_pnl": 871032.1758079752
+    "market_value": 60835990.49999997,
+    "cost_basis": 59791045.34561588,
+    "unrealized_pnl": 1044945.1543840915
   },
   "XRPUSD": {
     "amount": 22.410307,
@@ -61,6 +61,14 @@
     "current_price": 99.61,
     "market_value": 0.9961,
     "cost_basis": 0.9961,
+    "unrealized_pnl": 0.0
+  },
+  "AAVEUSD": {
+    "amount": 0.026713,
+    "avg_price": 224.61,
+    "current_price": 224.61,
+    "market_value": 6.0000069300000005,
+    "cost_basis": 6.0000069300000005,
     "unrealized_pnl": 0.0
   }
 }

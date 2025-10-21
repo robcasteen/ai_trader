@@ -23,7 +23,7 @@ class TestSymbolScannerNormalization:
             
             from app.logic.symbol_scanner import get_top_symbols
             
-            symbols = get_top_symbols(limit=2)
+            symbols = get_top_symbols(priority_symbols=[], limit=2)
             
             # Should return canonical format, not Kraken format
             assert "BTCUSD" in symbols
@@ -47,7 +47,7 @@ class TestSymbolScannerNormalization:
             
             from app.logic.symbol_scanner import get_top_symbols
             
-            symbols = get_top_symbols(limit=10)
+            symbols = get_top_symbols(priority_symbols=[], limit=10)
             
             # All should be canonical
             assert "BTCUSD" in symbols
@@ -70,7 +70,7 @@ class TestSymbolScannerNormalization:
             
             from app.logic.symbol_scanner import get_top_symbols
             
-            symbols = get_top_symbols(limit=10)
+            symbols = get_top_symbols(priority_symbols=[], limit=10)
             
             # Should be sorted by volume
             assert symbols.index("BTCUSD") < symbols.index("SOLUSD")
