@@ -47,7 +47,7 @@ class TestTradeExecution:
         )
         
         assert result["action"] == "buy"
-        assert result["symbol"] == "BTC/USD"
+        assert result["symbol"] == "BTCUSD"
         assert result["price"] == 50000.0
         assert result["amount"] == 0.1
         
@@ -76,7 +76,7 @@ class TestTradeExecution:
         )
         
         assert result["action"] == "sell"
-        assert result["symbol"] == "ETH/USD"
+        assert result["symbol"] == "ETHUSD"
         
         # Gross value = 0.5 * 3000 = 1500
         assert result["gross_value"] == 1500.0
@@ -117,7 +117,7 @@ class TestFilePersistence:
             trades = json.load(f)
         
         assert len(trades) == 1
-        assert trades[0]["symbol"] == "BTC/USD"
+        assert trades[0]["symbol"] == "BTCUSD"
         assert "fee" in trades[0]
         assert "gross_value" in trades[0]
 
@@ -131,9 +131,9 @@ class TestFilePersistence:
             trades = json.load(f)
         
         assert len(trades) == 3
-        assert trades[0]["symbol"] == "BTC/USD"
-        assert trades[1]["symbol"] == "ETH/USD"
-        assert trades[2]["symbol"] == "SOL/USD"
+        assert trades[0]["symbol"] == "BTCUSD"
+        assert trades[1]["symbol"] == "ETHUSD"
+        assert trades[2]["symbol"] == "SOLUSD"
 
     def test_corrupted_file_recovery(self, paper_trader):
         """Test recovery when trades file is corrupted."""
@@ -302,3 +302,233 @@ class TestFeeCalculation:
         round_trip_cost = total_paid - total_received
         
         assert round_trip_cost == 260.0  # 2 * fee (0.26% * 2)
+        """
+Test that holdings.json is updated when trades execute.
+
+This test should FAIL with current code (holdings not updated)
+and PASS after adding update_holdings() call to execute_trade().
+"""
+
+import pytest
+import json
+from pathlib import Path
+from app.logic.paper_trader import PaperTrader
+
+
+@pytest.fixture
+def temp_files(tmp_path):
+    """Fixture providing temporary trades and holdings files."""
+    trades_file = tmp_path / "trades.json"
+    holdings_file = tmp_path / "holdings.json"
+    return trades_file, holdings_file
+
+
+@pytest.fixture
+def paper_trader_with_holdings(temp_files):
+    """Fixture providing a PaperTrader with temp files for trades and holdings."""
+    trades_file, holdings_file = temp_files
+    trader = PaperTrader()
+    trader.trades_file = trades_file
+    trader.holdings_file = holdings_file
+    
+    # Initialize empty files
+    with open(trades_file, "w") as f:
+        json.dump([], f)
+    with open(holdings_file, "w") as f:
+        json.dump({}, f)
+    
+    return trader
+
+
+class TestHoldingsUpdateOnTrade:
+    """Test that holdings are updated when trades execute."""
+    
+    def test_buy_trade_creates_holding(self, paper_trader_with_holdings):
+        """Test that executing a BUY trade creates a holding."""
+        trader = paper_trader_with_holdings
+        
+        # Execute a buy trade
+        trader.execute_trade(
+            symbol="BTCUSD",
+            action="buy",
+            price=50000.0,
+            balance=10000.0,
+            reason="Test buy",
+            amount=0.1
+        )
+        
+        # Verify holdings.json was updated
+        holdings = trader.get_holdings()
+        
+        assert "BTCUSD" in holdings
+        assert holdings["BTCUSD"]["amount"] == 0.1
+        assert holdings["BTCUSD"]["avg_price"] == 50000.0
+        assert holdings["BTCUSD"]["current_price"] == 50000.0
+        assert holdings["BTCUSD"]["market_value"] == 5000.0
+        assert holdings["BTCUSD"]["cost_basis"] == 5000.0
+        assert holdings["BTCUSD"]["unrealized_pnl"] == 0.0
+    
+    def test_sell_trade_reduces_holding(self, paper_trader_with_holdings):
+        """Test that executing a SELL trade reduces a holding."""
+        trader = paper_trader_with_holdings
+        
+        # First buy
+        trader.execute_trade(
+            symbol="BTCUSD",
+            action="buy",
+            price=50000.0,
+            balance=10000.0,
+            reason="Test buy",
+            amount=0.1
+        )
+        
+        # Then sell half
+        trader.execute_trade(
+            symbol="BTCUSD",
+            action="sell",
+            price=51000.0,
+            balance=10000.0,
+            reason="Test sell",
+            amount=0.05
+        )
+        
+        # Verify holdings updated
+        holdings = trader.get_holdings()
+        
+        assert "BTCUSD" in holdings
+        assert holdings["BTCUSD"]["amount"] == 0.05
+        assert holdings["BTCUSD"]["avg_price"] == 50000.0  # Unchanged
+        assert holdings["BTCUSD"]["current_price"] == 51000.0
+        assert holdings["BTCUSD"]["market_value"] == 2550.0  # 0.05 * 51000
+        assert holdings["BTCUSD"]["unrealized_pnl"] == 50.0  # Profit from price increase
+    
+    def test_sell_entire_position_removes_holding(self, paper_trader_with_holdings):
+        """Test that selling entire position removes it from holdings."""
+        trader = paper_trader_with_holdings
+        
+        # Buy
+        trader.execute_trade(
+            symbol="ETHUSD",
+            action="buy",
+            price=3000.0,
+            balance=10000.0,
+            reason="Test buy",
+            amount=1.0
+        )
+        
+        # Sell entire position
+        trader.execute_trade(
+            symbol="ETHUSD",
+            action="sell",
+            price=3100.0,
+            balance=10000.0,
+            reason="Test sell",
+            amount=1.0
+        )
+        
+        # Verify position removed
+        holdings = trader.get_holdings()
+        assert "ETHUSD" not in holdings
+    
+    def test_multiple_buys_average_price(self, paper_trader_with_holdings):
+        """Test that multiple buys correctly calculate average price."""
+        trader = paper_trader_with_holdings
+        
+        # First buy: 0.1 BTC at $50,000
+        trader.execute_trade(
+            symbol="BTCUSD",
+            action="buy",
+            price=50000.0,
+            balance=10000.0,
+            reason="First buy",
+            amount=0.1
+        )
+        
+        # Second buy: 0.1 BTC at $60,000
+        trader.execute_trade(
+            symbol="BTCUSD",
+            action="buy",
+            price=60000.0,
+            balance=10000.0,
+            reason="Second buy",
+            amount=0.1
+        )
+        
+        # Verify average price
+        holdings = trader.get_holdings()
+        
+        assert holdings["BTCUSD"]["amount"] == 0.2
+        # Average: (0.1 * 50000 + 0.1 * 60000) / 0.2 = 55000
+        assert holdings["BTCUSD"]["avg_price"] == 55000.0
+        assert holdings["BTCUSD"]["cost_basis"] == 11000.0  # 0.2 * 55000
+    
+    def test_hold_action_does_not_update_holdings(self, paper_trader_with_holdings):
+        """Test that HOLD actions don't update holdings."""
+        trader = paper_trader_with_holdings
+        
+        # Execute hold (should do nothing to holdings)
+        trader.execute_trade(
+            symbol="BTCUSD",
+            action="hold",
+            price=50000.0,
+            balance=10000.0,
+            reason="Low confidence",
+            amount=0.1
+        )
+        
+        # Verify holdings still empty
+        holdings = trader.get_holdings()
+        assert holdings == {}
+    
+    def test_multiple_symbols_tracked_separately(self, paper_trader_with_holdings):
+        """Test that multiple symbols are tracked independently."""
+        trader = paper_trader_with_holdings
+        
+        # Buy BTC
+        trader.execute_trade(
+            symbol="BTCUSD",
+            action="buy",
+            price=50000.0,
+            balance=10000.0,
+            reason="Buy BTC",
+            amount=0.1
+        )
+        
+        # Buy ETH
+        trader.execute_trade(
+            symbol="ETHUSD",
+            action="buy",
+            price=3000.0,
+            balance=10000.0,
+            reason="Buy ETH",
+            amount=1.0
+        )
+        
+        # Verify both tracked
+        holdings = trader.get_holdings()
+        
+        assert "BTCUSD" in holdings
+        assert "ETHUSD" in holdings
+        assert holdings["BTCUSD"]["amount"] == 0.1
+        assert holdings["ETHUSD"]["amount"] == 1.0
+    
+    def test_holdings_persisted_to_file(self, paper_trader_with_holdings):
+        """Test that holdings are written to holdings.json file."""
+        trader = paper_trader_with_holdings
+        
+        # Execute trade
+        trader.execute_trade(
+            symbol="BTCUSD",
+            action="buy",
+            price=50000.0,
+            balance=10000.0,
+            reason="Test",
+            amount=0.1
+        )
+        
+        # Read directly from file
+        with open(trader.holdings_file, "r") as f:
+            holdings = json.load(f)
+        
+        assert "BTCUSD" in holdings
+        assert holdings["BTCUSD"]["amount"] == 0.1

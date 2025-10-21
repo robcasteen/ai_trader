@@ -23,23 +23,23 @@
     "cost_basis": 523.165932910023,
     "unrealized_pnl": 23.22525082997697
   },
-  "XRPUSD": {
-    "amount": 22.410307,
-    "avg_price": 2.4172593546886647,
-    "current_price": 2.43718,
-    "market_value": 54.61795201426,
-    "cost_basis": 54.171524237194866,
-    "unrealized_pnl": 0.44642777706513215
+  "XRP/USD": {
+    "amount": 0.03,
+    "avg_price": 2.418354999999999,
+    "current_price": 2.53435,
+    "market_value": 0.07603049999999999,
+    "cost_basis": 0.07255064999999997,
+    "unrealized_pnl": 0.0034798500000000204
   },
-  "DOGEUSD": {
-    "amount": 183.458277,
-    "avg_price": 0.19627018450740658,
-    "current_price": 0.196799,
-    "market_value": 36.104405455323004,
-    "cost_basis": 36.007389876200904,
-    "unrealized_pnl": 0.09701557912210035
+  "DOGE/USD": {
+    "amount": 0.04,
+    "avg_price": 0.18475019999999998,
+    "current_price": 0.1855389,
+    "market_value": 0.007421556,
+    "cost_basis": 0.007390007999999999,
+    "unrealized_pnl": 3.1548000000001034e-05
   },
-  "UNIUSD": {
+  "UNI/USD": {
     "amount": 0.02,
     "avg_price": 5.96975,
     "current_price": 6.107,
@@ -55,7 +55,7 @@
     "cost_basis": 0.01331215,
     "unrealized_pnl": 0.0007049099999999996
   },
-  "SHIBUSD": {
+  "SHIB/USD": {
     "amount": 0.02,
     "avg_price": 9.945e-06,
     "current_price": 1.002e-05,
@@ -63,12 +63,28 @@
     "cost_basis": 1.9890000000000001e-07,
     "unrealized_pnl": 1.5000000000000068e-09
   },
-  "LTCUSD": {
+  "LTC/USD": {
     "amount": 0.01,
     "avg_price": 99.61,
     "current_price": 99.61,
     "market_value": 0.9961,
     "cost_basis": 0.9961,
     "unrealized_pnl": 0.0
+  },
+  "XRPUSD": {
+    "amount": 22.380307,
+    "avg_price": 2.417270570241672,
+    "current_price": 2.43718,
+    "market_value": 54.54483661426,
+    "cost_basis": 54.09925746407368,
+    "unrealized_pnl": 0.4455791501863189
+  },
+  "DOGEUSD": {
+    "amount": 183.418277,
+    "avg_price": 0.1962726967945561,
+    "current_price": 0.196799,
+    "market_value": 36.096533495323,
+    "cost_basis": 35.9999998682009,
+    "unrealized_pnl": 0.09653362712209912
   }
 }
