@@ -699,20 +699,19 @@ async def get_system_health():
 async def get_all_trades():
     """Get all trades without limit."""
     trades_file = Path("src/app/logs/trades.json")
-    
+
     try:
         if not trades_file.exists():
             return JSONResponse([])
-            
+
         with open(trades_file, "r") as f:
             all_trades = json.load(f)
-        
+
         # Filter out HOLD actions - only return actual trades (BUY/SELL)
         real_trades = [
-            t for t in all_trades 
-            if (t.get("action") or "").lower() in ("buy", "sell")
+            t for t in all_trades if (t.get("action") or "").lower() in ("buy", "sell")
         ]
-        
+
         return JSONResponse(real_trades)
     except Exception as e:
         logging.error(f"[API] Error loading all trades: {e}")
@@ -813,6 +812,10 @@ def check_database_health() -> Dict[str, Any]:
 async def get_rss_feeds():
     try:
         feeds = _load_rss_feeds()
+        # Ensure all feeds have active field (default True)
+        for feed in feeds:
+            if "active" not in feed:
+                feed["active"] = True
         return JSONResponse({"feeds": feeds, "total": len(feeds)})
     except Exception as e:
         logging.error(f"[API] Error in get_rss_feeds: {e}")
@@ -1081,3 +1084,74 @@ async def update_rss_feed(feed_id: int, request: Request):
     except Exception as e:
         logging.error(f"[API] Error in update_rss_feed: {e}")
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
+
+
+@router.put("/api/feeds/{feed_id}/toggle")
+async def toggle_rss_feed(feed_id: int):
+    """Toggle active/inactive status of an RSS feed."""
+    try:
+        feeds = _load_rss_feeds()
+
+        # Find feed by ID
+        feed = next((f for f in feeds if f["id"] == feed_id), None)
+
+        if feed is None:
+            return JSONResponse(
+                status_code=404, content={"error": f"Feed ID {feed_id} not found"}
+            )
+
+        # Toggle the active field (default to True if not present)
+        feed["active"] = not feed.get("active", True)
+
+        # Save
+        if _save_rss_feeds(feeds):
+            status = "enabled" if feed["active"] else "disabled"
+            logging.info(f"[Feeds] Toggled feed ID {feed_id}: {status}")
+            return {"success": True, "active": feed["active"], "feed_id": feed_id}
+
+        return JSONResponse(
+            status_code=500, content={"error": "Failed to save feed changes"}
+        )
+    except Exception as e:
+        logging.error(f"[Feeds] Error toggling feed {feed_id}: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@router.post("/api/feeds/{feed_id}/test")
+async def test_rss_feed(feed_id: int):
+    """Test an RSS feed by ID."""
+    try:
+        import feedparser
+        
+        feeds = _load_rss_feeds()
+        feed = next((f for f in feeds if f["id"] == feed_id), None)
+        
+        if not feed:
+            return JSONResponse(
+                status_code=404, content={"error": f"Feed ID {feed_id} not found"}
+            )
+        
+        url = feed.get("url")
+        if not url:
+            return JSONResponse(
+                status_code=400, content={"error": "Feed has no URL"}
+            )
+        
+        parsed = feedparser.parse(url)
+        
+        if parsed.bozo:
+            error_msg = str(parsed.bozo_exception) if hasattr(parsed, 'bozo_exception') else "Invalid feed"
+            return JSONResponse(status_code=400, content={"error": error_msg, "status": "error"})
+        
+        entry_count = len(parsed.entries)
+        title = parsed.feed.get("title", "Unknown")
+        
+        return {
+            "status": "success",
+            "entries": entry_count,
+            "title": title,
+            "message": f"Feed OK - {entry_count} entries found"
+        }
+    except Exception as e:
+        logging.error(f"[Feeds] Error testing feed {feed_id}: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e), "status": "error"})

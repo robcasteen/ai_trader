@@ -8,7 +8,45 @@ const State = {
   next: null,
   isRunning: false,
 };
+async function toggleFeed(feedId) {
+  try {
+    const response = await fetch(`/api/feeds/${feedId}/toggle`, {
+      method: "PUT",
+    });
 
+    if (response.ok) {
+      await loadFeedsDetailed();
+      showTab("feeds"); // Stay on feeds tab
+    } else {
+      alert("Failed to toggle feed");
+    }
+  } catch (error) {
+    console.error("Error toggling feed:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+async function deleteFeed(feedId) {
+  if (!confirm("Are you sure you want to delete this feed?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/feeds/${feedId}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      await loadFeedsDetailed();
+      showTab("feeds"); // Stay on feeds tab
+    } else {
+      alert("Failed to delete feed");
+    }
+  } catch (error) {
+    console.error("Error deleting feed:", error);
+    alert("Error: " + error.message);
+  }
+}
 // Format price for terminal display
 function formatPrice(price) {
   return (
@@ -612,13 +650,25 @@ async function loadFeedsDetailed() {
           <td style="font-size: 9px; max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${
             feed.url || "--"
           }</td>
-          <td style="text-align: center;">
-            <button class="btn" onclick="testFeed('${
-              feed.url
-            }')" style="width: auto; padding: 1px 8px; font-size: 8px; margin-right: 4px;">TEST</button>
-            <button class="btn" onclick="deleteFeed('${
-              feed.url
-            }')" style="width: auto; padding: 1px 8px; font-size: 8px; border-color: #ff0000; color: #ff0000;">DEL</button>
+<td style="text-align: center;">
+            <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+<button class="btn" onclick="testFeed(${
+          feed.id
+        })" style="padding: 2px 6px; font-size: 9px;">TEST</button>
+              <button class="btn" onclick="editFeed(${
+                feed.id
+              })" style="padding: 2px 6px; font-size: 9px;">EDIT</button>
+              <button class="btn" onclick="toggleFeed(${
+                feed.id
+              })" style="padding: 2px 6px; font-size: 9px; border-color: ${
+          feed.active === false ? "#888" : "#00ff00"
+        }; color: ${feed.active === false ? "#888" : "#00ff00"};">${
+          feed.active === false ? "ON" : "OFF"
+        }</button>
+              <button class="btn" onclick="deleteFeed(${
+                feed.id
+              })" style="padding: 2px 6px; font-size: 9px; border-color: #ff0000; color: #ff0000;">DEL</button>
+            </div>
           </td>
         </tr>
       `;
@@ -701,54 +751,63 @@ async function addNewFeed() {
   }
 }
 
-// Delete RSS feed
-async function deleteFeed(feedUrl) {
-  if (!confirm("Are you sure you want to delete this feed?\n\n" + feedUrl)) {
-    return;
-  }
-
+async function deleteFeed(feedId) {
   try {
-    const response = await fetch("/api/feeds", {
+    const feedsData = await fetch("/api/feeds").then((r) => r.json());
+    const feed = feedsData.feeds.find((f) => f.id === feedId);
+
+    if (!feed) {
+      alert("Feed not found");
+      return;
+    }
+
+    if (!confirm(`Delete "${feed.name}"?\n\nThis cannot be undone.`)) return;
+
+    const response = await fetch(`/api/feeds/${feedId}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: feedUrl }),
     });
 
-    const data = await response.json();
-
-    if (response.ok && data.status === "success") {
-      alert("✅ Feed deleted successfully");
-      loadFeedsDetailed();
+    if (response.ok) {
+      await loadFeedsDetailed();
     } else {
-      alert("❌ Error deleting feed: " + (data.error || "Unknown error"));
+      alert("Failed to delete feed");
     }
   } catch (error) {
-    console.error("Failed to delete feed:", error);
-    alert("❌ Network error: " + error.message);
+    console.error("Error deleting feed:", error);
+    alert("Error: " + error.message);
+  }
+}
+async function editFeed(feedId) {
+  try {
+    const feedsData = await fetch("/api/feeds").then((r) => r.json());
+    const feed = feedsData.feeds.find((f) => f.id === feedId);
+
+    if (!feed) {
+      alert("Feed not found");
+      return;
+    }
+
+    openFeedModal(feedId, feed.name, feed.url, feed.description);
+  } catch (error) {
+    console.error("Error loading feed:", error);
+    alert("Error: " + error.message);
   }
 }
 
+window.editFeed = editFeed;
+window.toggleFeed = toggleFeed;
 // Test RSS feed
-async function testFeed(feedUrl) {
-  const btn = event.target;
-  const originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "...";
-
+async function testFeed(feedId) {
   try {
-    const response = await fetch("/api/feeds/test", {
+    const response = await fetch(`/api/feeds/${feedId}/test`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: feedUrl }),
     });
 
     const data = await response.json();
 
     if (response.ok && data.status === "success") {
       alert(
-        `✅ Feed test successful!\n\nHeadlines found: ${
-          data.headlines_count || 0
-        }\nRelevant: ${data.relevant_count || 0}`
+        `✅ Feed test successful!\n\nTitle: ${data.title}\nEntries found: ${data.entries}`
       );
     } else {
       alert("❌ Feed test failed: " + (data.error || "Unknown error"));
@@ -756,11 +815,10 @@ async function testFeed(feedUrl) {
   } catch (error) {
     console.error("Failed to test feed:", error);
     alert("❌ Network error: " + error.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originalText;
   }
 }
+
+window.testFeed = testFeed;
 
 // Make functions globally accessible
 window.loadFeedsDetailed = loadFeedsDetailed;
@@ -1369,3 +1427,51 @@ if (typeof module !== "undefined" && module.exports) {
     formatTimeShort,
   };
 }
+// Feed Edit Modal Functions
+let currentEditFeedId = null;
+
+function openFeedModal(feedId, name, url, description) {
+  currentEditFeedId = feedId;
+  document.getElementById("feedModalName").value = name || "";
+  document.getElementById("feedModalUrl").value = url || "";
+  document.getElementById("feedModalDesc").value = description || "";
+  document.getElementById("feedModal").classList.add("active");
+}
+
+function closeFeedModal() {
+  document.getElementById("feedModal").classList.remove("active");
+  currentEditFeedId = null;
+}
+
+async function saveFeedModal() {
+  const name = document.getElementById("feedModalName").value.trim();
+  const url = document.getElementById("feedModalUrl").value.trim();
+  const description = document.getElementById("feedModalDesc").value.trim();
+
+  if (!name || !url) {
+    alert("Name and URL are required");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/feeds/${currentEditFeedId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, url, description }),
+    });
+
+    if (response.ok) {
+      closeFeedModal();
+      await loadFeedsDetailed();
+    } else {
+      alert("Failed to update feed");
+    }
+  } catch (error) {
+    console.error("Error saving feed:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+window.openFeedModal = openFeedModal;
+window.closeFeedModal = closeFeedModal;
+window.saveFeedModal = saveFeedModal;

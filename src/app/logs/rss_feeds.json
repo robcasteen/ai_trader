@@ -1,14 +1,16 @@
 [
   {
     "id": 1,
-    "name": "CoinDesk",
+    "name": "Test Updated Name",
     "url": "https://www.coindesk.com/arc/outboundfeeds/rss/",
     "status": "active",
     "last_fetch": "2025-10-15T01:10:08.693163+00:00",
     "headlines_count": 25,
     "relevant_count": 5,
     "created_at": "2025-10-14T21:29:24.113843+00:00",
-    "description": "Leading crypto news and analysis"
+    "description": "Leading crypto news and analysis",
+    "updated_at": "2025-10-22T18:33:36.741892+00:00",
+    "active": true
   },
   {
     "id": 2,
@@ -20,18 +22,6 @@
     "relevant_count": 10,
     "created_at": "2025-10-14T21:29:24.113869+00:00",
     "description": "Global blockchain and crypto news"
-  },
-  {
-    "id": 3,
-    "name": "CryptoPotato",
-    "url": "https://cryptopotato.com/feed/",
-    "status": "error",
-    "last_fetch": "2025-10-14T21:32:58.788099+00:00",
-    "headlines_count": 0,
-    "relevant_count": 0,
-    "created_at": "2025-10-14T21:29:24.113876+00:00",
-    "description": "Crypto news and price analysis",
-    "error": "<unknown>:2:751: not well-formed (invalid token)"
   },
   {
     "id": 4,
@@ -199,5 +189,15 @@
     "created_at": "2025-10-14T21:29:24.113964+00:00",
     "description": "Bitcoin and financial news",
     "error": "<unknown>:69:50: undefined entity"
+  },
+  {
+    "id": 19,
+    "name": "Original Name",
+    "url": "https://example.com/rss",
+    "status": "active",
+    "last_fetch": null,
+    "headlines_count": 0,
+    "relevant_count": 0,
+    "created_at": "2025-10-21T22:53:48.004811+00:00"
   }
 ]

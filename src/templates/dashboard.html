@@ -517,6 +517,103 @@
       .tooltip-icon:hover {
         opacity: 1;
       }
+      /* Feed Edit Modal */
+      .feed-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        align-items: center;
+        justify-content: center;
+      }
+
+      .feed-modal.active {
+        display: flex;
+      }
+
+      .feed-modal-content {
+        background-color: #1a1a1a;
+        border: 1px solid #00ff00;
+        padding: 20px;
+        width: 500px;
+        max-width: 90%;
+        border-radius: 4px;
+      }
+
+      .feed-modal-header {
+        color: #00ff00;
+        font-size: 14px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #00ff00;
+        padding-bottom: 10px;
+      }
+
+      .feed-modal-body {
+        margin-bottom: 20px;
+      }
+
+      .feed-modal-field {
+        margin-bottom: 15px;
+      }
+
+      .feed-modal-label {
+        display: block;
+        color: #00ff00;
+        font-size: 10px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+      }
+
+      .feed-modal-input {
+        width: 100%;
+        background: #000;
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        padding: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 11px;
+      }
+
+      .feed-modal-input:focus {
+        outline: none;
+        border-color: #00ff00;
+        box-shadow: 0 0 5px #00ff00;
+      }
+
+      .feed-modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      .feed-modal-btn {
+        padding: 8px 16px;
+        border: 1px solid #00ff00;
+        background: #000;
+        color: #00ff00;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-size: 10px;
+      }
+
+      .feed-modal-btn:hover {
+        background: #00ff00;
+        color: #000;
+      }
+
+      .feed-modal-btn.cancel {
+        border-color: #ff0000;
+        color: #ff0000;
+      }
+
+      .feed-modal-btn.cancel:hover {
+        background: #ff0000;
+        color: #000;
+      }
     </style>
   </head>
   <body>
@@ -1197,6 +1294,32 @@
           <button class="btn-secondary" onclick="closeAllTradesModal()">
             Close
           </button>
+        </div>
+      </div>
+    </div>
+    <!-- Feed Edit Modal -->
+    <div id="feedModal" class="feed-modal">
+      <div class="feed-modal-content">
+        <div class="feed-modal-header">EDIT RSS FEED</div>
+        <div class="feed-modal-body">
+          <div class="feed-modal-field">
+            <label class="feed-modal-label">Feed Name</label>
+            <input type="text" id="feedModalName" class="feed-modal-input" />
+          </div>
+          <div class="feed-modal-field">
+            <label class="feed-modal-label">Feed URL</label>
+            <input type="text" id="feedModalUrl" class="feed-modal-input" />
+          </div>
+          <div class="feed-modal-field">
+            <label class="feed-modal-label">Description (optional)</label>
+            <input type="text" id="feedModalDesc" class="feed-modal-input" />
+          </div>
+        </div>
+        <div class="feed-modal-buttons">
+          <button class="feed-modal-btn cancel" onclick="closeFeedModal()">
+            CANCEL
+          </button>
+          <button class="feed-modal-btn" onclick="saveFeedModal()">SAVE</button>
         </div>
       </div>
     </div>
