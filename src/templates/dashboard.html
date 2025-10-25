@@ -11,6 +11,226 @@
         padding: 0;
         box-sizing: border-box;
       }
+
+      /* Error Log Section */
+      .error-log-section {
+        margin-top: 30px;
+        border: 1px solid rgba(0, 255, 0, 0.3);
+      }
+
+      .error-log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background: rgba(0, 255, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+      }
+
+      .error-log-header h3 {
+        font-size: 12px;
+        color: #00ff00;
+        margin: 0;
+      }
+
+      .error-log-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .action-btn {
+        padding: 5px 12px;
+        font-size: 9px;
+        background: rgba(0, 255, 0, 0.1);
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.2s;
+        font-family: "Courier New", monospace;
+      }
+
+      .action-btn:hover {
+        background: rgba(0, 255, 0, 0.2);
+      }
+
+      .error-log-container {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 15px;
+      }
+
+      .error-log-empty {
+        color: #00ff00;
+        font-size: 11px;
+        text-align: center;
+        padding: 20px;
+        opacity: 0.5;
+      }
+
+      .error-entry {
+        background: rgba(255, 0, 0, 0.05);
+        border: 1px solid rgba(255, 0, 0, 0.3);
+        padding: 12px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .error-entry:hover {
+        background: rgba(255, 0, 0, 0.1);
+      }
+
+      .error-entry.warning {
+        background: rgba(255, 165, 0, 0.05);
+        border-color: rgba(255, 165, 0, 0.3);
+      }
+
+      .error-entry.warning:hover {
+        background: rgba(255, 165, 0, 0.1);
+      }
+
+      .error-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+      }
+
+      .error-component {
+        font-size: 10px;
+        color: #ff0000;
+        text-transform: uppercase;
+        font-weight: bold;
+      }
+
+      .error-entry.warning .error-component {
+        color: #ffa500;
+      }
+
+      .error-timestamp {
+        font-size: 8px;
+        color: #888;
+      }
+
+      .error-message {
+        font-size: 10px;
+        color: #00ff00;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+
+      .error-details {
+        display: none;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 0, 0, 0.2);
+      }
+
+      .error-entry.expanded .error-details {
+        display: block;
+      }
+
+      .error-exception {
+        font-size: 9px;
+        color: #ff0000;
+        margin-bottom: 5px;
+        font-family: "Courier New", monospace;
+      }
+
+      .error-stack-trace {
+        font-size: 8px;
+        color: #888;
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+        max-height: 200px;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 8px;
+        margin-top: 8px;
+      }
+
+      .error-expand-hint {
+        font-size: 8px;
+        color: #888;
+        margin-top: 5px;
+        font-style: italic;
+      }
+
+      /* Enhanced health items */
+      .health-item {
+        position: relative;
+      }
+
+      .health-item.degraded {
+        background: rgba(255, 165, 0, 0.05);
+        border-color: rgba(255, 165, 0, 0.5);
+      }
+
+      .health-item.error {
+        background: rgba(255, 0, 0, 0.05);
+        border-color: rgba(255, 0, 0, 0.5);
+      }
+
+      .health-details {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(0, 255, 0, 0.2);
+        font-size: 9px;
+        color: #888;
+      }
+
+      .health-error-count {
+        color: #ff0000;
+        font-weight: bold;
+      }
+
+      .health-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 5px;
+      }
+
+      .health-action-btn {
+        padding: 4px 8px;
+        font-size: 8px;
+        background: rgba(0, 255, 0, 0.1);
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.2s;
+      }
+
+      .health-action-btn:hover {
+        background: rgba(0, 255, 0, 0.2);
+      }
+
+      .health-action-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .testing-indicator {
+        display: inline-block;
+        margin-left: 8px;
+        font-size: 8px;
+        color: #ffa500;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .testing-indicator.spinning {
+        animation: spin 1s linear infinite;
+      }
+
       /* Settings Button */
       .settings-btn {
         background: rgba(0, 255, 0, 0.1);
@@ -1049,7 +1269,13 @@
       </div>
 
       <!-- Health Tab -->
+      <!-- 
+HEALTH TAB REPLACEMENT
+Replace lines 1052-1060 in dashboard.html with this entire section
+-->
+
       <div id="health" class="tab-content">
+        <!-- Health Grid - Status Overview -->
         <div class="health-grid" id="health-grid">
           <div class="health-item">
             <div class="health-label">Loading...</div>
@@ -1057,7 +1283,27 @@
             <div class="health-status">--</div>
           </div>
         </div>
+
+        <!-- Error Log Section -->
+        <div class="error-log-section">
+          <div class="error-log-header">
+            <h3>ERROR LOG</h3>
+            <div class="error-log-actions">
+              <button onclick="refreshErrors()" class="action-btn">
+                REFRESH
+              </button>
+              <button onclick="clearAllErrors()" class="action-btn">
+                CLEAR ALL
+              </button>
+            </div>
+          </div>
+          <div id="error-log-container" class="error-log-container">
+            <div class="error-log-empty">No errors recorded</div>
+          </div>
+        </div>
       </div>
+
+      <!-- Add these styles to your <style> section (around line 14, inside existing <style> tags) -->
     </div>
 
     <script>

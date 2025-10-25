@@ -9,7 +9,7 @@
     "relevant_count": 5,
     "created_at": "2025-10-14T21:29:24.113843+00:00",
     "description": "Leading crypto news and analysis",
-    "updated_at": "2025-10-22T18:33:36.741892+00:00",
+    "updated_at": "2025-10-23T03:20:02.085541+00:00",
     "active": true
   },
   {
@@ -21,7 +21,8 @@
     "headlines_count": 30,
     "relevant_count": 10,
     "created_at": "2025-10-14T21:29:24.113869+00:00",
-    "description": "Global blockchain and crypto news"
+    "description": "Global blockchain and crypto news",
+    "active": true
   },
   {
     "id": 4,
@@ -32,7 +33,8 @@
     "headlines_count": 57,
     "relevant_count": 22,
     "created_at": "2025-10-14T21:29:24.113881+00:00",
-    "description": "Bitcoin, Ethereum, and Web3 news"
+    "description": "Bitcoin, Ethereum, and Web3 news",
+    "active": true
   },
   {
     "id": 5,
@@ -43,7 +45,8 @@
     "headlines_count": 19,
     "relevant_count": 5,
     "created_at": "2025-10-14T21:29:24.113887+00:00",
-    "description": "Institutional crypto news"
+    "description": "Institutional crypto news",
+    "active": true
   },
   {
     "id": 6,
@@ -54,7 +57,8 @@
     "headlines_count": 10,
     "relevant_count": 3,
     "created_at": "2025-10-14T21:29:24.113893+00:00",
-    "description": "Original Bitcoin-focused publication"
+    "description": "Original Bitcoin-focused publication",
+    "active": true
   },
   {
     "id": 7,
@@ -65,7 +69,8 @@
     "headlines_count": 9,
     "relevant_count": 5,
     "created_at": "2025-10-14T21:29:24.113898+00:00",
-    "description": "Crypto news and educational content"
+    "description": "Crypto news and educational content",
+    "active": true
   },
   {
     "id": 8,
@@ -76,7 +81,8 @@
     "headlines_count": 12,
     "relevant_count": 2,
     "created_at": "2025-10-14T21:29:24.113903+00:00",
-    "description": "Market analysis and breaking news"
+    "description": "Market analysis and breaking news",
+    "active": true
   },
   {
     "id": 9,
@@ -87,7 +93,8 @@
     "headlines_count": 10,
     "relevant_count": 4,
     "created_at": "2025-10-14T21:29:24.113908+00:00",
-    "description": "Bitcoin and crypto ecosystem news"
+    "description": "Bitcoin and crypto ecosystem news",
+    "active": true
   },
   {
     "id": 10,
@@ -98,7 +105,8 @@
     "headlines_count": 10,
     "relevant_count": 4,
     "created_at": "2025-10-14T21:29:24.113914+00:00",
-    "description": "Blockchain and crypto news"
+    "description": "Blockchain and crypto news",
+    "active": true
   },
   {
     "id": 11,
@@ -109,7 +117,8 @@
     "headlines_count": 10,
     "relevant_count": 7,
     "created_at": "2025-10-14T21:29:24.113919+00:00",
-    "description": "Bitcoin and altcoin news"
+    "description": "Bitcoin and altcoin news",
+    "active": true
   },
   {
     "id": 12,
@@ -120,7 +129,8 @@
     "headlines_count": 97,
     "relevant_count": 67,
     "created_at": "2025-10-14T21:29:24.113929+00:00",
-    "description": "Crypto news and market updates"
+    "description": "Crypto news and market updates",
+    "active": true
   },
   {
     "id": 13,
@@ -131,7 +141,8 @@
     "headlines_count": 8,
     "relevant_count": 5,
     "created_at": "2025-10-14T21:29:24.113935+00:00",
-    "description": "Bitcoin news and analysis"
+    "description": "Bitcoin news and analysis",
+    "active": true
   },
   {
     "id": 14,
@@ -142,7 +153,8 @@
     "headlines_count": 20,
     "relevant_count": 10,
     "created_at": "2025-10-14T21:29:24.113940+00:00",
-    "description": "Latest cryptocurrency news"
+    "description": "Latest cryptocurrency news",
+    "active": true
   },
   {
     "id": 15,
@@ -153,7 +165,8 @@
     "headlines_count": 16,
     "relevant_count": 8,
     "created_at": "2025-10-14T21:29:24.113945+00:00",
-    "description": "Crypto market analysis"
+    "description": "Crypto market analysis",
+    "active": true
   },
   {
     "id": 16,
@@ -164,7 +177,8 @@
     "headlines_count": 30,
     "relevant_count": 13,
     "created_at": "2025-10-14T21:29:24.113950+00:00",
-    "description": "Research-driven crypto news"
+    "description": "Research-driven crypto news",
+    "active": true
   },
   {
     "id": 17,
@@ -176,7 +190,8 @@
     "relevant_count": 0,
     "created_at": "2025-10-14T21:29:24.113959+00:00",
     "description": "Cryptocurrency and blockchain news",
-    "error": "<unknown>:7:2: mismatched tag"
+    "error": "<unknown>:7:2: mismatched tag",
+    "active": true
   },
   {
     "id": 18,
@@ -188,7 +203,8 @@
     "relevant_count": 0,
     "created_at": "2025-10-14T21:29:24.113964+00:00",
     "description": "Bitcoin and financial news",
-    "error": "<unknown>:69:50: undefined entity"
+    "error": "<unknown>:69:50: undefined entity",
+    "active": true
   },
   {
     "id": 19,
@@ -198,6 +214,7 @@
     "last_fetch": null,
     "headlines_count": 0,
     "relevant_count": 0,
-    "created_at": "2025-10-21T22:53:48.004811+00:00"
+    "created_at": "2025-10-21T22:53:48.004811+00:00",
+    "active": true
   }
 ]

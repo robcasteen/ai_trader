@@ -8,6 +8,11 @@ import json
 import logging
 from app.strategy_signal_logger import StrategySignalLogger
 from datetime import datetime, timezone, timedelta
+from app.error_tracker import error_tracker
+from app.error_tracker import error_tracker
+
+# Add this import at the top of dashboard.py (after line 10, after datetime import)
+from app.error_tracker import error_tracker
 import time
 
 router = APIRouter()
@@ -695,6 +700,233 @@ async def get_system_health():
         return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
 
 
+@router.get("/api/errors")
+async def get_errors(component: str = None, limit: int = 50):
+    """
+    Get recent errors, optionally filtered by component.
+
+    Query params:
+        component: Filter by component (openai, exchange, rss, database)
+        limit: Maximum number of errors to return (default 50)
+    """
+    try:
+        errors = error_tracker.get_errors(component=component, limit=limit)
+
+        return JSONResponse(
+            {"errors": errors, "total": len(errors), "component": component}
+        )
+    except Exception as e:
+        logging.error(f"[API] Error fetching errors: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@router.post("/api/errors/clear")
+async def clear_errors(component: str = None):
+    """
+    Clear errors, optionally for a specific component.
+
+    Query params:
+        component: Optional component name to clear errors for
+    """
+    try:
+        cleared = error_tracker.clear_errors(component=component)
+
+        return JSONResponse(
+            {"success": True, "cleared": cleared, "component": component or "all"}
+        )
+    except Exception as e:
+        logging.error(f"[API] Error clearing errors: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@router.post("/api/test/openai")
+async def test_openai():
+    """Test OpenAI API connection."""
+    try:
+        result = await check_openai_health()
+
+        if result["status"] != "operational":
+            error_tracker.log_error(
+                component="openai",
+                message=f"OpenAI test failed: {result.get('message', 'Unknown error')}",
+                severity="warning",
+            )
+
+        return JSONResponse(
+            {
+                "success": result["status"] == "operational",
+                "status": result["status"],
+                "message": result.get("message", "Test completed"),
+                "latency": result.get("latency"),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+    except Exception as e:
+        error_tracker.log_error(
+            component="openai",
+            message=f"OpenAI test error: {str(e)}",
+            error=e,
+            severity="error",
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+
+
+@router.post("/api/test/kraken")
+async def test_kraken():
+    """Test Kraken API connection."""
+    try:
+        result = await check_exchange_health()
+
+        if result["status"] != "operational":
+            error_tracker.log_error(
+                component="exchange",
+                message=f"Kraken test failed: {result.get('message', 'Unknown error')}",
+                severity="warning",
+            )
+
+        return JSONResponse(
+            {
+                "success": result["status"] == "operational",
+                "status": result["status"],
+                "message": result.get("message", "Test completed"),
+                "latency": result.get("latency"),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+    except Exception as e:
+        error_tracker.log_error(
+            component="exchange",
+            message=f"Kraken test error: {str(e)}",
+            error=e,
+            severity="error",
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+
+
+@router.post("/api/test/rss")
+async def test_rss():
+    """Test RSS feeds connection."""
+    try:
+        result = await check_rss_feeds_health()
+
+        if result["status"] != "operational":
+            error_tracker.log_error(
+                component="rss",
+                message=f"RSS test failed: {result.get('message', 'Unknown error')}",
+                severity="warning",
+            )
+
+        return JSONResponse(
+            {
+                "success": result["status"] == "operational",
+                "status": result["status"],
+                "message": result.get("message", "Test completed"),
+                "latency": result.get("latency"),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+    except Exception as e:
+        error_tracker.log_error(
+            component="rss",
+            message=f"RSS test error: {str(e)}",
+            error=e,
+            severity="error",
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+
+
+@router.get("/api/health/detailed")
+async def get_detailed_health():
+    """
+    Get detailed health information including errors.
+
+    Returns health status plus recent errors for each component.
+    """
+    try:
+        # Get basic health data
+        health_data = {}
+
+        # OpenAI
+        openai_status = await check_openai_health()
+        openai_errors = error_tracker.get_component_errors("openai")
+        health_data["openai"] = {
+            "status": openai_status["status"],
+            "latency": openai_status.get("latency"),
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errorCount": error_tracker.get_error_count("openai"),
+            "lastError": error_tracker.get_last_error("openai"),
+            "recentErrors": openai_errors[:5],  # Last 5 errors
+        }
+
+        # Kraken/Exchange
+        exchange_status = await check_exchange_health()
+        exchange_errors = error_tracker.get_component_errors("exchange")
+        health_data["exchange"] = {
+            "status": exchange_status["status"],
+            "latency": exchange_status.get("latency"),
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errorCount": error_tracker.get_error_count("exchange"),
+            "lastError": error_tracker.get_last_error("exchange"),
+            "recentErrors": exchange_errors[:5],
+        }
+
+        # RSS Feeds
+        rss_status = await check_rss_feeds_health()
+        rss_errors = error_tracker.get_component_errors("rss")
+        health_data["rssFeeds"] = {
+            "status": rss_status["status"],
+            "latency": rss_status.get("latency"),
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errorCount": error_tracker.get_error_count("rss"),
+            "lastError": error_tracker.get_last_error("rss"),
+            "recentErrors": rss_errors[:5],
+        }
+
+        # Database
+        db_status = check_database_health()
+        db_errors = error_tracker.get_component_errors("database")
+        health_data["database"] = {
+            "status": db_status["status"],
+            "latency": db_status.get("latency"),
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errorCount": error_tracker.get_error_count("database"),
+            "lastError": error_tracker.get_last_error("database"),
+            "recentErrors": db_errors[:5],
+        }
+
+        return JSONResponse(health_data)
+
+    except Exception as e:
+        logging.error(f"[API] Error getting detailed health: {e}")
+        error_tracker.log_error(
+            component="dashboard",
+            message=f"Failed to get detailed health: {str(e)}",
+            error=e,
+        )
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
 @router.get("/api/trades/all")
 async def get_all_trades():
     """Get all trades without limit."""
@@ -718,96 +950,565 @@ async def get_all_trades():
         return JSONResponse([], status_code=500)
 
 
+"""
+Enhanced health check functions for dashboard.py
+
+Replace your existing check_*_health functions with these enhanced versions.
+They return detailed error messages and actionable guidance.
+"""
+
 async def check_openai_health() -> Dict[str, Any]:
+    """Check OpenAI API health with detailed error reporting."""
     try:
-        error_count = 0
         sentiment = load_sentiment()
         if sentiment:
-            return {"status": "operational", "errors": 0}
-        return {"status": "degraded", "errors": error_count}
+            return {
+                "status": "operational",
+                "errors": 0,
+                "message": "API responding normally",
+                "latency": 0
+            }
+        
+        # If no sentiment data, check if API key is configured
+        import os
+        api_key = os.getenv("OPENAI_API_KEY", "")
+        
+        if not api_key or api_key == "your-api-key-here":
+            return {
+                "status": "error",
+                "errors": 1,
+                "message": "OpenAI API key not configured",
+                "details": "Set OPENAI_API_KEY environment variable or update .env file",
+                "action": "Add your API key to .env file: OPENAI_API_KEY=sk-...",
+                "latency": 0
+            }
+        
+        # Try to make a test API call
+        try:
+            import openai
+            start_time = time.time()
+            
+            # Test with a minimal API call
+            response = openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": "test"}],
+                max_tokens=5
+            )
+            latency = int((time.time() - start_time) * 1000)
+            
+            return {
+                "status": "operational",
+                "errors": 0,
+                "message": "API key valid and responding",
+                "latency": latency
+            }
+            
+        except openai.AuthenticationError as e:
+            return {
+                "status": "error",
+                "errors": 1,
+                "message": "Invalid API key",
+                "details": str(e),
+                "action": "Verify your OpenAI API key is correct and active",
+                "latency": 0
+            }
+        except openai.RateLimitError as e:
+            return {
+                "status": "degraded",
+                "errors": 1,
+                "message": "Rate limit exceeded",
+                "details": str(e),
+                "action": "Wait 60 seconds and try again, or upgrade your OpenAI plan",
+                "latency": 0
+            }
+        except openai.APIConnectionError as e:
+            return {
+                "status": "error",
+                "errors": 1,
+                "message": "Cannot connect to OpenAI API",
+                "details": str(e),
+                "action": "Check your internet connection and firewall settings",
+                "latency": 0
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "errors": 1,
+                "message": f"OpenAI API error: {type(e).__name__}",
+                "details": str(e),
+                "action": "Check OpenAI status page: https://status.openai.com",
+                "latency": 0
+            }
+            
     except Exception as e:
         logging.error(f"[Health] OpenAI check failed: {e}")
-        return {"status": "error", "errors": 1}
+        return {
+            "status": "error",
+            "errors": 1,
+            "message": "Health check error",
+            "details": str(e),
+            "action": "Check application logs for details",
+            "latency": 0
+        }
 
 
 async def check_exchange_health() -> Dict[str, Any]:
+    """Check Kraken exchange health with detailed error reporting."""
     try:
+        # Try to fetch recent trades
         trades = _load_trades()
         if not trades:
-            return {"status": "degraded", "errors": 0}
-
+            return {
+                "status": "degraded",
+                "errors": 0,
+                "message": "No recent trades found",
+                "details": "Bot may not be trading yet or trades file is empty",
+                "action": "This is normal for a new bot. Wait for first trading cycle.",
+                "latency": 0
+            }
+        
+        # Check last trade timestamp
         last_trade = trades[-1]
         last_timestamp = last_trade.get("timestamp")
-
+        
         if last_timestamp:
             try:
                 if last_timestamp.endswith("Z"):
                     last_timestamp = last_timestamp.replace("Z", "+00:00")
-
                 last_time = datetime.fromisoformat(last_timestamp)
-
                 if last_time.tzinfo is None:
                     last_time = last_time.replace(tzinfo=timezone.utc)
-
                 now = datetime.now(timezone.utc)
                 time_diff = now - last_time
-
+                hours_since = int(time_diff.total_seconds() / 3600)
+                
                 if time_diff < timedelta(hours=24):
-                    return {"status": "operational", "errors": 0}
+                    return {
+                        "status": "operational",
+                        "errors": 0,
+                        "message": f"Last trade {hours_since}h ago",
+                        "latency": 0
+                    }
                 else:
-                    return {"status": "degraded", "errors": 0}
-
+                    return {
+                        "status": "degraded",
+                        "errors": 0,
+                        "message": f"No trades for {hours_since}h",
+                        "details": "Bot hasn't executed trades in 24+ hours",
+                        "action": "Check if bot is running and strategies are enabled",
+                        "latency": 0
+                    }
             except Exception as e:
                 logging.error(f"[Health] Timestamp parse error: {e}")
-                return {"status": "degraded", "errors": 0}
-
-        return {"status": "operational", "errors": 0}
-
+                return {
+                    "status": "degraded",
+                    "errors": 1,
+                    "message": "Cannot parse trade timestamp",
+                    "details": str(e),
+                    "action": "Check trades.json file format",
+                    "latency": 0
+                }
+        
+        return {
+            "status": "operational",
+            "errors": 0,
+            "message": "Kraken API responding",
+            "latency": 0
+        }
+        
     except Exception as e:
         logging.error(f"[Health] Exchange check failed: {e}")
-        return {"status": "error", "errors": 1}
+        return {
+            "status": "error",
+            "errors": 1,
+            "message": "Exchange health check failed",
+            "details": str(e),
+            "action": "Check Kraken API credentials and status",
+            "latency": 0
+        }
 
 
 async def check_rss_feeds_health() -> Dict[str, Any]:
+    """Check RSS feeds health with detailed feed status."""
     try:
         feeds = _load_rss_feeds()
         if not feeds:
-            return {"status": "degraded", "errors": 0}
-
-        error_count = sum(1 for f in feeds if f.get("status") == "error")
-        total_feeds = len(feeds)
-
-        if error_count == 0:
-            return {"status": "operational", "errors": 0}
-        elif error_count < total_feeds:
-            return {"status": "degraded", "errors": error_count}
+            return {
+                "status": "error",
+                "errors": 1,
+                "message": "No RSS feeds configured",
+                "details": "No feeds found in rss_feeds.json",
+                "action": "Add RSS feeds in the Feeds tab",
+                "latency": 0
+            }
+        
+        # Check each feed
+        operational_feeds = []
+        broken_feeds = []
+        
+        import feedparser
+        
+        for feed in feeds:
+            feed_url = feed.get("url", "")
+            feed_name = feed.get("name", "Unknown")
+            is_active = feed.get("active", True)
+            
+            if not is_active:
+                continue  # Skip disabled feeds
+            
+            try:
+                start_time = time.time()
+                parsed = feedparser.parse(feed_url)
+                latency = int((time.time() - start_time) * 1000)
+                
+                if parsed.bozo:  # Feed has errors
+                    broken_feeds.append({
+                        "name": feed_name,
+                        "url": feed_url,
+                        "error": str(parsed.bozo_exception) if hasattr(parsed, 'bozo_exception') else "Parse error"
+                    })
+                elif len(parsed.entries) == 0:
+                    broken_feeds.append({
+                        "name": feed_name,
+                        "url": feed_url,
+                        "error": "No entries found"
+                    })
+                else:
+                    operational_feeds.append({
+                        "name": feed_name,
+                        "entries": len(parsed.entries),
+                        "latency": latency
+                    })
+            except Exception as e:
+                broken_feeds.append({
+                    "name": feed_name,
+                    "url": feed_url,
+                    "error": str(e)
+                })
+        
+        total_active = len(operational_feeds) + len(broken_feeds)
+        operational_count = len(operational_feeds)
+        
+        if operational_count == total_active and total_active > 0:
+            return {
+                "status": "operational",
+                "errors": 0,
+                "message": f"All {operational_count} feeds operational",
+                "details": {
+                    "operational": operational_feeds,
+                    "broken": []
+                },
+                "latency": sum(f["latency"] for f in operational_feeds) // len(operational_feeds) if operational_feeds else 0
+            }
+        elif operational_count > 0:
+            return {
+                "status": "degraded",
+                "errors": len(broken_feeds),
+                "message": f"{operational_count}/{total_active} feeds operational",
+                "details": {
+                    "operational": operational_feeds,
+                    "broken": broken_feeds
+                },
+                "action": f"Fix or disable {len(broken_feeds)} broken feed(s)",
+                "latency": sum(f["latency"] for f in operational_feeds) // len(operational_feeds) if operational_feeds else 0
+            }
         else:
-            return {"status": "error", "errors": error_count}
-
+            return {
+                "status": "error",
+                "errors": len(broken_feeds),
+                "message": f"All {total_active} feeds broken",
+                "details": {
+                    "operational": [],
+                    "broken": broken_feeds
+                },
+                "action": "Check feed URLs and network connectivity",
+                "latency": 0
+            }
+            
     except Exception as e:
         logging.error(f"[Health] RSS feeds check failed: {e}")
-        return {"status": "error", "errors": 1}
+        return {
+            "status": "error",
+            "errors": 1,
+            "message": "RSS health check failed",
+            "details": str(e),
+            "action": "Check logs for details",
+            "latency": 0
+        }
 
 
 def check_database_health() -> Dict[str, Any]:
+    """Check database health (currently JSON files)."""
     try:
-        test_file = LOGS_DIR / ".health_check"
-        test_file.write_text("ok")
-        test_file.unlink()
-
-        required_files = [LOGS_DIR / "trades.json", LOGS_DIR / "bot_status.json"]
-
-        for file in required_files:
-            if file.exists():
-                file.read_text()
-
-        return {"status": "operational", "errors": 0}
+        # Check if critical files exist and are readable
+        critical_files = [
+            ("trades.json", LOGS_DIR / "trades.json"),
+            ("holdings.json", LOGS_DIR / "holdings.json"),
+            ("strategy_signals.jsonl", LOGS_DIR / "strategy_signals.jsonl"),
+        ]
+        
+        missing_files = []
+        corrupted_files = []
+        
+        for name, path in critical_files:
+            if not path.exists():
+                missing_files.append(name)
+            else:
+                try:
+                    if name.endswith(".jsonl"):
+                        # Check JSONL format
+                        with open(path) as f:
+                            for line in f:
+                                if line.strip():
+                                    json.loads(line)
+                    else:
+                        # Check JSON format
+                        with open(path) as f:
+                            json.load(f)
+                except Exception as e:
+                    corrupted_files.append({
+                        "file": name,
+                        "error": str(e)
+                    })
+        
+        if missing_files or corrupted_files:
+            error_count = len(missing_files) + len(corrupted_files)
+            details = []
+            if missing_files:
+                details.append(f"Missing: {', '.join(missing_files)}")
+            if corrupted_files:
+                details.append(f"Corrupted: {', '.join(f['file'] for f in corrupted_files)}")
+            
+            return {
+                "status": "error",
+                "errors": error_count,
+                "message": f"{error_count} file issue(s)",
+                "details": "; ".join(details),
+                "action": "Check file permissions and restore from backup if needed",
+                "latency": 0
+            }
+        
+        return {
+            "status": "operational",
+            "errors": 0,
+            "message": "All data files accessible",
+            "latency": 0
+        }
+        
     except Exception as e:
         logging.error(f"[Health] Database check failed: {e}")
-        return {"status": "error", "errors": 1}
-
-
+        return {
+            "status": "error",
+            "errors": 1,
+            "message": "Database health check failed",
+            "details": str(e),
+            "action": "Check logs directory permissions",
+            "latency": 0
+        }
 # RSS Feed Management
+
+
+@router.get("/api/errors")
+async def get_errors(component: str = None, limit: int = 50):
+    """Get recent errors, optionally filtered by component."""
+    try:
+        errors = error_tracker.get_errors(component=component, limit=limit)
+        return JSONResponse({
+            "errors": errors,
+            "total": len(errors),
+            "component": component
+        })
+    except Exception as e:
+        logging.error(f"[API] Error fetching errors: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@router.post("/api/errors/clear")
+async def clear_errors(component: str = None):
+    """Clear errors, optionally for a specific component."""
+    try:
+        cleared = error_tracker.clear_errors(component=component)
+        return JSONResponse({
+            "success": True,
+            "cleared": cleared,
+            "component": component or "all"
+        })
+    except Exception as e:
+        logging.error(f"[API] Error clearing errors: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@router.post("/api/test/openai")
+async def test_openai():
+    """Test OpenAI API connection."""
+    try:
+        result = await check_openai_health()
+        if result["status"] != "operational":
+            error_tracker.log_error(
+                component="openai",
+                message=f"OpenAI test failed: {result.get('message', 'Unknown error')}",
+                severity="warning"
+            )
+        return JSONResponse({
+            "success": result["status"] == "operational",
+            "status": result["status"],
+            "message": result.get("message", "Test completed"),
+            "latency": result.get("latency"),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+    except Exception as e:
+        error_tracker.log_error(
+            component="openai",
+            message=f"OpenAI test error: {str(e)}",
+            error=e,
+            severity="error"
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+
+@router.post("/api/test/kraken")
+async def test_kraken():
+    """Test Kraken API connection."""
+    try:
+        result = await check_exchange_health()
+        if result["status"] != "operational":
+            error_tracker.log_error(
+                component="exchange",
+                message=f"Kraken test failed: {result.get('message', 'Unknown error')}",
+                severity="warning"
+            )
+        return JSONResponse({
+            "success": result["status"] == "operational",
+            "status": result["status"],
+            "message": result.get("message", "Test completed"),
+            "latency": result.get("latency"),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+    except Exception as e:
+        error_tracker.log_error(
+            component="exchange",
+            message=f"Kraken test error: {str(e)}",
+            error=e,
+            severity="error"
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+
+@router.post("/api/test/rss")
+async def test_rss():
+    """Test RSS feeds connection."""
+    try:
+        result = await check_rss_feeds_health()
+        if result["status"] != "operational":
+            error_tracker.log_error(
+                component="rss",
+                message=f"RSS test failed: {result.get('message', 'Unknown error')}",
+                severity="warning"
+            )
+        return JSONResponse({
+            "success": result["status"] == "operational",
+            "status": result["status"],
+            "message": result.get("message", "Test completed"),
+            "latency": result.get("latency"),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+    except Exception as e:
+        error_tracker.log_error(
+            component="rss",
+            message=f"RSS test error: {str(e)}",
+            error=e,
+            severity="error"
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+
+# Replace the get_detailed_health endpoint in dashboard.py
+# This version passes through ALL fields from health checks (message, details, action, etc.)
+
+# Replace the get_detailed_health endpoint in dashboard.py
+# This version passes through ALL fields from health checks (message, details, action, etc.)
+
+@router.get("/api/health/detailed")
+async def get_detailed_health():
+    """Get detailed health information including errors."""
+    try:
+        health_data = {}
+        
+        # OpenAI - merge all fields from health check
+        openai_status = await check_openai_health()
+        openai_errors = error_tracker.get_component_errors("openai")
+        health_data["openai"] = {
+            **openai_status,  # This spreads all fields: status, message, details, action, latency
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errorCount": error_tracker.get_error_count("openai"),
+            "lastError": error_tracker.get_last_error("openai"),
+            "recentErrors": openai_errors[:5]
+        }
+        
+        # Kraken/Exchange - merge all fields
+        exchange_status = await check_exchange_health()
+        exchange_errors = error_tracker.get_component_errors("exchange")
+        health_data["exchange"] = {
+            **exchange_status,  # Spreads: status, message, details, action, latency
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errorCount": error_tracker.get_error_count("exchange"),
+            "lastError": error_tracker.get_last_error("exchange"),
+            "recentErrors": exchange_errors[:5]
+        }
+        
+        # RSS Feeds - merge all fields including details dict
+        rss_status = await check_rss_feeds_health()
+        rss_errors = error_tracker.get_component_errors("rss")
+        health_data["rssFeeds"] = {
+            **rss_status,  # Spreads: status, message, details (with operational/broken), action, latency
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errorCount": error_tracker.get_error_count("rss"),
+            "lastError": error_tracker.get_last_error("rss"),
+            "recentErrors": rss_errors[:5]
+        }
+        
+        # Database - merge all fields
+        db_status = check_database_health()
+        db_errors = error_tracker.get_component_errors("database")
+        health_data["database"] = {
+            **db_status,  # Spreads: status, message, details, action, latency
+            "lastCheck": datetime.now(timezone.utc).isoformat(),
+            "errorCount": error_tracker.get_error_count("database"),
+            "lastError": error_tracker.get_last_error("database"),
+            "recentErrors": db_errors[:5]
+        }
+        
+        return JSONResponse(health_data)
+    except Exception as e:
+        logging.error(f"[API] Error getting detailed health: {e}")
+        error_tracker.log_error(
+            component="dashboard",
+            message=f"Failed to get detailed health: {str(e)}",
+            error=e
+        )
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
 @router.get("/api/feeds")
 async def get_rss_feeds():
     try:
@@ -1122,36 +1823,42 @@ async def test_rss_feed(feed_id: int):
     """Test an RSS feed by ID."""
     try:
         import feedparser
-        
+
         feeds = _load_rss_feeds()
         feed = next((f for f in feeds if f["id"] == feed_id), None)
-        
+
         if not feed:
             return JSONResponse(
                 status_code=404, content={"error": f"Feed ID {feed_id} not found"}
             )
-        
+
         url = feed.get("url")
         if not url:
-            return JSONResponse(
-                status_code=400, content={"error": "Feed has no URL"}
-            )
-        
+            return JSONResponse(status_code=400, content={"error": "Feed has no URL"})
+
         parsed = feedparser.parse(url)
-        
+
         if parsed.bozo:
-            error_msg = str(parsed.bozo_exception) if hasattr(parsed, 'bozo_exception') else "Invalid feed"
-            return JSONResponse(status_code=400, content={"error": error_msg, "status": "error"})
-        
+            error_msg = (
+                str(parsed.bozo_exception)
+                if hasattr(parsed, "bozo_exception")
+                else "Invalid feed"
+            )
+            return JSONResponse(
+                status_code=400, content={"error": error_msg, "status": "error"}
+            )
+
         entry_count = len(parsed.entries)
         title = parsed.feed.get("title", "Unknown")
-        
+
         return {
             "status": "success",
             "entries": entry_count,
             "title": title,
-            "message": f"Feed OK - {entry_count} entries found"
+            "message": f"Feed OK - {entry_count} entries found",
         }
     except Exception as e:
         logging.error(f"[Feeds] Error testing feed {feed_id}: {e}")
-        return JSONResponse(status_code=500, content={"error": str(e), "status": "error"})
+        return JSONResponse(
+            status_code=500, content={"error": str(e), "status": "error"}
+        )

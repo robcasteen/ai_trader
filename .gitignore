@@ -20,6 +20,12 @@ coverage.xml
 src/logs/
 *.log
 
+# Database
+*.db
+*.db-shm
+*.db-wal
+data/trading_bot.db*
+
 # Environment
 .env
 

@@ -914,48 +914,448 @@ async function loadStrategies() {
 // Load health status (for terminal dashboard)
 async function loadHealth() {
   try {
-    const response = await fetch("/api/health");
+    const response = await fetch("/api/health/detailed");
     const data = await response.json();
 
     const services = [
-      { name: "OpenAI API", status: data.openai },
-      { name: "Kraken API", status: data.kraken || data.exchange },
-      { name: "RSS Feeds", status: data.rss || data.rssFeeds },
-      { name: "Database", status: data.database },
+      { name: "OpenAI API", key: "openai", data: data.openai },
+      { name: "Kraken API", key: "exchange", data: data.exchange },
+      { name: "RSS Feeds", key: "rssFeeds", data: data.rssFeeds },
+      { name: "Database", key: "database", data: data.database },
     ];
 
     const healthGridEl = document.getElementById("health-grid");
     if (healthGridEl) {
       const healthHtml = services
-        .map(
-          (svc) => `
-                <div class="health-item">
-                    <div class="health-label">${svc.name}</div>
-                    <div class="health-value ${
-                      svc.status?.status === "operational"
-                        ? "positive"
-                        : "negative"
-                    }">●</div>
-                    <div class="health-status">${
-                      svc.status?.status || "--"
-                    }</div>
-                </div>
-            `
-        )
+        .map((svc) => {
+          const statusClass =
+            svc.data?.status === "operational"
+              ? "positive"
+              : svc.data?.status === "degraded"
+              ? "warning"
+              : "negative";
+
+          const errorCount = svc.data?.errorCount || 0;
+          const lastError = svc.data?.lastError;
+
+          // Get summary message
+          const summaryMsg =
+            svc.data?.recentErrors?.[0]?.message ||
+            lastError?.message ||
+            "Unknown error";
+
+          return `
+            <div class="health-item ${svc.data?.status || ""}">
+              <div class="health-label">${svc.name}</div>
+              <div class="health-value ${statusClass}">●</div>
+              <div class="health-status">${svc.data?.status || "--"}</div>
+              <div class="health-details">
+                <div>Latency: ${svc.data?.latency || "--"}ms</div>
+                <div class="health-error-count">Errors (24h): ${errorCount}</div>
+                ${
+                  svc.data?.status !== "operational"
+                    ? `
+                  <div style="font-size: 8px; color: #ff0000; margin-top: 5px; line-height: 1.3;">
+                    ${summaryMsg.substring(0, 60)}${
+                        summaryMsg.length > 60 ? "..." : ""
+                      }
+                  </div>
+                `
+                    : ""
+                }
+              </div>
+              <div class="health-actions">
+                <button class="health-action-btn" onclick="testService('${
+                  svc.key
+                }')">TEST</button>
+                ${
+                  svc.data?.status !== "operational"
+                    ? `
+                  <button class="health-action-btn" onclick="showServiceDetails('${svc.key}')">DETAILS</button>
+                `
+                    : ""
+                }
+                ${
+                  errorCount > 0
+                    ? `
+                  <button class="health-action-btn" onclick="clearServiceErrors('${svc.key}')">CLEAR</button>
+                `
+                    : ""
+                }
+              </div>
+              <span id="test-indicator-${
+                svc.key
+              }" class="testing-indicator" style="display: none;"></span>
+            </div>
+          `;
+        })
         .join("");
       healthGridEl.innerHTML = healthHtml;
     }
 
+    // Store service data for details modal
+    window.healthServiceData = {
+      openai: data.openai,
+      exchange: data.exchange,
+      rssFeeds: data.rssFeeds,
+      database: data.database,
+    };
+
     // Update header status
-    const allOk = services.every((s) => s.status?.status === "operational");
+    const allOk = services.every((s) => s.data?.status === "operational");
     const statusDotEl = document.getElementById("status-dot");
     const statusTextEl = document.getElementById("status-text");
 
     if (statusDotEl)
       statusDotEl.className = "status-dot " + (allOk ? "" : "red");
     if (statusTextEl) statusTextEl.textContent = allOk ? "LIVE" : "ERROR";
+
+    // Load recent errors
+    await loadRecentErrors();
   } catch (error) {
     console.error("Error loading health:", error);
+  }
+}
+
+// Enhanced showServiceDetails function
+async function showServiceDetails(serviceKey) {
+  const response = await fetch("/api/health/detailed");
+  const data = await response.json();
+  const serviceData = data[serviceKey];
+  if (!serviceData) {
+    alert("No details available");
+    return;
+  }
+
+  // Get the most recent error with full details
+  const lastError = serviceData.lastError || serviceData.recentErrors?.[0];
+
+  let detailsHtml = `
+    <div style="font-family: 'Courier New', monospace; color: #00ff00; background: #000; padding: 20px; max-width: 600px;">
+      <div style="border-bottom: 1px solid #00ff00; padding-bottom: 10px; margin-bottom: 15px;">
+        <h3 style="margin: 0; color: #00ff00; font-size: 14px;">
+          ${serviceKey.toUpperCase()} - DETAILS
+        </h3>
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <div style="font-size: 10px; color: #888; margin-bottom: 5px;">STATUS</div>
+        <div style="font-size: 12px; color: ${
+          serviceData.status === "operational" ? "#00ff00" : "#ff0000"
+        };">
+          ${serviceData.status.toUpperCase()}
+        </div>
+      </div>
+  `;
+
+  if (lastError) {
+    detailsHtml += `
+      <div style="margin-bottom: 15px;">
+        <div style="font-size: 10px; color: #888; margin-bottom: 5px;">LAST ERROR</div>
+        <div style="font-size: 11px; color: #ff0000; line-height: 1.4;">
+          ${lastError.message}
+        </div>
+        ${
+          lastError.details
+            ? `
+          <div style="font-size: 9px; color: #ffa500; margin-top: 8px; line-height: 1.4;">
+            ${lastError.details}
+          </div>
+        `
+            : ""
+        }
+        ${
+          lastError.action
+            ? `
+          <div style="margin-top: 12px; padding: 10px; background: rgba(0, 255, 0, 0.1); border: 1px solid #00ff00;">
+            <div style="font-size: 9px; color: #888; margin-bottom: 5px;">ACTION REQUIRED</div>
+            <div style="font-size: 10px; color: #00ff00; line-height: 1.4;">
+              ${lastError.action}
+            </div>
+          </div>
+        `
+            : ""
+        }
+        ${
+          lastError.timestamp
+            ? `
+          <div style="font-size: 8px; color: #888; margin-top: 8px;">
+            ${new Date(lastError.timestamp).toLocaleString()}
+          </div>
+        `
+            : ""
+        }
+      </div>
+    `;
+  }
+
+  // Special handling for RSS feeds
+  if (serviceKey === "rssFeeds" && lastError?.metadata?.details) {
+    const details = lastError.metadata.details;
+
+    if (details.broken && details.broken.length > 0) {
+      detailsHtml += `
+        <div style="margin-bottom: 15px;">
+          <div style="font-size: 10px; color: #888; margin-bottom: 5px;">BROKEN FEEDS (${
+            details.broken.length
+          })</div>
+          ${details.broken
+            .map(
+              (feed) => `
+            <div style="padding: 8px; margin-bottom: 5px; background: rgba(255, 0, 0, 0.1); border-left: 2px solid #ff0000;">
+              <div style="font-size: 10px; color: #ff0000; font-weight: bold;">${feed.name}</div>
+              <div style="font-size: 8px; color: #888; margin-top: 3px;">${feed.url}</div>
+              <div style="font-size: 9px; color: #ffa500; margin-top: 3px;">${feed.error}</div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      `;
+    }
+
+    if (details.operational && details.operational.length > 0) {
+      detailsHtml += `
+        <div style="margin-bottom: 15px;">
+          <div style="font-size: 10px; color: #888; margin-bottom: 5px;">OPERATIONAL FEEDS (${
+            details.operational.length
+          })</div>
+          ${details.operational
+            .map(
+              (feed) => `
+            <div style="padding: 6px; margin-bottom: 3px; background: rgba(0, 255, 0, 0.05); border-left: 2px solid #00ff00;">
+              <div style="font-size: 9px; color: #00ff00;">
+                ${feed.name} - ${feed.entries} entries (${feed.latency}ms)
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      `;
+    }
+  }
+
+  detailsHtml += `
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <button onclick="testService('${serviceKey}')" style="flex: 1; padding: 8px; background: rgba(0, 255, 0, 0.1); border: 1px solid #00ff00; color: #00ff00; cursor: pointer; font-family: 'Courier New', monospace; font-size: 10px;">
+          TEST CONNECTION
+        </button>
+        ${
+          serviceData.errorCount > 0
+            ? `
+          <button onclick="clearServiceErrors('${serviceKey}'); closeDetailsModal();" style="flex: 1; padding: 8px; background: rgba(255, 0, 0, 0.1); border: 1px solid #ff0000; color: #ff0000; cursor: pointer; font-family: 'Courier New', monospace; font-size: 10px;">
+            CLEAR ERRORS
+          </button>
+        `
+            : ""
+        }
+        <button onclick="closeDetailsModal()" style="flex: 1; padding: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid #888; color: #888; cursor: pointer; font-family: 'Courier New', monospace; font-size: 10px;">
+          CLOSE
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Create modal
+  const modal = document.createElement("div");
+  modal.id = "details-modal";
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  `;
+  modal.innerHTML = detailsHtml;
+  modal.onclick = (e) => {
+    if (e.target === modal) closeDetailsModal();
+  };
+
+  document.body.appendChild(modal);
+}
+
+function closeDetailsModal() {
+  const modal = document.getElementById("details-modal");
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Make ERROR button in header jump to Health tab
+function handleErrorButtonClick() {
+  // Switch to health tab
+  switchTab("health");
+
+  // Scroll to error log section
+  setTimeout(() => {
+    const errorLog = document.querySelector(".error-log-section");
+    if (errorLog) {
+      errorLog.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, 100);
+}
+
+// Add this to your existing window exports
+window.showServiceDetails = showServiceDetails;
+window.closeDetailsModal = closeDetailsModal;
+window.handleErrorButtonClick = handleErrorButtonClick;
+// ADD these new functions to dashboard.js (after loadHealth function)
+
+async function loadRecentErrors() {
+  try {
+    const response = await fetch("/api/errors?limit=20");
+    const data = await response.json();
+
+    const errorLogContainer = document.getElementById("error-log-container");
+    if (!errorLogContainer) return;
+
+    if (!data.errors || data.errors.length === 0) {
+      errorLogContainer.innerHTML =
+        '<div class="error-log-empty">No errors recorded</div>';
+      return;
+    }
+
+    const errorsHtml = data.errors
+      .map(
+        (error, index) => `
+      <div class="error-entry ${
+        error.severity
+      }" onclick="toggleErrorDetails(${index})">
+        <div class="error-header">
+          <div class="error-component">${error.component}</div>
+          <div class="error-timestamp">${new Date(
+            error.timestamp
+          ).toLocaleString()}</div>
+        </div>
+        <div class="error-message">${error.message}</div>
+        <div class="error-expand-hint">Click to expand details</div>
+        <div class="error-details" id="error-details-${index}">
+          ${
+            error.exception
+              ? `<div class="error-exception">Exception: ${error.exception_type} - ${error.exception}</div>`
+              : ""
+          }
+          ${
+            error.stack_trace
+              ? `<div class="error-stack-trace">${error.stack_trace}</div>`
+              : ""
+          }
+          ${
+            error.metadata && Object.keys(error.metadata).length > 0
+              ? `<div style="margin-top: 8px; font-size: 9px;">Metadata: ${JSON.stringify(
+                  error.metadata,
+                  null,
+                  2
+                )}</div>`
+              : ""
+          }
+        </div>
+      </div>
+    `
+      )
+      .join("");
+
+    errorLogContainer.innerHTML = errorsHtml;
+  } catch (error) {
+    console.error("Error loading errors:", error);
+  }
+}
+
+function toggleErrorDetails(index) {
+  const errorEntry = event.currentTarget;
+  errorEntry.classList.toggle("expanded");
+}
+
+async function showServiceDetails(serviceKey, serviceData) {
+  // Could show a modal with detailed service info
+  console.log("Service details:", serviceKey, serviceData);
+}
+
+async function testService(serviceKey) {
+  const indicator = document.getElementById(`test-indicator-${serviceKey}`);
+  if (indicator) {
+    indicator.style.display = "inline-block";
+    indicator.textContent = "⟳";
+    indicator.classList.add("spinning");
+  }
+
+  try {
+    const serviceMap = {
+      openai: "openai",
+      exchange: "kraken",
+      rssFeeds: "rss",
+      database: "database",
+    };
+
+    const endpoint = serviceMap[serviceKey] || serviceKey;
+    const response = await fetch(`/api/test/${endpoint}`, { method: "POST" });
+    const data = await response.json();
+
+    if (data.success) {
+      alert(
+        `✓ ${endpoint.toUpperCase()} test passed\nLatency: ${
+          data.latency || "N/A"
+        }ms`
+      );
+    } else {
+      alert(
+        `✗ ${endpoint.toUpperCase()} test failed\n${data.error || data.message}`
+      );
+    }
+
+    // Reload health after test
+    await loadHealth();
+  } catch (error) {
+    alert(`Error testing service: ${error.message}`);
+  } finally {
+    if (indicator) {
+      indicator.style.display = "none";
+      indicator.classList.remove("spinning");
+    }
+  }
+}
+
+async function clearServiceErrors(serviceKey) {
+  if (!confirm(`Clear all errors for ${serviceKey}?`)) return;
+
+  try {
+    const response = await fetch(`/api/errors/clear?component=${serviceKey}`, {
+      method: "POST",
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      alert(`Cleared ${data.cleared} error(s)`);
+      await loadHealth();
+    }
+  } catch (error) {
+    alert(`Error clearing errors: ${error.message}`);
+  }
+}
+
+async function refreshErrors() {
+  await loadRecentErrors();
+}
+
+async function clearAllErrors() {
+  if (!confirm("Clear ALL errors?")) return;
+
+  try {
+    const response = await fetch("/api/errors/clear", { method: "POST" });
+    const data = await response.json();
+
+    if (data.success) {
+      alert(`Cleared ${data.cleared} error(s)`);
+      await loadHealth();
+    }
+  } catch (error) {
+    alert(`Error clearing errors: ${error.message}`);
   }
 }
 
@@ -1475,3 +1875,12 @@ async function saveFeedModal() {
 window.openFeedModal = openFeedModal;
 window.closeFeedModal = closeFeedModal;
 window.saveFeedModal = saveFeedModal;
+// Expose functions to window
+window.loadHealth = loadHealth;
+window.testService = testService;
+window.clearServiceErrors = clearServiceErrors;
+window.refreshErrors = refreshErrors;
+window.clearAllErrors = clearAllErrors;
+window.loadRecentErrors = loadRecentErrors;
+window.toggleErrorDetails = toggleErrorDetails;
+window.showServiceDetails = showServiceDetails;

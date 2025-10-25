@@ -99,28 +99,57 @@ class PaperTrader:
         Simulate a trade with Kraken fees.
         - Taker fee: 0.26% applied to all trades
         - Fees reduce the effective value for both buys and sells
-
+        
         For BUY: You pay price + fee
         For SELL: You receive price - fee
+        For HOLD: No trade executed
         """
         # Normalize symbol to canonical format
         canonical_symbol = normalize_symbol(symbol)
-
+        
+        # Handle HOLD - do not execute trade
+        if action.upper() == "HOLD":
+            return {
+                "success": True,
+                "action": "HOLD",
+                "symbol": canonical_symbol,
+                "message": "No trade executed - HOLD signal",
+                "reason": reason
+            }
+        
+        # Validate action
+        if action.upper() not in ["BUY", "SELL"]:
+            return {
+                "success": False,
+                "action": action,
+                "symbol": canonical_symbol,
+                "message": f"Invalid action: {action}",
+                "reason": reason
+            }
+        
         # Calculate gross value
         gross_value = amount * price
-
+        
         # Apply 0.26% taker fee (always reduces net proceeds)
         fee_rate = 0.0026
         fee = gross_value * fee_rate
-
+        
         # Net value calculation (fee always reduces what you get/pay)
         # BUY: Total cost = gross_value + fee (you pay MORE)
         # SELL: Total proceeds = gross_value - fee (you receive LESS)
         if action.lower() == "buy":
             net_value = gross_value + fee  # Cost includes fee
-        else:  # sell
+        elif action.lower() == "sell":
             net_value = gross_value - fee  # Proceeds minus fee
-
+        else:
+            # Should never reach here due to validation above
+            return {
+                "success": False,
+                "action": action,
+                "symbol": canonical_symbol,
+                "message": f"Unexpected action: {action}"
+            }
+        
         trade = {
             "timestamp": datetime.now().isoformat(),
             "action": action.lower(),
@@ -133,7 +162,7 @@ class PaperTrader:
             "reason": reason,
             "value": round(net_value, 2),  # Backwards compatibility
         }
-
+        
         # Load existing trades
         trades = []
         if self.trades_file.exists():
@@ -142,16 +171,125 @@ class PaperTrader:
                     trades = json.load(f)
                 except json.JSONDecodeError:
                     trades = []
-
+        
         # Append new trade
         trades.append(trade)
-
+        
         # Write back
         with open(self.trades_file, "w") as f:
             json.dump(trades, f, indent=2)
-
-        # FIX: Update holdings after trade executes
-        if action.lower() in ["buy", "sell"]:
-            self.update_holdings(canonical_symbol, action, amount, price)
-
-        return trade
+        
+        # Update holdings after trade executes
+        self.update_holdings(canonical_symbol, action, amount, price)
+        
+        # Return success result with trade details
+        return {
+            "success": True,
+            "action": action.upper(),
+            "symbol": canonical_symbol,
+            "amount": amount,
+            "price": price,
+            "net_value": net_value,
+            "fee": fee,
+            "reason": reason,
+            "message": f"{action.upper()} executed successfully"
+        }
+        """
+        Simulate a trade with Kraken fees.
+        - Taker fee: 0.26% applied to all trades
+        - Fees reduce the effective value for both buys and sells
+        
+        For BUY: You pay price + fee
+        For SELL: You receive price - fee
+        For HOLD: No trade executed
+        """
+        # Normalize symbol to canonical format
+        canonical_symbol = normalize_symbol(symbol)
+        
+        # Handle HOLD - do not execute trade
+        if action.upper() == "HOLD":
+            return {
+                "success": True,
+                "action": "HOLD",
+                "symbol": canonical_symbol,
+                "message": "No trade executed - HOLD signal",
+                "reason": reason
+            }
+        
+        # Validate action
+        if action.upper() not in ["BUY", "SELL"]:
+            return {
+                "success": False,
+                "action": action,
+                "symbol": canonical_symbol,
+                "message": f"Invalid action: {action}",
+                "reason": reason
+            }
+        
+        # Calculate gross value
+        gross_value = amount * price
+        
+        # Apply 0.26% taker fee (always reduces net proceeds)
+        fee_rate = 0.0026
+        fee = gross_value * fee_rate
+        
+        # Net value calculation (fee always reduces what you get/pay)
+        # BUY: Total cost = gross_value + fee (you pay MORE)
+        # SELL: Total proceeds = gross_value - fee (you receive LESS)
+        if action.lower() == "buy":
+            net_value = gross_value + fee  # Cost includes fee
+        elif action.lower() == "sell":
+            net_value = gross_value - fee  # Proceeds minus fee
+        else:
+            # Should never reach here due to validation above
+            return {
+                "success": False,
+                "action": action,
+                "symbol": canonical_symbol,
+                "message": f"Unexpected action: {action}"
+            }
+        
+        trade = {
+            "timestamp": datetime.now().isoformat(),
+            "action": action.lower(),
+            "symbol": canonical_symbol,  # Use canonical symbol in logs
+            "price": price,
+            "amount": amount,
+            "gross_value": round(gross_value, 2),
+            "fee": round(fee, 2),
+            "net_value": round(net_value, 2),
+            "reason": reason,
+            "value": round(net_value, 2),  # Backwards compatibility
+        }
+        
+        # Load existing trades
+        trades = []
+        if self.trades_file.exists():
+            with open(self.trades_file, "r") as f:
+                try:
+                    trades = json.load(f)
+                except json.JSONDecodeError:
+                    trades = []
+        
+        # Append new trade
+        trades.append(trade)
+        
+        # Write back
+        with open(self.trades_file, "w") as f:
+            json.dump(trades, f, indent=2)
+        
+        # Update holdings after trade executes
+        self.update_holdings(canonical_symbol, action, amount, price)
+        
+        # Return success result with trade details
+        return {
+            "success": True,
+            "action": action.upper(),
+            "symbol": canonical_symbol,
+            "amount": amount,
+            "price": price,
+            "net_value": net_value,
+            "fee": fee,
+            "reason": reason,
+            "message": f"{action.upper()} executed successfully"
+        } 
