@@ -38,10 +38,7 @@ notifier = Notifier()
 PROJECT_ROOT = Path(__file__).resolve().parent  # /src
 LOGS_DIR = PROJECT_ROOT / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-STATUS_FILE = LOGS_DIR / "bot_status.json"
-
-# Initialize in-memory last status (diagnostic only; never returned by /status unless /run-now is called)
-last_status = {"time": None, "message": "Bot has not run yet.", "next_run": "Unknown"}
+# REMOVED: STATUS_FILE - status now tracked in database
 
 # --- FastAPI app ---
 app = FastAPI(title="Trading Bot Dashboard")
@@ -58,16 +55,7 @@ app.mount(
 app.include_router(dashboard_router)
 
 
-def save_status_to_file(status: dict):
-    """Persist bot status to logs/bot_status.json and keep memory in sync."""
-    global last_status
-    last_status = status
-    try:
-        with open(STATUS_FILE, "w") as f:
-            json.dump(status, f, indent=2)
-        logging.info(f"[Status] Updated bot_status.json: {status}")
-    except Exception as e:
-        logging.error(f"[Status] Failed to write status file: {e}")
+# REMOVED: save_status_to_file - status is now tracked in database only
 
 
 def normalize_symbol(sym: str) -> str:
@@ -89,23 +77,31 @@ def run_trade_cycle():
     if not risk_manager.can_trade():
         msg = "Risk manager blocked trading (daily loss limit reached)"
         logging.error(f"[TradeCycle] {msg}")
-        save_status_to_file(
-            {"time": start_time, "message": msg, "next_run": get_next_run_time()}
-        )
         return
 
     # Initialize strategy manager with correct logs directory
     from app.strategies.strategy_manager import StrategyManager
     from pathlib import Path
+    from app.database.connection import get_db
+    from app.database.repositories import BotConfigRepository
 
-    # Configure strategy manager
-    strategy_config = {
-        "use_technical": True,
-        "use_volume": True,
-        "min_confidence": 0.2,
-        "aggregation_method": "weighted_vote",
-        "logs_dir": str(LOGS_DIR),  # ADD THIS
-    }
+    # Load configuration from database
+    try:
+        with get_db() as db:
+            config_repo = BotConfigRepository(db)
+            strategy_config = config_repo.get_config_dict()
+            strategy_config["logs_dir"] = str(LOGS_DIR)  # Add logs directory
+            logging.info(f"[TradeCycle] Loaded config from database: min_confidence={strategy_config.get('min_confidence')}")
+    except Exception as e:
+        logging.error(f"[TradeCycle] Failed to load config from database, using defaults: {e}")
+        # Fallback to defaults
+        strategy_config = {
+            "use_technical": True,
+            "use_volume": True,
+            "min_confidence": 0.5,
+            "aggregation_method": "weighted_vote",
+            "logs_dir": str(LOGS_DIR),
+        }
 
     strategy_manager = StrategyManager(config=strategy_config)
 
@@ -156,8 +152,8 @@ def run_trade_cycle():
                 logging.warning(f"[{symbol}] Invalid price, skipping")
                 continue
 
-            # Get current balance
-            balance = client.get_balance()
+            # Get current balance (ZUSD asset for paper trading)
+            balance = client.get_balance(asset="ZUSD")
             logging.info(f"[{symbol}] Current USD balance: {balance}")
 
             # ADDED - Calculate position size from risk manager
@@ -181,12 +177,12 @@ def run_trade_cycle():
             vol_hist = data_collector.get_volume_history(symbol, limit=1)
             context["volume"] = vol_hist[-1] if vol_hist else 0
 
-            # Get aggregated signal from all strategies
-            signal, confidence, reason = strategy_manager.get_signal(symbol, context)
+            # Get aggregated signal from all strategies (now returns signal_id)
+            signal, confidence, reason, signal_id = strategy_manager.get_signal(symbol, context)
 
-            logging.info(f"[{symbol}] Signal: {signal} | Reason: {reason}")
+            logging.info(f"[{symbol}] Signal: {signal} | Reason: {reason} | Signal ID: {signal_id}")
 
-            # Execute trade based on signal - UPDATED WITH RISK-MANAGED AMOUNT
+            # Execute trade based on signal - UPDATED WITH RISK-MANAGED AMOUNT AND SIGNAL_ID
             result = trader.execute_trade(
                 symbol=symbol,
                 action=signal,
@@ -194,6 +190,7 @@ def run_trade_cycle():
                 balance=balance,
                 reason=reason,
                 amount=amount,  # CHANGED - use risk-managed amount instead of default
+                signal_id=signal_id,  # Link trade to the signal that triggered it
             )
 
             logging.info(f"[{symbol}] Trade result: {result}")
@@ -205,7 +202,7 @@ def run_trade_cycle():
 
             # Mark headlines as seen
             if symbol in headlines_by_symbol:
-                mark_as_seen(symbol, headlines_by_symbol[symbol])
+                mark_as_seen(headlines_by_symbol[symbol])
                 logging.info(
                     f"[{symbol}] Marked {len(headlines_by_symbol[symbol])} headlines as seen."
                 )
@@ -214,17 +211,9 @@ def run_trade_cycle():
             logging.error(f"[{symbol}] Error processing: {e}")
             continue
 
-    # Update status
+    # Trade cycle complete
     end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    save_status_to_file(
-        {
-            "time": end_time,
-            "message": f"Processed {len(all_symbols)} symbols with multi-strategy analysis",
-            "next_run": get_next_run_time(),
-        }
-    )
-
-    logging.info(f"[TradeCycle] === Completed cycle at {end_time} ===")
+    logging.info(f"[TradeCycle] === Completed cycle at {end_time} === Processed {len(all_symbols)} symbols")
 
 
 def get_next_run_time():
@@ -329,33 +318,65 @@ def run_now():
     return {
         "status": "ok",
         "message": "Trade cycle executed",
-        "last_status": last_status,
-        "next_run": next_run,  # keep top-level next_run for callers/tests
+        "next_run": next_run,
     }
 
 
 # --- Bot status endpoint ---
 @app.get("/status")
 def get_status():
-    """Expose bot's last run status for the dashboard.
+    """Expose bot's last run status for the dashboard - loads from database."""
+    from datetime import timezone
 
-    Test-friendly behavior:
-    - Always attempt to read the *current* STATUS_FILE (patched path during tests).
-    - If reading fails, return a deterministic payload.
-    """
+    # Get next run time from scheduler (already in local time)
+    next_run_time = None
     try:
-        with open(STATUS_FILE, "r") as f:
-            status = json.load(f)
-        # Always return the file contents; never fall back to in-memory status here
-        return {"last_status": status}
+        job = scheduler.get_job("trade_cycle")
+        if job and job.next_run_time:
+            next_run_time = job.next_run_time.strftime("%Y-%m-%d %H:%M:%S")
     except Exception as e:
-        logging.error(f"[Status] Failed to read status file {STATUS_FILE}: {e}")
+        logging.warning(f"[Status] Failed to get next run time from scheduler: {e}")
 
-    # File missing or unreadable: return deterministic payload (no in-memory fallback)
+    try:
+        from app.database.connection import get_db
+        from app.database.repositories import BotConfigRepository, SignalRepository
+
+        with get_db() as db:
+            config_repo = BotConfigRepository(db)
+            signal_repo = SignalRepository(db)
+
+            config = config_repo.get_current()
+
+            # Get last run time from most recent signal (UTC in DB, convert to local)
+            last_run_time = None
+            recent_signals = signal_repo.get_recent(hours=24, test_mode=False, limit=1)
+            if recent_signals:
+                signal_ts = recent_signals[0].timestamp
+                # If naive, assume UTC
+                if signal_ts.tzinfo is None:
+                    signal_ts = signal_ts.replace(tzinfo=timezone.utc)
+                # Convert to local time
+                local_ts = signal_ts.astimezone()
+                last_run_time = local_ts.strftime("%Y-%m-%d %H:%M:%S")
+
+            if config:
+                return {
+                    "last_status": {
+                        "time": last_run_time,
+                        "message": f"Mode: {config.mode}, Min Confidence: {config.min_confidence}",
+                        "next_run": next_run_time,
+                    },
+                    "next_run": next_run_time
+                }
+    except Exception as e:
+        logging.error(f"[Status] Failed to load status from database: {e}")
+
+    # No config found
     return {
         "last_status": {
             "time": None,
-            "message": "No status file found",
-            "next_run": "Unknown",
-        }
+            "message": "No configuration found in database",
+            "next_run": next_run_time,
+        },
+        "next_run": next_run_time
     }

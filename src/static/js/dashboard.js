@@ -350,6 +350,12 @@ function renderSymbolsTable(summary) {
   `;
 }
 
+// Global state for filters
+let showHolds = false;
+let showOnlyExecuted = false;
+let signalLimit = 50;
+let cachedSignals = [];
+
 // Render: AI sentiment signals
 function renderSentiment(sentiment) {
   const container = document.getElementById("sentimentContainer");
@@ -384,7 +390,22 @@ function renderSentiment(sentiment) {
     },
   };
 
-  const cards = keys
+  // Filter out HOLDs if toggle is off
+  const filteredKeys = showHolds
+    ? keys
+    : keys.filter(sym => {
+        const s = sentiment[sym];
+        const sig = (s.signal || "HOLD").toUpperCase();
+        return sig !== "HOLD";
+      });
+
+  if (!filteredKeys.length) {
+    container.innerHTML =
+      '<p class="text-gray-500 text-center py-4">No active BUY/SELL signals (HOLDs hidden)</p>';
+    return;
+  }
+
+  const cards = filteredKeys
     .map((sym) => {
       const s = sentiment[sym];
       const sig = (s.signal || "HOLD").toUpperCase();
@@ -418,6 +439,102 @@ function renderSentiment(sentiment) {
     .join("");
 
   container.innerHTML = cards;
+}
+
+// Toggle HOLD signals visibility
+function toggleHoldSignals() {
+  showHolds = !showHolds;
+  const btn = document.getElementById("toggleHoldsBtn");
+  if (btn) {
+    btn.textContent = showHolds ? "Hide HOLDs" : "Show HOLDs";
+    btn.style.opacity = showHolds ? "1" : "0.6";
+  }
+  // Re-render signals with current filter
+  renderSignalsWithFilters();
+}
+
+// Toggle unexecuted signals filter
+function toggleUnexecutedFilter() {
+  showOnlyExecuted = !showOnlyExecuted;
+  const btn = document.getElementById("toggleExecutedBtn");
+  if (btn) {
+    btn.textContent = showOnlyExecuted ? "Show All" : "Only Executed";
+    btn.style.opacity = showOnlyExecuted ? "1" : "0.6";
+  }
+  // Re-render signals with current filter
+  renderSignalsWithFilters();
+}
+
+// Update signal limit
+function updateSignalLimit() {
+  const input = document.getElementById("signalLimitInput");
+  if (input) {
+    signalLimit = parseInt(input.value) || 50;
+    // Refetch data with new limit
+    loadPartialData();
+  }
+}
+
+// Render signals with current filters
+function renderSignalsWithFilters() {
+  if (cachedSignals.length === 0) return;
+
+  let filtered = cachedSignals;
+
+  // Filter out HOLDs if toggle is off
+  if (!showHolds) {
+    filtered = filtered.filter(sig => sig.signal && sig.signal.toUpperCase() !== "HOLD");
+  }
+
+  // Filter to only executed signals if toggle is on
+  if (showOnlyExecuted) {
+    filtered = filtered.filter(sig => sig.executed === true);
+  }
+
+  // Update the signals display
+  const recentSignalsEl = document.getElementById("recent-signals");
+  const strategySignalCountEl = document.getElementById("signal-count");
+
+  if (strategySignalCountEl) {
+    strategySignalCountEl.textContent = filtered.length;
+  }
+
+  if (recentSignalsEl) {
+    if (filtered.length === 0) {
+      let message = "No signals";
+      if (!showHolds && showOnlyExecuted) {
+        message = "No executed BUY/SELL signals";
+      } else if (!showHolds) {
+        message = "No BUY/SELL signals (HOLDs hidden)";
+      } else if (showOnlyExecuted) {
+        message = "No executed signals";
+      }
+      recentSignalsEl.innerHTML = `<tr><td colspan="6">${message}</td></tr>`;
+      return;
+    }
+
+    const recentHtml = filtered
+      .map((sig) => {
+        const sigUpper = (sig.signal || "HOLD").toUpperCase();
+        const sigClass = sigUpper === "BUY" ? "buy" : sigUpper === "SELL" ? "sell" : "hold";
+        const ts = sig.timestamp ? new Date(sig.timestamp).toLocaleTimeString() : "N/A";
+        const executed = sig.executed ? "✓" : "✗";
+        const executedClass = sig.executed ? "executed" : "unexecuted";
+
+        return `
+          <tr>
+            <td class="timestamp">${ts}</td>
+            <td>${sig.symbol || "N/A"}</td>
+            <td class="${sigClass}">${sigUpper}</td>
+            <td>${(sig.confidence || 0).toFixed(2)}</td>
+            <td>$${(sig.price || 0).toFixed(2)}</td>
+            <td class="${executedClass}" style="text-align: center; font-weight: bold;">${executed}</td>
+          </tr>
+        `;
+      })
+      .join("");
+    recentSignalsEl.innerHTML = recentHtml;
+  }
 }
 
 // Render: Recent trading activity
@@ -513,11 +630,18 @@ async function refreshBalance() {
   }
 }
 
-async function refreshSummary() {
+// Central function to load partial data with signal limit
+async function loadPartialData() {
   try {
-    const resp = await fetch("/partial");
+    const resp = await fetch(`/partial?signal_limit=${signalLimit}`);
     if (!resp.ok) throw new Error("Network error");
     const data = await resp.json();
+
+    // Cache signals for filtering
+    cachedSignals = data.signals || [];
+
+    // Render signals with current filters
+    renderSignalsWithFilters();
 
     // Update metric counters
     const updates = {
@@ -538,11 +662,17 @@ async function refreshSummary() {
     }
 
     renderSymbolsTable(data.summary);
+    window.lastSentiment = data.sentiment; // Store for toggle
     renderSentiment(data.sentiment);
     renderRecentTrades(data.trades);
   } catch (err) {
     console.error("Failed to refresh summary:", err);
   }
+}
+
+async function refreshSummary() {
+  // Use the central load function
+  await loadPartialData();
 }
 
 // Event: Manual refresh button
@@ -632,42 +762,52 @@ async function loadFeedsDetailed() {
 
     const feedsHtml = feeds
       .map((feed) => {
-        const statusClass = feed.status === "active" ? "positive" : "negative";
-        const statusText = (feed.status || "active").toUpperCase();
+        // Determine status based on last_error and enabled state
+        const hasError = feed.last_error && feed.last_error.trim() !== "";
+        const isEnabled = feed.enabled !== false && feed.active !== false;
+
+        let statusBadgeClass = "feed-status-badge ";
+        let statusText = "";
+        let statusTitle = "";
+
+        if (hasError) {
+          statusBadgeClass += "error";
+          statusText = "ERROR";
+          statusTitle = `Error: ${feed.last_error}`;
+        } else if (!isEnabled) {
+          statusBadgeClass += "disabled";
+          statusText = "DISABLED";
+          statusTitle = "Feed is currently disabled";
+        } else {
+          statusBadgeClass += "active";
+          statusText = "ACTIVE";
+          statusTitle = "Feed is operational";
+        }
+
         const lastFetch = feed.last_fetch
           ? new Date(feed.last_fetch).toLocaleString()
           : "--";
 
+        // Truncate URL for display
+        const displayUrl = feed.url || "--";
+        const urlTitle = feed.url || "";
+
         return `
         <tr>
-          <td>${feed.name || "Unknown"}</td>
+          <td class="feed-name-cell">${feed.name || "Unknown"}</td>
           <td style="text-align: center;">
-            <span class="${statusClass}">●</span> ${statusText}
+            <span class="${statusBadgeClass}" title="${statusTitle}">${statusText}</span>
           </td>
-          <td style="text-align: center;">${feed.headlines_count || 0}</td>
-          <td style="text-align: center;">${feed.relevant_count || 0}</td>
+          <td class="feed-count-cell" style="text-align: center;">${feed.headlines_count || 0}</td>
+          <td class="feed-count-cell" style="text-align: center;">${feed.relevant_count || 0}</td>
           <td class="timestamp">${lastFetch}</td>
-          <td style="font-size: 9px; max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${
-            feed.url || "--"
-          }</td>
-<td style="text-align: center;">
-            <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
-<button class="btn" onclick="testFeed(${
-          feed.id
-        })" style="padding: 2px 6px; font-size: 9px;">TEST</button>
-              <button class="btn" onclick="editFeed(${
-                feed.id
-              })" style="padding: 2px 6px; font-size: 9px;">EDIT</button>
-              <button class="btn" onclick="toggleFeed(${
-                feed.id
-              })" style="padding: 2px 6px; font-size: 9px; border-color: ${
-          feed.active === false ? "#888" : "#00ff00"
-        }; color: ${feed.active === false ? "#888" : "#00ff00"};">${
-          feed.active === false ? "ON" : "OFF"
-        }</button>
-              <button class="btn" onclick="deleteFeed(${
-                feed.id
-              })" style="padding: 2px 6px; font-size: 9px; border-color: #ff0000; color: #ff0000;">DEL</button>
+          <td class="feed-url-cell" title="${urlTitle}" onclick="window.open('${feed.url}', '_blank')">${displayUrl}</td>
+          <td>
+            <div class="feed-actions">
+              <button class="feed-action-btn" onclick="testFeed(${feed.id})" title="Test this feed">TEST</button>
+              <button class="feed-action-btn" onclick="editFeed(${feed.id})" title="Edit feed details">EDIT</button>
+              <button class="feed-action-btn ${feed.active === false ? '' : 'toggle-off'}" onclick="toggleFeed(${feed.id})" title="${feed.active === false ? 'Enable feed' : 'Disable feed'}">${feed.active === false ? "ON" : "OFF"}</button>
+              <button class="feed-action-btn delete" onclick="deleteFeed(${feed.id})" title="Delete this feed">DEL</button>
             </div>
           </td>
         </tr>
@@ -837,9 +977,15 @@ async function loadStrategies() {
     const data = await response.json();
 
     const signals = data.signals || [];
+    window.lastSignals = signals; // Store for toggle
+
+    // Filter signals based on toggle state
+    const filteredSignalsForCount = showHolds
+      ? signals
+      : signals.filter(sig => sig.final_signal && sig.final_signal.toUpperCase() !== "HOLD");
 
     const signalCountEl = document.getElementById("signal-count");
-    if (signalCountEl) signalCountEl.textContent = signals.length;
+    if (signalCountEl) signalCountEl.textContent = filteredSignalsForCount.length;
 
     const strategySignalCountEl = document.getElementById(
       "strategy-signal-count"
@@ -850,54 +996,94 @@ async function loadStrategies() {
     // Recent signals (overview tab) - show final signal only
     const recentSignalsEl = document.getElementById("recent-signals");
     if (recentSignalsEl) {
-      const recentHtml = signals
-        .slice(0, 5)
+      // Filter out HOLDs if toggle is off
+      const filteredSignals = showHolds
+        ? signals
+        : signals.filter(sig => sig.final_signal && sig.final_signal.toUpperCase() !== "HOLD");
+
+      const recentHtml = filteredSignals
+        .slice(0, 10)
         .map(
-          (sig) => `
+          (sig) => {
+            const confidence = sig.final_confidence || sig.confidence || 0;
+            const confPercent = Math.round(confidence * 100);
+
+            // Determine if trade was executed (check if confidence met threshold)
+            const minConfidence = 0.777; // From config
+            const wasExecuted = sig.final_signal !== "HOLD" && confidence >= minConfidence;
+            const executedBadge = wasExecuted
+              ? '<span style="color: #00ff00;">✓ YES</span>'
+              : '<span style="color: #888;">✗ NO</span>';
+
+            return `
                 <tr>
                     <td class="timestamp">${formatTimeShort(sig.timestamp)}</td>
                     <td>${sig.symbol}</td>
                     <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal.toUpperCase()}</span></td>
+                    <td>${confPercent}%</td>
                     <td class="price">$${sig.price.toLocaleString()}</td>
+                    <td>${executedBadge}</td>
                 </tr>
-            `
+            `;
+          }
         )
         .join("");
       recentSignalsEl.innerHTML =
-        recentHtml || '<tr><td colspan="4">No signals yet</td></tr>';
+        recentHtml || '<tr><td colspan="6">No BUY/SELL signals (HOLDs hidden)</td></tr>';
     }
 
-    // All signals (strategies tab) - show detailed breakdown
+    // All signals (strategies tab) - show detailed breakdown with separate columns per strategy
     const strategySignalsEl = document.getElementById("strategy-signals");
     if (strategySignalsEl) {
       const allSignalsHtml = signals
         .map((sig) => {
           const strategies = sig.strategies || {};
-          const strategyNames = Object.keys(strategies);
 
-          // Build strategy summary
-          const strategySummary = strategyNames
-            .map((name) => {
-              const s = strategies[name];
-              return `${name}:${s.signal}(${Math.round(s.confidence * 100)}%)`;
-            })
-            .join(", ");
+          // Get individual strategy signals
+          const sentiment = strategies.sentiment || {};
+          const technical = strategies.technical || {};
+          const volume = strategies.volume || {};
 
           // Use final_confidence, fallback to confidence
           const confidence = sig.final_confidence || sig.confidence || 0;
 
+          // Helper to render strategy cell with signal badge and confidence
+          const renderStrategyCell = (strategy) => {
+            if (!strategy.signal) {
+              return '<td style="text-align: center; color: #666;">-</td>';
+            }
+
+            const signal = strategy.signal.toUpperCase();
+            const conf = Math.round((strategy.confidence || 0) * 100);
+            const enabled = strategy.enabled !== false;
+
+            // Color coding: BUY=green, SELL=red, HOLD=gray
+            let color = '#888'; // HOLD
+            if (signal === 'BUY') color = '#00ff00';
+            if (signal === 'SELL') color = '#ff3366';
+
+            const opacity = enabled ? '1' : '0.3';
+            const disabledText = enabled ? '' : ' (off)';
+
+            return `<td style="text-align: center;">
+              <div style="opacity: ${opacity};">
+                <span style="color: ${color}; font-weight: bold; font-size: 11px;">${signal}</span><br/>
+                <span style="color: #666; font-size: 10px;">${conf}%${disabledText}</span>
+              </div>
+            </td>`;
+          };
+
           return `
                 <tr>
                     <td class="timestamp">${formatTimeShort(sig.timestamp)}</td>
-                    <td>${sig.symbol}</td>
-                    <td style="font-size: 9px;">${strategySummary || "N/A"}</td>
-                    <td><span class="signal-badge signal-${sig.final_signal.toLowerCase()}">${sig.final_signal.toUpperCase()}</span></td>
-                    <td>${Math.round(confidence * 100)}%</td>
+                    <td style="font-weight: bold;">${sig.symbol}</td>
                     <td class="price">$${sig.price.toLocaleString()}</td>
-                    <td style="font-size: 9px; max-width: 300px;">
-                        ${strategyNames
-                          .map((name) => `${name}: ${strategies[name].reason}`)
-                          .join(" | ")}
+                    ${renderStrategyCell(sentiment)}
+                    ${renderStrategyCell(technical)}
+                    ${renderStrategyCell(volume)}
+                    <td style="text-align: center;">
+                      <span class="signal-badge signal-${sig.final_signal.toLowerCase()}" style="font-size: 11px;">${sig.final_signal.toUpperCase()}</span><br/>
+                      <span style="color: #666; font-size: 10px;">${Math.round(confidence * 100)}%</span>
                     </td>
                 </tr>
             `;
@@ -951,9 +1137,13 @@ async function loadHealth() {
               <div class="health-status">${svc.data?.status || "--"}</div>
               <div class="health-details">
                 <div>Latency: ${svc.data?.latency || "--"}ms</div>
-                <div class="health-error-count">Errors (24h): ${errorCount}</div>
+                <div class="health-error-count" style="color: ${
+                  errorCount === 0 ? '#00ff00' :
+                  svc.data?.status === 'degraded' ? '#ffa500' :
+                  '#ff0000'
+                }">Errors (24h): ${errorCount}</div>
                 ${
-                  svc.data?.status !== "operational"
+                  svc.data?.status === "error"
                     ? `
                   <div style="font-size: 8px; color: #ff0000; margin-top: 5px; line-height: 1.3;">
                     ${summaryMsg.substring(0, 60)}${
@@ -1019,11 +1209,26 @@ async function loadHealth() {
 
 // Enhanced showServiceDetails function
 async function showServiceDetails(serviceKey) {
-  const response = await fetch("/api/health/detailed");
-  const data = await response.json();
-  const serviceData = data[serviceKey];
-  if (!serviceData) {
-    alert("No details available");
+  let serviceData;
+
+  try {
+    const response = await fetch("/api/health/detailed");
+    if (!response.ok) {
+      alert(`API error: ${response.status} ${response.statusText}`);
+      return;
+    }
+    const data = await response.json();
+    console.log("Health detailed data:", data);
+    console.log("Service key:", serviceKey);
+    serviceData = data[serviceKey];
+    console.log("Service data for", serviceKey, ":", serviceData);
+    if (!serviceData) {
+      alert(`No details available for ${serviceKey}. Available keys: ${Object.keys(data).join(', ')}`);
+      return;
+    }
+  } catch (error) {
+    alert(`Error loading service details: ${error.message}`);
+    console.error("Service details error:", error);
     return;
   }
 
@@ -1325,7 +1530,16 @@ async function clearServiceErrors(serviceKey) {
   if (!confirm(`Clear all errors for ${serviceKey}?`)) return;
 
   try {
-    const response = await fetch(`/api/errors/clear?component=${serviceKey}`, {
+    // Map frontend service keys to backend component names
+    const componentMap = {
+      'rssFeeds': 'rss',
+      'openai': 'openai',
+      'exchange': 'exchange',
+      'database': 'database'
+    };
+    const component = componentMap[serviceKey] || serviceKey;
+
+    const response = await fetch(`/api/errors/clear?component=${component}`, {
       method: "POST",
     });
     const data = await response.json();
@@ -1361,7 +1575,7 @@ async function clearAllErrors() {
 
 async function loadPortfolio() {
   try {
-    const response = await fetch("/partial");
+    const response = await fetch(`/partial?signal_limit=${signalLimit}`);
     const data = await response.json();
 
     const summary = data.summary || {};
@@ -1875,6 +2089,86 @@ async function saveFeedModal() {
 window.openFeedModal = openFeedModal;
 window.closeFeedModal = closeFeedModal;
 window.saveFeedModal = saveFeedModal;
+// Performance Analysis
+async function loadPerformanceAnalysis() {
+  try {
+    const response = await fetch("/api/analysis/signal-performance");
+    const data = await response.json();
+
+    // Update summary metrics
+    document.getElementById("perf-total-signals").textContent =
+      data.summary.total_signals;
+    document.getElementById("perf-executed-signals").textContent =
+      data.summary.executed_signals;
+    document.getElementById("perf-execution-rate").textContent =
+      `${Math.round(data.summary.execution_rate * 100)}%`;
+    document.getElementById("perf-total-trades").textContent =
+      data.summary.total_trades;
+
+    // Update strategy performance table
+    const strategyTbody = document.getElementById("strategy-performance");
+    if (Object.keys(data.strategy_performance).length === 0) {
+      strategyTbody.innerHTML =
+        '<tr><td colspan="3" style="color: #888;">No strategy data available</td></tr>';
+    } else {
+      strategyTbody.innerHTML = Object.entries(data.strategy_performance)
+        .map(
+          ([name, stats]) => `
+          <tr>
+            <td style="color: #00ff00;">${name.toUpperCase()}</td>
+            <td>${stats.signals_generated}</td>
+            <td>${Math.round(stats.execution_rate * 100)}%</td>
+          </tr>
+        `
+        )
+        .join("");
+    }
+
+    // Update signal correlations table
+    const corrTbody = document.getElementById("signal-correlations");
+    if (data.correlations.length === 0) {
+      corrTbody.innerHTML =
+        '<tr><td colspan="6" style="color: #888;">No signal data available</td></tr>';
+    } else {
+      corrTbody.innerHTML = data.correlations
+        .slice()
+        .reverse()
+        .slice(0, 20)
+        .map((corr) => {
+          const executedBadge = corr.executed
+            ? '<span style="color: #00ff00;">✓ EXECUTED</span>'
+            : '<span style="color: #888;">✗ NO TRADE</span>';
+
+          // Format strategies
+          const strategies = Object.keys(corr.strategies || {})
+            .map((s) => s.toUpperCase())
+            .join(", ");
+
+          const confPercent = Math.round(corr.signal.confidence * 100);
+
+          return `
+          <tr>
+            <td class="timestamp">${formatTimeShort(corr.signal.timestamp)}</td>
+            <td>${corr.signal.symbol}</td>
+            <td><span class="signal-badge signal-${corr.signal.action.toLowerCase()}">${corr.signal.action}</span></td>
+            <td>${confPercent}%</td>
+            <td>${executedBadge}</td>
+            <td style="color: #888; font-size: 10px;">${strategies || "—"}</td>
+          </tr>
+        `;
+        })
+        .join("");
+    }
+  } catch (error) {
+    console.error("Error loading performance analysis:", error);
+    document.getElementById("perf-total-signals").textContent = "ERROR";
+    document.getElementById("strategy-performance").innerHTML =
+      '<tr><td colspan="3" style="color: #ff0000;">Error loading data</td></tr>';
+    document.getElementById("signal-correlations").innerHTML =
+      '<tr><td colspan="6" style="color: #ff0000;">Error loading data</td></tr>';
+  }
+}
+
 // Expose functions to window
 window.loadHealth = loadHealth;
 window.testService = testService;
@@ -1884,3 +2178,4 @@ window.clearAllErrors = clearAllErrors;
 window.loadRecentErrors = loadRecentErrors;
 window.toggleErrorDetails = toggleErrorDetails;
 window.showServiceDetails = showServiceDetails;
+window.loadPerformanceAnalysis = loadPerformanceAnalysis;
