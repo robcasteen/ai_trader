@@ -215,6 +215,21 @@ def run_trade_cycle():
     end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logging.info(f"[TradeCycle] === Completed cycle at {end_time} === Processed {len(all_symbols)} symbols")
 
+    # Emit BOT_STATUS_CHANGED event to notify UI
+    try:
+        import asyncio
+        from app.events.event_bus import event_bus, EventType
+        from datetime import timezone
+
+        asyncio.run(event_bus.emit(EventType.BOT_STATUS_CHANGED, {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "cycle_complete": True,
+            "symbols_processed": len(all_symbols)
+        }))
+        logging.debug("[TradeCycle] Emitted BOT_STATUS_CHANGED event")
+    except Exception as e:
+        logging.error(f"[TradeCycle] Failed to emit BOT_STATUS_CHANGED event: {e}")
+
 
 def get_next_run_time():
     """Calculate next scheduled run time."""

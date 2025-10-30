@@ -8,7 +8,7 @@ from pathlib import Path
 from contextlib import contextmanager
 from typing import Generator
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -160,14 +160,14 @@ def health_check() -> dict:
 
         with get_db() as db:
             # Try a simple query
-            result = db.execute("SELECT 1").scalar()
+            result = db.execute(text("SELECT 1")).scalar()
 
             return {
                 "status": "healthy",
                 "database": str(db_path),
                 "size_bytes": db_path.stat().st_size if db_path.exists() else 0,
                 "connection_test": result == 1,
-                "wal_enabled": db.execute("PRAGMA journal_mode").scalar() == "wal"
+                "wal_enabled": db.execute(text("PRAGMA journal_mode")).scalar() == "wal"
             }
     except Exception as e:
         # Use TEST_DB_PATH if in test mode, otherwise DB_PATH

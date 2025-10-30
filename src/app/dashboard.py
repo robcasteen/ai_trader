@@ -81,14 +81,19 @@ def _load_status() -> Dict[str, Any]:
             status = config_repo.get_current()
 
             # Get next run time from scheduler (already in local time)
-            from app.main import scheduler
             next_run_time = None
             try:
-                job = scheduler.get_job("trade_cycle")
-                if job and job.next_run_time:
-                    next_run_time = job.next_run_time.strftime("%Y-%m-%d %H:%M:%S")
-            except Exception:
-                pass
+                from app.main import scheduler
+                if scheduler:
+                    job = scheduler.get_job("trade_cycle")
+                    if job and job.next_run_time:
+                        next_run_time = job.next_run_time.strftime("%Y-%m-%d %H:%M:%S")
+                    else:
+                        logging.debug("[Dashboard] No trade_cycle job found in scheduler")
+                else:
+                    logging.debug("[Dashboard] Scheduler not initialized")
+            except Exception as e:
+                logging.debug(f"[Dashboard] Could not get next run time from scheduler: {e}")
 
             # Get last run time from most recent signal (UTC in DB, convert to local)
             last_run_time = None
@@ -351,37 +356,71 @@ async def partial(signal_limit: int = 50):
     # Load signals from database - include ALL signals (HOLDs and non-HOLDs)
     signals = []
     try:
-        # Fetch more signals to ensure we have enough after filtering
-        fetch_limit = min(signal_limit * 3, 500)
-
         with get_db() as db:
             signal_repo = SignalRepository(db)
             trade_repo = TradeRepository(db)
 
-            # Get recent signals
-            recent_signals = signal_repo.get_recent(hours=24, test_mode=False, limit=fetch_limit)
-
-            # Get all trade signal_ids to mark which signals were executed
+            # Get all trades and create mapping: signal_id -> trade
             executed_signal_ids = set()
+            signal_to_trade = {}
             all_trades = trade_repo.get_all(test_mode=False)
             for t in all_trades:
                 if t.signal_id:
                     executed_signal_ids.add(t.signal_id)
+                    signal_to_trade[t.signal_id] = {
+                        "trade_id": t.id,
+                        "action": t.action,
+                        "amount": float(t.amount),
+                        "net_value": float(t.net_value),
+                        "trade_timestamp": t.timestamp.isoformat() + 'Z' if t.timestamp else None
+                    }
 
-            # Convert to dict format - include ALL signals
+            # ALWAYS fetch executed signals by ID (so they're never missed)
+            executed_signals = []
+            for signal_id in executed_signal_ids:
+                s = signal_repo.get_by_id(signal_id)
+                if s:
+                    signal_dict = {
+                        "id": s.id,
+                        "symbol": s.symbol,
+                        "signal": s.final_signal or "HOLD",
+                        "confidence": float(s.final_confidence) if s.final_confidence else 0.0,
+                        "price": float(s.price) if s.price else 0.0,
+                        "timestamp": s.timestamp.isoformat() + 'Z' if s.timestamp else None,
+                        "executed": True,
+                        "strategies": s.strategies if hasattr(s, 'strategies') else {},
+                        "trade": signal_to_trade[s.id]
+                    }
+                    executed_signals.append(signal_dict)
+
+            # Get recent non-executed signals
+            fetch_limit = min(signal_limit * 3, 500)
+            recent_signals = signal_repo.get_recent(hours=24, test_mode=False, limit=fetch_limit)
+
+            regular_signals = []
             for s in recent_signals:
-                signals.append({
+                # Skip if already in executed list
+                if s.id in executed_signal_ids:
+                    continue
+
+                signal_dict = {
                     "id": s.id,
                     "symbol": s.symbol,
                     "signal": s.final_signal or "HOLD",
                     "confidence": float(s.final_confidence) if s.final_confidence else 0.0,
                     "price": float(s.price) if s.price else 0.0,
                     "timestamp": s.timestamp.isoformat() + 'Z' if s.timestamp else None,
-                    "executed": s.id in executed_signal_ids,
-                })
+                    "executed": False,
+                    "strategies": s.strategies if hasattr(s, 'strategies') else {}
+                }
+                regular_signals.append(signal_dict)
 
-            # Limit to most recent signals (filtering handled by UI)
-            signals = signals[-signal_limit:]
+            # PRIORITIZE: Executed signals first, then fill with regular signals
+            # Sort executed signals by timestamp (newest first)
+            executed_signals.sort(key=lambda x: x['timestamp'], reverse=True)
+
+            signals = executed_signals + regular_signals[-(signal_limit - len(executed_signals)):]
+
     except Exception as e:
         logging.error(f"[Partial] Error loading signals from database: {e}")
 
@@ -408,6 +447,47 @@ async def status():
             "next_run": status_data.get("next_run"),
         }
     )
+
+
+@router.post("/api/config/balance")
+async def update_balance(request: Request):
+    """Update paper trading balance."""
+    try:
+        body = await request.json()
+        new_balance = body.get("balance")
+
+        if new_balance is None:
+            return JSONResponse(
+                {"error": "balance field is required", "status": "error"},
+                status_code=400
+            )
+
+        # In a real implementation, this would update the database
+        # For now, we just emit the event for testing
+        logging.info(f"[Balance] Balance update requested: ${new_balance:.2f}")
+
+        # Emit BALANCE_UPDATED event
+        try:
+            from app.events.event_bus import event_bus, EventType
+
+            await event_bus.emit(EventType.BALANCE_UPDATED, {
+                "balance": float(new_balance),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            })
+        except Exception as emit_error:
+            logging.error(f"[Balance] Failed to emit BALANCE_UPDATED event: {emit_error}")
+
+        return JSONResponse(
+            {
+                "message": "Balance updated successfully",
+                "balance": new_balance,
+                "status": "success"
+            }
+        )
+
+    except Exception as e:
+        logging.error(f"[API] Error updating balance: {e}")
+        return JSONResponse({"error": str(e), "status": "error"}, status_code=500)
 
 
 @router.get("/api/balance")
@@ -1681,6 +1761,41 @@ async def test_rss():
         )
 
 
+@router.post("/api/test/database")
+async def test_database():
+    """Test database connection."""
+    try:
+        result = check_database_health()
+        if result["status"] != "operational":
+            error_tracker.log_error(
+                component="database",
+                message=f"Database test failed: {result.get('message', 'Unknown error')}",
+                severity="warning"
+            )
+        return JSONResponse({
+            "success": result["status"] == "operational",
+            "status": result["status"],
+            "message": result.get("message", "Test completed"),
+            "latency": result.get("latency"),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+    except Exception as e:
+        error_tracker.log_error(
+            component="database",
+            message=f"Database test error: {str(e)}",
+            error=e,
+            severity="error"
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+
 # Replace the get_detailed_health endpoint in dashboard.py
 # This version passes through ALL fields from health checks (message, details, action, etc.)
 
@@ -1961,6 +2076,22 @@ async def update_config(request: Request):
             db.commit()
 
             logging.info(f"[Config] Saved to database: mode={mode}, min_confidence={min_confidence}, position_size={position_size}")
+
+            # Emit CONFIG_CHANGED event
+            try:
+                import asyncio
+                from app.events.event_bus import event_bus, EventType
+
+                await event_bus.emit(EventType.CONFIG_CHANGED, {
+                    "config": {
+                        "mode": mode,
+                        "min_confidence": float(min_confidence),
+                        "position_size": float(position_size)
+                    },
+                    "timestamp": datetime.now(timezone.utc).isoformat()
+                })
+            except Exception as emit_error:
+                logging.error(f"[Config] Failed to emit CONFIG_CHANGED event: {emit_error}")
 
         return JSONResponse(
             {

@@ -352,7 +352,7 @@ function renderSymbolsTable(summary) {
 
 // Global state for filters
 let showHolds = false;
-let showOnlyExecuted = false;
+let showOnlyExecuted = true;  // Default to showing only executed signals
 let signalLimit = 50;
 let cachedSignals = [];
 
@@ -521,10 +521,16 @@ function renderSignalsWithFilters() {
         const executed = sig.executed ? "✓" : "✗";
         const executedClass = sig.executed ? "executed" : "unexecuted";
 
+        // Add trade link if executed
+        let tradeInfo = "";
+        if (sig.executed && sig.trade) {
+          tradeInfo = ` <span style="color: #00ff00; font-size: 0.8em;" title="Trade ID: ${sig.trade.trade_id}, Amount: ${sig.trade.amount}, Value: $${sig.trade.net_value}">[Trade #${sig.trade.trade_id}]</span>`;
+        }
+
         return `
-          <tr>
+          <tr style="${sig.executed ? 'background-color: rgba(0, 255, 0, 0.05);' : ''}">
             <td class="timestamp">${ts}</td>
-            <td>${sig.symbol || "N/A"}</td>
+            <td>${sig.symbol || "N/A"}${tradeInfo}</td>
             <td class="${sigClass}">${sigUpper}</td>
             <td>${(sig.confidence || 0).toFixed(2)}</td>
             <td>$${(sig.price || 0).toFixed(2)}</td>
@@ -703,19 +709,64 @@ function initDashboard() {
   // Setup event listeners
   setupRunNowButton();
   setupRefreshButton();
+  setupSSEEventListeners();
 
   // Initial data load
   refreshStatus();
   refreshSummary();
   refreshData();
 
-  // Auto-refresh intervals
-  setInterval(refreshSummary, 5000); // Refresh data every 5 seconds
-  setInterval(refreshBalance, 5000);
-  setInterval(refreshStatus, 5000); // Refresh status every 5 seconds
+  // Keep countdown timer (not a poll - just updates UI)
   setInterval(updateCountdown, 1000); // Update countdown every second
 
-  console.log("✅ Dashboard initialized");
+  console.log("✅ Dashboard initialized with SSE event listeners");
+}
+
+// Setup SSE event listeners to replace polling
+function setupSSEEventListeners() {
+  if (!window.eventManager) {
+    console.warn('⚠️  EventManager not available, falling back to polling');
+    // Fallback to polling if SSE not available
+    setInterval(refreshSummary, 5000);
+    setInterval(refreshBalance, 5000);
+    setInterval(refreshStatus, 5000);
+    return;
+  }
+
+  console.log('[Dashboard] Setting up SSE event listeners...');
+
+  // Listen for trade executed events
+  window.eventManager.on('trade_executed', () => {
+    console.log('[Dashboard] Trade executed, refreshing data...');
+    refreshSummary();
+    refreshBalance();
+  });
+
+  // Listen for signal generated events
+  window.eventManager.on('signal_generated', () => {
+    console.log('[Dashboard] Signal generated, refreshing signals...');
+    refreshSummary();
+  });
+
+  // Listen for balance updated events
+  window.eventManager.on('balance_updated', () => {
+    console.log('[Dashboard] Balance updated, refreshing balance...');
+    refreshBalance();
+  });
+
+  // Listen for holdings updated events
+  window.eventManager.on('holdings_updated', () => {
+    console.log('[Dashboard] Holdings updated, refreshing holdings...');
+    loadHoldings();
+  });
+
+  // Listen for config changed events
+  window.eventManager.on('config_changed', () => {
+    console.log('[Dashboard] Config changed, refreshing status...');
+    refreshStatus();
+  });
+
+  console.log('[Dashboard] SSE event listeners registered');
 }
 
 // Start when DOM is ready
@@ -1035,7 +1086,21 @@ async function loadStrategies() {
     // All signals (strategies tab) - show detailed breakdown with separate columns per strategy
     const strategySignalsEl = document.getElementById("strategy-signals");
     if (strategySignalsEl) {
-      const allSignalsHtml = signals
+      // Group by symbol and get the LATEST (by timestamp) signal per symbol
+      const latestBySymbol = {};
+      signals.forEach(sig => {
+        const symbol = sig.symbol;
+        if (!latestBySymbol[symbol] || new Date(sig.timestamp) > new Date(latestBySymbol[symbol].timestamp)) {
+          latestBySymbol[symbol] = sig;
+        }
+      });
+
+      // Convert back to array and sort by timestamp (newest first)
+      const latestSignals = Object.values(latestBySymbol).sort((a, b) =>
+        new Date(b.timestamp) - new Date(a.timestamp)
+      );
+
+      const allSignalsHtml = latestSignals
         .map((sig) => {
           const strategies = sig.strategies || {};
 
@@ -1912,8 +1977,15 @@ function refreshData() {
 }
 loadStatus();
 
-// Poll status every 5 seconds
-setInterval(loadStatus, 5000);
+// Handle BOT_STATUS_CHANGED events from SSE
+window.updateBotStatus = function(data) {
+  console.log('[Dashboard] Bot status changed event received:', data);
+  // Refresh the system status display
+  loadStatus();
+};
+
+// Status updates now handled by SSE events (config_changed, bot_status_changed)
+// No polling needed
 // All Trades Modal Functions
 async function openAllTradesModal() {
   document.getElementById("allTradesModal").style.display = "block";
