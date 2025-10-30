@@ -1,0 +1,64 @@
+{
+  "errors": [
+    {
+      "timestamp": "2025-10-23T04:40:01.548123+00:00",
+      "component": "openai",
+      "message": "OpenAI test failed: Unknown error",
+      "severity": "warning",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2025-10-23T04:40:16.976581+00:00",
+      "component": "rss",
+      "message": "RSS test failed: Unknown error",
+      "severity": "warning",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2025-10-23T16:11:00.021434+00:00",
+      "component": "openai",
+      "message": "OpenAI test failed: Unknown error",
+      "severity": "warning",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2025-10-23T16:11:24.406357+00:00",
+      "component": "rss",
+      "message": "RSS test failed: Unknown error",
+      "severity": "warning",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2025-10-23T16:23:07.428420+00:00",
+      "component": "openai",
+      "message": "OpenAI test failed: Unknown error",
+      "severity": "warning",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2025-10-23T16:24:00.346226+00:00",
+      "component": "rss",
+      "message": "RSS test failed: Unknown error",
+      "severity": "warning",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2025-10-23T16:24:08.040502+00:00",
+      "component": "openai",
+      "message": "OpenAI test failed: Unknown error",
+      "severity": "warning",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2025-10-23T18:58:01.444840+00:00",
+      "component": "rss",
+      "message": "RSS test failed: 15/18 feeds operational",
+      "severity": "warning",
+      "metadata": {}
+    }
+  ],
+  "error_counts": {
+    "openai": 4,
+    "rss": 4
+  }
+}

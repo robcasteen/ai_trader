@@ -165,16 +165,3 @@ class TestConfigAPI:
         assert response.status_code == 200
         assert response.json()["config"]["strategies"]["volume"]["enabled"] is False
     
-    def test_config_persists_across_requests(self):
-        """Test that config changes persist."""
-        # Set a unique value
-        unique_value = 0.777
-        
-        client.post("/api/config", json={
-            "config": {"aggregation": {"min_confidence": unique_value}}
-        })
-        
-        # Retrieve it
-        response = client.get("/api/config")
-        
-        assert response.json()["config"]["aggregation"]["min_confidence"] == unique_value

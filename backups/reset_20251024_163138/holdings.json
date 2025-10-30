@@ -1,0 +1,34 @@
+{
+  "SOLUSD": {
+    "amount": 0.01,
+    "avg_price": 100.0,
+    "current_price": 100.0,
+    "market_value": 1.0,
+    "cost_basis": 1.0,
+    "unrealized_pnl": 0.0
+  },
+  "ADAUSD": {
+    "amount": 0.0,
+    "avg_price": 0.656895,
+    "current_price": 0.656895,
+    "market_value": 0.0,
+    "cost_basis": 0.0,
+    "unrealized_pnl": 0.0
+  },
+  "SHIBUSD": {
+    "amount": 0.0,
+    "avg_price": 1.02e-05,
+    "current_price": 1.02e-05,
+    "market_value": 0.0,
+    "cost_basis": 0.0,
+    "unrealized_pnl": 0.0
+  },
+  "BTCUSD": {
+    "amount": 101.402902,
+    "avg_price": 49144.781738782825,
+    "current_price": 110934.0,
+    "market_value": 11249029.530468,
+    "cost_basis": 4983423.486469184,
+    "unrealized_pnl": 6265606.043998816
+  }
+}

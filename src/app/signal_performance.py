@@ -7,29 +7,54 @@ from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 from typing import Dict, List
+import logging
 
 LOGS_DIR = Path(__file__).parent / "logs"
 
 
 def load_signals_and_trades():
-    """Load signals from jsonl and trades from json."""
+    """Load signals and trades from database."""
+    from app.database.connection import get_db
+    from app.database.repositories import SignalRepository, TradeRepository
+
     signals = []
-    signals_file = Path(__file__).parent.parent.parent / "data" / "strategy_signals.jsonl"
-    
-    if signals_file.exists():
-        with open(signals_file, 'r') as f:
-            for line in f:
-                try:
-                    signals.append(json.loads(line))
-                except:
-                    pass
-    
     trades = []
-    trades_file = LOGS_DIR / "trades.json"
-    if trades_file.exists():
-        with open(trades_file, 'r') as f:
-            trades = json.load(f)
-    
+
+    try:
+        with get_db() as db:
+            signal_repo = SignalRepository(db)
+            trade_repo = TradeRepository(db)
+
+            # Get all non-test signals from last 7 days
+            signal_models = signal_repo.get_recent(hours=24*7, test_mode=False, limit=1000)
+
+            # Convert to dict format for compatibility
+            for s in signal_models:
+                signals.append({
+                    'timestamp': s.timestamp.isoformat() + 'Z' if s.timestamp else None,
+                    'symbol': s.symbol,
+                    'final_signal': s.final_signal,
+                    'final_confidence': float(s.final_confidence) if s.final_confidence else 0,
+                    'strategies': s.strategies or {}
+                })
+
+            # Get all non-test trades
+            trade_models = trade_repo.get_all(test_mode=False)
+
+            # Convert to dict format
+            for t in trade_models:
+                trades.append({
+                    'timestamp': t.timestamp.isoformat() + 'Z' if t.timestamp else None,
+                    'symbol': t.symbol,
+                    'action': t.action,
+                    'price': float(t.price) if t.price else 0,
+                    'amount': float(t.amount) if t.amount else 0,
+                    'signal_id': t.signal_id
+                })
+
+    except Exception as e:
+        logging.error(f"Error loading signals and trades from database: {e}")
+
     return signals, trades
 
 

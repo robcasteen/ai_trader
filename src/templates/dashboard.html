@@ -444,6 +444,27 @@
         background: #ff0000;
       }
 
+      /* Connection status indicator */
+      .status-indicator {
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #00ff00;
+        font-size: 11px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+      }
+
+      .status-indicator.online {
+        color: #00ff00;
+        border-color: #00ff00;
+        animation: pulse 2s infinite;
+      }
+
+      .status-indicator.offline {
+        color: #ff9800;
+        border-color: #ff9800;
+      }
+
       @keyframes pulse {
         0%,
         100% {
@@ -659,6 +680,30 @@
         letter-spacing: -0.5px;
       }
 
+      /* Signal action colors */
+      .buy {
+        color: #00ff00;
+        font-weight: bold;
+      }
+
+      .sell {
+        color: #ff0000;
+        font-weight: bold;
+      }
+
+      .hold {
+        color: #ffaa00;
+        font-weight: bold;
+      }
+
+      .executed {
+        color: #00ff00;
+      }
+
+      .unexecuted {
+        color: #666;
+      }
+
       .tab-content {
         display: none;
       }
@@ -834,7 +879,126 @@
         background: #ff0000;
         color: #000;
       }
+
+      /* Feed Table Improvements */
+      .feed-table tbody tr {
+        height: 32px;
+      }
+
+      .feed-table td {
+        padding: 6px 8px;
+        vertical-align: middle;
+      }
+
+      .feed-status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        font-size: 9px;
+        font-weight: bold;
+        border-radius: 2px;
+        min-width: 60px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .feed-status-badge.active {
+        background: rgba(0, 255, 0, 0.1);
+        border: 1px solid #00ff00;
+        color: #00ff00;
+      }
+
+      .feed-status-badge.error {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid #ff0000;
+        color: #ff0000;
+        cursor: help;
+      }
+
+      .feed-status-badge.disabled {
+        background: rgba(136, 136, 136, 0.1);
+        border: 1px solid #888;
+        color: #888;
+      }
+
+      .feed-url-cell {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 9px;
+        color: #666;
+        cursor: pointer;
+      }
+
+      .feed-url-cell:hover {
+        color: #00ff00;
+        text-decoration: underline;
+      }
+
+      .feed-actions {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .feed-action-btn {
+        padding: 3px 8px;
+        font-size: 9px;
+        min-width: 36px;
+        border: 1px solid #00ff00;
+        background: rgba(0, 0, 0, 0.5);
+        color: #00ff00;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-transform: uppercase;
+        font-family: "Courier New", monospace;
+      }
+
+      .feed-action-btn:hover {
+        background: rgba(0, 255, 0, 0.2);
+        border-color: #00ff00;
+        color: #00ff00;
+      }
+
+      .feed-action-btn.toggle-off {
+        border-color: #ffaa00;
+        color: #ffaa00;
+      }
+
+      .feed-action-btn.toggle-off:hover {
+        background: rgba(255, 170, 0, 0.2);
+      }
+
+      .feed-action-btn.delete {
+        border-color: #ff0000;
+        color: #ff0000;
+      }
+
+      .feed-action-btn.delete:hover {
+        background: rgba(255, 0, 0, 0.2);
+      }
+
+      .feed-count-cell {
+        font-family: "Courier New", monospace;
+        font-size: 11px;
+        font-weight: bold;
+        color: #00ff00;
+      }
+
+      .feed-name-cell {
+        font-weight: bold;
+        color: #ffaa00;
+        font-size: 10px;
+      }
     </style>
+
+    <!-- Theme System -->
+    <link rel="stylesheet" href="/static/css/themes.css" />
+
+    <!-- Real-time Events and Theme Management -->
+    <script src="/static/js/events.js"></script>
+    <script src="/static/js/theme.js"></script>
   </head>
   <body>
     <!-- Find the header, around line 20-30 -->
@@ -844,6 +1008,7 @@
         <span class="status-dot error" id="status-error">● ERROR</span>
         <span class="status-dot" id="status-kraken">KRAKEN</span>
         <span class="status-dot" id="status-gpt">GPT-4</span>
+        <span class="status-indicator offline" id="connection-status" title="Connecting to real-time updates...">● LIVE</span>
         <span class="status-dot" id="status-time">00:00:00</span>
         <!-- ADD THIS SETTINGS ICON -->
         <button
@@ -860,6 +1025,7 @@
       <div class="nav-tab active" onclick="switchTab('overview')">OVERVIEW</div>
       <div class="nav-tab" onclick="switchTab('trades')">TRADES</div>
       <div class="nav-tab" onclick="switchTab('strategies')">STRATEGIES</div>
+      <div class="nav-tab" onclick="switchTab('performance')">PERFORMANCE</div>
       <div class="nav-tab" onclick="switchTab('feeds')">FEEDS</div>
       <div class="nav-tab" onclick="switchTab('health')">HEALTH</div>
     </div>
@@ -1010,8 +1176,36 @@
 
         <div class="grid-2">
           <div class="terminal-panel">
-            <div class="panel-header">
-              Recent Signals (<span id="signal-count">0</span>)
+            <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span>Recent Signals (<span id="signal-count">0</span>)</span>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <label style="font-size: 9px; color: #00ff00; font-family: 'Courier New', monospace;">
+                  LIMIT:
+                  <input
+                    id="signalLimitInput"
+                    type="number"
+                    min="10"
+                    max="200"
+                    value="50"
+                    onchange="updateSignalLimit()"
+                    style="width: 50px; padding: 2px 5px; font-size: 9px; background: rgba(0,0,0,0.5); border: 1px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace;"
+                  />
+                </label>
+                <button
+                  id="toggleExecutedBtn"
+                  onclick="toggleUnexecutedFilter()"
+                  style="padding: 3px 10px; font-size: 9px; background: rgba(255,165,0,0.1); border: 1px solid #ffa500; color: #ffa500; cursor: pointer; opacity: 0.6; text-transform: uppercase; font-family: 'Courier New', monospace;"
+                >
+                  Only Executed
+                </button>
+                <button
+                  id="toggleHoldsBtn"
+                  onclick="toggleHoldSignals()"
+                  style="padding: 3px 10px; font-size: 9px; background: rgba(0,255,0,0.1); border: 1px solid #00ff00; color: #00ff00; cursor: pointer; opacity: 0.6; text-transform: uppercase; font-family: 'Courier New', monospace;"
+                >
+                  Show HOLDs
+                </button>
+              </div>
             </div>
             <div class="panel-content compact">
               <table class="data-table">
@@ -1020,12 +1214,14 @@
                     <th>TIME</th>
                     <th>SYMBOL</th>
                     <th>SIGNAL</th>
+                    <th>CONF</th>
                     <th>PRICE</th>
+                    <th>EXECUTED</th>
                   </tr>
                 </thead>
                 <tbody id="recent-signals">
                   <tr>
-                    <td colspan="4" class="loading">Loading...</td>
+                    <td colspan="6" class="loading">Loading...</td>
                   </tr>
                 </tbody>
               </table>
@@ -1106,11 +1302,11 @@
                 <tr>
                   <th>TIME</th>
                   <th>SYMBOL</th>
-                  <th>STRATEGY</th>
-                  <th>SIGNAL</th>
-                  <th>CONF</th>
                   <th>PRICE</th>
-                  <th>REASONING</th>
+                  <th>SENTIMENT</th>
+                  <th>TECHNICAL</th>
+                  <th>VOLUME</th>
+                  <th>FINAL</th>
                 </tr>
               </thead>
               <tbody id="strategy-signals">
@@ -1134,26 +1330,26 @@
               align-items: center;
             "
           >
-            <span>RSS Feeds (<span id="feed-count">0</span> Active)</span>
+            <span>RSS FEEDS (<span id="feed-count">0</span> ACTIVE)</span>
             <button
               class="btn"
               onclick="showAddFeedModal()"
-              style="width: auto; padding: 2px 12px; font-size: 9px"
+              style="width: auto; padding: 4px 16px; font-size: 10px"
             >
               + ADD FEED
             </button>
           </div>
           <div class="panel-content">
-            <table class="data-table">
+            <table class="data-table feed-table">
               <thead>
                 <tr>
-                  <th style="width: 150px">SOURCE</th>
-                  <th style="width: 80px; text-align: center">STATUS</th>
-                  <th style="width: 80px; text-align: center">HEADLINES</th>
-                  <th style="width: 80px; text-align: center">RELEVANT</th>
-                  <th style="width: 120px">LAST FETCH</th>
-                  <th>URL</th>
-                  <th style="width: 100px; text-align: center">ACTIONS</th>
+                  <th style="width: 140px">SOURCE</th>
+                  <th style="width: 100px; text-align: center">STATUS</th>
+                  <th style="width: 70px; text-align: center">ITEMS</th>
+                  <th style="width: 70px; text-align: center">RELEVANT</th>
+                  <th style="width: 140px">LAST FETCH</th>
+                  <th style="min-width: 200px">URL</th>
+                  <th style="width: 180px; text-align: center">ACTIONS</th>
                 </tr>
               </thead>
               <tbody id="feed-list-detailed">
@@ -1303,6 +1499,79 @@ Replace lines 1052-1060 in dashboard.html with this entire section
         </div>
       </div>
 
+      <!-- Performance Tab -->
+      <div id="performance" class="tab-content">
+        <div class="grid-2">
+          <!-- Summary Panel -->
+          <div class="terminal-panel">
+            <div class="panel-header">Signal Performance Summary</div>
+            <div class="panel-content">
+              <div class="metric">
+                <span class="metric-label">TOTAL SIGNALS (24H)</span>
+                <span class="metric-value" id="perf-total-signals">--</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">EXECUTED SIGNALS</span>
+                <span class="metric-value" id="perf-executed-signals">--</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">EXECUTION RATE</span>
+                <span class="metric-value" id="perf-execution-rate">--%</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">TOTAL TRADES</span>
+                <span class="metric-value" id="perf-total-trades">--</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Strategy Performance Panel -->
+          <div class="terminal-panel">
+            <div class="panel-header">Strategy Performance</div>
+            <div class="panel-content" style="max-height: 250px; overflow-y: auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>STRATEGY</th>
+                    <th>SIGNALS</th>
+                    <th>EXEC%</th>
+                  </tr>
+                </thead>
+                <tbody id="strategy-performance">
+                  <tr>
+                    <td colspan="3" class="loading">Loading...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signal-to-Trade Correlation Timeline -->
+        <div class="terminal-panel" style="margin-top: 20px;">
+          <div class="panel-header">Signal → Trade Correlation (Last 20)</div>
+          <div class="panel-content">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>TIME</th>
+                  <th>SYMBOL</th>
+                  <th>ACTION</th>
+                  <th>CONF</th>
+                  <th>STATUS</th>
+                  <th>STRATEGIES</th>
+                </tr>
+              </thead>
+              <tbody id="signal-correlations">
+                <tr>
+                  <td colspan="6" class="loading">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- Add these styles to your <style> section (around line 14, inside existing <style> tags) -->
     </div>
 
@@ -1319,6 +1588,7 @@ Replace lines 1052-1060 in dashboard.html with this entire section
         if (tabName === "feeds") loadFeedsDetailed();
         if (tabName === "health") loadHealth();
         if (tabName === "strategies") loadStrategies();
+        if (tabName === "performance") loadPerformanceAnalysis();
         event.target.classList.add("active");
       }
     </script>

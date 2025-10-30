@@ -1,0 +1,42 @@
+{
+  "UNIUSD": {
+    "amount": 0.0,
+    "avg_price": 6.278,
+    "current_price": 6.278,
+    "market_value": 0.0,
+    "cost_basis": 0.0,
+    "unrealized_pnl": 0.0
+  },
+  "ADAUSD": {
+    "amount": 0.0,
+    "avg_price": 0.656,
+    "current_price": 0.656,
+    "market_value": 0.0,
+    "cost_basis": 0.0,
+    "unrealized_pnl": 0.0
+  },
+  "DOTUSD": {
+    "amount": 0.0,
+    "avg_price": 3.077,
+    "current_price": 3.077,
+    "market_value": 0.0,
+    "cost_basis": 0.0,
+    "unrealized_pnl": 0.0
+  },
+  "LINKUSD": {
+    "amount": 0.0,
+    "avg_price": 17.87453,
+    "current_price": 17.87453,
+    "market_value": 0.0,
+    "cost_basis": 0.0,
+    "unrealized_pnl": 0.0
+  },
+  "SOLUSD": {
+    "amount": 0.0,
+    "avg_price": 193.65,
+    "current_price": 193.65,
+    "market_value": 0.0,
+    "cost_basis": 0.0,
+    "unrealized_pnl": 0.0
+  }
+}

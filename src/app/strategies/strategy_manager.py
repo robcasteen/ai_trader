@@ -3,7 +3,7 @@ Strategy Manager - Orchestrates multiple trading strategies.
 Combines signals from different strategies with configurable weights.
 """
 
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import logging
 from collections import defaultdict
 
@@ -92,13 +92,8 @@ class StrategyManager:
 
     def get_signal(
         self, symbol: str, context: Dict[str, Any]
-    ) -> Tuple[str, float, str]:
+    ) -> Tuple[str, float, str, Optional[int]]:
         """
-        # Normalize symbol to canonical format (BTCUSD, ETHUSD, etc.)
-        try:
-            symbol = normalize_symbol(symbol)
-        except ValueError:
-            logging.warning(f"[StrategyManager] Unknown symbol format: {symbol}, using as-is")
         Get aggregated trading signal from all enabled strategies.
 
         Args:
@@ -111,10 +106,11 @@ class StrategyManager:
                 - volume_history: Historical volumes
 
         Returns:
-            Tuple of (signal, confidence, reason)
+            Tuple of (signal, confidence, reason, signal_id)
             - signal: "BUY", "SELL", or "HOLD"
             - confidence: 0.0 to 1.0
             - reason: Detailed explanation
+            - signal_id: Database ID of logged signal (or None)
         """
         # Normalize symbol to canonical format (BTCUSD, ETHUSD, etc.)
         try:
@@ -178,6 +174,7 @@ class StrategyManager:
 
         # Log signal details for analysis (BEFORE confidence check)
         current_price = context.get("price", 0.0)
+        signal_id = None
         if current_price > 0 and strategy_results:
             try:
                 # Convert strategy_results to the format expected by logger
@@ -191,7 +188,7 @@ class StrategyManager:
                         "enabled": True,
                     }
 
-                self.signal_logger.log_decision(
+                signal_id = self.signal_logger.log_decision(
                     symbol=symbol,
                     price=current_price,
                     final_signal=final_signal,
@@ -212,9 +209,9 @@ class StrategyManager:
             logging.info(
                 f"[StrategyManager] Confidence {final_confidence:.2f} below threshold {self.min_confidence}, converting to HOLD"
             )
-            return "HOLD", final_confidence, f"Low confidence: {final_reason}"
+            return "HOLD", final_confidence, f"Low confidence: {final_reason}", signal_id
 
-        return final_signal, final_confidence, final_reason
+        return final_signal, final_confidence, final_reason, signal_id
 
     def _weighted_vote_aggregation(self, results: List[Dict]) -> Tuple[str, float, str]:
         """

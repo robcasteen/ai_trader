@@ -73,13 +73,14 @@ class TestGetBalance:
         kraken_client.api.query_private.assert_called_once_with("Balance")
 
     def test_get_balance_asset_not_found(self, kraken_client):
-        """Test balance retrieval for non-existent asset."""
+        """Test balance retrieval for non-existent asset (tries USD fallbacks)."""
         kraken_client.api.query_private.return_value = {
             "result": {"ZUSD": "1000"}
         }
-        
+
+        # When requesting ZEUR but ZUSD exists, it now tries ZUSD as USD fallback
         balance = kraken_client.get_balance("ZEUR")
-        assert balance == 0.0
+        assert balance == 1000.0  # Falls back to ZUSD
 
     def test_get_balance_api_error(self, kraken_client):
         """Test balance retrieval when API raises exception."""
@@ -89,13 +90,13 @@ class TestGetBalance:
         assert balance == 0.0
 
     def test_get_balance_default_asset(self, kraken_client):
-        """Test balance retrieval with default ZUSD asset."""
+        """Test balance retrieval with no asset parameter (returns dict)."""
         kraken_client.api.query_private.return_value = {
             "result": {"ZUSD": "5000"}
         }
-        
+
         balance = kraken_client.get_balance()
-        assert balance == 5000.0
+        assert balance == {"ZUSD": "5000"}  # Returns dict when no asset specified
 
 
 class TestGetTickers:

@@ -9,6 +9,8 @@ from collections import defaultdict, deque
 from threading import Thread, Lock
 from datetime import datetime
 from app.client.kraken import KrakenClient
+from app.logic.symbol_scanner import DEFAULT_PRIORITY_SYMBOLS
+from app.utils.symbol_normalizer import normalize_symbol
 
 
 class DataCollector:
@@ -29,7 +31,11 @@ class DataCollector:
         """Start background collection thread."""
         if self.running:
             return
-        
+
+        # Backfill historical data before starting continuous collection
+        logging.info("[DataCollector] Backfilling historical data from exchange...")
+        self._backfill_history()
+
         self.running = True
         self.thread = Thread(target=self._collect_loop, daemon=True)
         self.thread.start()
@@ -105,6 +111,50 @@ class DataCollector:
                 "symbols_tracked": len(self.price_history),
                 "avg_data_points": sum(len(h) for h in self.price_history.values()) / max(len(self.price_history), 1)
             }
+
+    def _backfill_history(self):
+        """Backfill historical OHLC data from exchange for priority symbols."""
+        # Use the same priority symbols as the scanner
+        symbols_to_backfill = DEFAULT_PRIORITY_SYMBOLS
+
+        for symbol in symbols_to_backfill:
+            try:
+                # Fetch 1-minute candles (up to max_history candles)
+                ohlc_data = self.client.get_ohlc(symbol, interval=1)
+
+                if not ohlc_data:
+                    logging.warning(f"[DataCollector] No OHLC data for {symbol}")
+                    continue
+
+                # Extract prices and volumes from OHLC data
+                # Format: [timestamp, open, high, low, close, vwap, volume, count]
+                prices = []
+                volumes = []
+
+                for candle in ohlc_data[-self.max_history:]:  # Get last max_history candles
+                    close_price = float(candle[4])  # Close price
+                    volume = float(candle[6])       # Volume
+                    prices.append(close_price)
+                    volumes.append(volume)
+
+                # Store in deques under both Kraken format and normalized format
+                with self.lock:
+                    self.price_history[symbol] = deque(prices, maxlen=self.max_history)
+                    self.volume_history[symbol] = deque(volumes, maxlen=self.max_history)
+
+                    # Also store under normalized symbol for strategies
+                    try:
+                        normalized = normalize_symbol(symbol)
+                        if normalized != symbol:
+                            self.price_history[normalized] = deque(prices, maxlen=self.max_history)
+                            self.volume_history[normalized] = deque(volumes, maxlen=self.max_history)
+                    except ValueError:
+                        pass  # Symbol normalization failed, skip normalized storage
+
+                logging.info(f"[DataCollector] Backfilled {len(prices)} data points for {symbol}")
+
+            except Exception as e:
+                logging.error(f"[DataCollector] Failed to backfill {symbol}: {e}")
 
 
 # Global singleton

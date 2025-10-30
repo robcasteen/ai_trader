@@ -1,0 +1,82 @@
+{
+  "LINKUSD": {
+    "amount": 3.681974,
+    "avg_price": 17.988795493253782,
+    "current_price": 18.03997,
+    "market_value": 66.42270050078,
+    "cost_basis": 66.2342772974776,
+    "unrealized_pnl": 0.18842320330239204
+  },
+  "SOLUSD": {
+    "amount": 0.21690800000000005,
+    "avg_price": 194.03232126778033,
+    "current_price": 194.65,
+    "market_value": 42.22114220000001,
+    "cost_basis": 42.08716274155171,
+    "unrealized_pnl": 0.1339794584483016
+  },
+  "XRPUSD": {
+    "amount": 146.13233799999998,
+    "avg_price": 2.5911629891454964,
+    "current_price": 2.59636,
+    "market_value": 379.4121570896799,
+    "cost_basis": 378.65270574289997,
+    "unrealized_pnl": 0.7594513467799402
+  },
+  "ADAUSD": {
+    "amount": 128.101187,
+    "avg_price": 0.6558711415693066,
+    "current_price": 0.655568,
+    "market_value": 83.97903895921601,
+    "cost_basis": 84.01787175407323,
+    "unrealized_pnl": -0.038832794857214026
+  },
+  "ETHUSD": {
+    "amount": 0.013713999999999999,
+    "avg_price": 3937.367420513051,
+    "current_price": 3952.31,
+    "market_value": 54.201979339999994,
+    "cost_basis": 53.99705680491598,
+    "unrealized_pnl": 0.20492253508401603
+  },
+  "DOGEUSD": {
+    "amount": 29.967995,
+    "avg_price": 0.19882746646875488,
+    "current_price": 0.1974604,
+    "market_value": 5.917492279898,
+    "cost_basis": 5.9584605209983135,
+    "unrealized_pnl": -0.040968241100313385
+  },
+  "DOTUSD": {
+    "amount": 23.439298,
+    "avg_price": 3.0824087085739547,
+    "current_price": 3.0959,
+    "market_value": 72.5657226782,
+    "cost_basis": 72.24949627806008,
+    "unrealized_pnl": 0.3162264001399251
+  },
+  "LTCUSD": {
+    "amount": 0.062286,
+    "avg_price": 96.33,
+    "current_price": 96.33,
+    "market_value": 6.00001038,
+    "cost_basis": 6.00001038,
+    "unrealized_pnl": 0.0
+  },
+  "SHIBUSD": {
+    "amount": 2366873.049072,
+    "avg_price": 1.0166061984323834e-05,
+    "current_price": 1.021e-05,
+    "market_value": 24.165773831025124,
+    "cost_basis": 24.061778125891504,
+    "unrealized_pnl": 0.10399570513362022
+  },
+  "UNIUSD": {
+    "amount": 0.02678600000000042,
+    "avg_price": 6.249545545664359,
+    "current_price": 6.249,
+    "market_value": 0.16738571400000263,
+    "cost_basis": 0.16740032698616816,
+    "unrealized_pnl": -1.4612986165535302e-05
+  }
+}

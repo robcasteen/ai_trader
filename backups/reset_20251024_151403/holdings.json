@@ -1,0 +1,106 @@
+{
+  "SOLUSD": {
+    "amount": 1.409432,
+    "avg_price": 180.85882030711355,
+    "current_price": 190.04,
+    "market_value": 267.84845728,
+    "cost_basis": 254.90820882309566,
+    "unrealized_pnl": 12.940248456904328
+  },
+  "BTCUSD": {
+    "amount": 1622.253975999983,
+    "avg_price": 49141.86341150054,
+    "current_price": 110633.0,
+    "market_value": 179474824.1268061,
+    "cost_basis": 79720583.30735484,
+    "unrealized_pnl": 99754240.81945127
+  },
+  "XRPUSD": {
+    "amount": 42.000628000000006,
+    "avg_price": 2.4362415641784563,
+    "current_price": 2.4833,
+    "market_value": 104.30015951240001,
+    "cost_basis": 102.32367565519748,
+    "unrealized_pnl": 1.9764838572025383
+  },
+  "DOGEUSD": {
+    "amount": 367.694754,
+    "avg_price": 0.19581112900737563,
+    "current_price": 0.1969216,
+    "market_value": 72.4070392692864,
+    "cost_basis": 71.99872491082924,
+    "unrealized_pnl": 0.4083143584571616
+  },
+  "SHIBUSD": {
+    "amount": 4772792.279210001,
+    "avg_price": 1.0097218537013472e-05,
+    "current_price": 1.017e-05,
+    "market_value": 48.53929747956571,
+    "cost_basis": 48.191926674954004,
+    "unrealized_pnl": 0.3473708046117068
+  },
+  "AAVEUSD": {
+    "amount": 0.24193400000000004,
+    "avg_price": 223.20037783031734,
+    "current_price": 223.67,
+    "market_value": 54.11337778000001,
+    "cost_basis": 53.999760210000005,
+    "unrealized_pnl": 0.11361757000000239
+  },
+  "ADAUSD": {
+    "amount": 56.73754000000001,
+    "avg_price": 0.6448758387451508,
+    "current_price": 0.64327,
+    "market_value": 36.497557355800005,
+    "cost_basis": 36.588668695836546,
+    "unrealized_pnl": -0.09111134003654087
+  },
+  "UNIUSD": {
+    "amount": 6.150513999999996,
+    "avg_price": 6.251815570999618,
+    "current_price": 6.239,
+    "market_value": 38.373056845999976,
+    "cost_basis": 38.45187919485112,
+    "unrealized_pnl": -0.07882234885114059
+  },
+  "DOTUSD": {
+    "amount": 28.47155099999999,
+    "avg_price": 2.9842604168814275,
+    "current_price": 3.0718,
+    "market_value": 87.45891036179998,
+    "cost_basis": 84.9665226565208,
+    "unrealized_pnl": 2.492387705279185
+  },
+  "LINKUSD": {
+    "amount": 4.501394999999999,
+    "avg_price": 17.41911068128046,
+    "current_price": 17.69406,
+    "market_value": 79.64795321369998,
+    "cost_basis": 78.41029772516244,
+    "unrealized_pnl": 1.2376554885375413
+  },
+  "ETHUSD": {
+    "amount": 0.021339999999999998,
+    "avg_price": 3926.5047796558724,
+    "current_price": 3897.11,
+    "market_value": 83.16432739999999,
+    "cost_basis": 83.79161199785631,
+    "unrealized_pnl": -0.6272845978563169
+  },
+  "XLMUSD": {
+    "amount": 57.788188999999996,
+    "avg_price": 0.31148232947635723,
+    "current_price": 0.310729,
+    "market_value": 17.956466179780996,
+    "cost_basis": 17.99999972594,
+    "unrealized_pnl": -0.04353354615900429
+  },
+  "LTCUSD": {
+    "amount": 0.062933,
+    "avg_price": 95.34,
+    "current_price": 95.34,
+    "market_value": 6.0000322200000005,
+    "cost_basis": 6.0000322200000005,
+    "unrealized_pnl": 0.0
+  }
+}

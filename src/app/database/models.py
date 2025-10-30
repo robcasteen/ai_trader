@@ -50,7 +50,7 @@ class Signal(Base):
 
     # Composite indexes
     __table_args__ = (
-        Index('idx_symbol_timestamp', 'symbol', 'timestamp'),
+        Index('idx_signal_symbol_timestamp', 'symbol', 'timestamp'),
         Index('idx_test_signal_timestamp', 'test_mode', 'final_signal', 'timestamp'),
     )
 
@@ -94,8 +94,8 @@ class Trade(Base):
 
     # Composite indexes
     __table_args__ = (
-        Index('idx_symbol_timestamp', 'symbol', 'timestamp'),
-        Index('idx_test_timestamp', 'test_mode', 'timestamp'),
+        Index('idx_trade_symbol_timestamp', 'symbol', 'timestamp'),
+        Index('idx_trade_test_timestamp', 'test_mode', 'timestamp'),
     )
 
     def __repr__(self):
@@ -249,8 +249,10 @@ class RSSFeed(Base):
 
     # Stats
     last_fetched = Column(DateTime)
+    last_fetch = Column(DateTime)  # Alias for compatibility
     total_items_fetched = Column(Integer, default=0)
     error_count = Column(Integer, default=0)
+    last_error = Column(Text)  # Last error message
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

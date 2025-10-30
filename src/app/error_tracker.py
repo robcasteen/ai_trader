@@ -210,7 +210,9 @@ class ErrorTracker:
 
 
 # Global error tracker instance
+# Note: log_file=None means errors are only stored in memory (not persisted)
+# Error persistence should use the database ErrorLog model if needed
 error_tracker = ErrorTracker(
     max_errors=100,
-    log_file=Path(__file__).parent / "logs" / "errors.json"
+    log_file=None
 )

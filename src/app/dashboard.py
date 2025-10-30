@@ -122,21 +122,24 @@ def _load_rss_feeds() -> List[Dict[str, Any]]:
             repo = RSSFeedRepository(db)
             feed_models = repo.get_all()
 
-            # Get headline counts per feed
-            # "relevant" means headlines that mentioned crypto symbols (i.e., all headlines we saved)
-            headline_counts = db.query(
+            # Get relevant headline counts per feed
+            # "relevant" means headlines that mentioned crypto symbols (saved to seen_news)
+            relevant_counts = db.query(
                 SeenNews.feed_id,
-                func.count(SeenNews.id).label('total')
+                func.count(SeenNews.id).label('relevant')
             ).group_by(SeenNews.feed_id).all()
 
             # Convert to dict for lookup
-            # All saved headlines are relevant (they mentioned crypto symbols)
-            counts_by_feed = {row.feed_id: (row.total, row.total) for row in headline_counts}
+            relevant_by_feed = {row.feed_id: row.relevant for row in relevant_counts}
 
             # Convert to dict format for compatibility
             feeds = []
             for f in feed_models:
-                total, relevant = counts_by_feed.get(f.id, (0, 0))
+                # total_items_fetched = all headlines fetched from feed
+                # relevant = headlines with crypto symbols (saved to seen_news)
+                total = f.total_items_fetched or 0
+                relevant = relevant_by_feed.get(f.id, 0)
+
                 feeds.append({
                     "id": f.id,
                     "url": f.url,
@@ -825,9 +828,10 @@ async def get_latest_signal():
         signals = signal_logger.get_recent_signals(limit=1)
 
         if not signals:
+            # Return 200 with null signal for consistency with other endpoints
             return JSONResponse(
-                {"error": "No signals available", "status": "not_found"},
-                status_code=404,
+                {"signal": None, "age_seconds": None, "status": "no_data"},
+                status_code=200,
             )
 
         latest = signals[0]

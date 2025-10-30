@@ -1,6 +1,6 @@
 {
   "strategy": "gpt-sentiment",
-  "interval_minutes": 10,
+  "interval_minutes": 5,
   "trading_fee_percent": 0.26,
   "strategies": {
     "sentiment": {
@@ -12,18 +12,19 @@
       "weight": 1
     },
     "volume": {
-      "enabled": false,
+      "enabled": true,
       "weight": 0.8
     }
   },
   "aggregation": {
     "method": "weighted_vote",
-    "min_confidence": 0.777
+    "min_confidence": 0.5
   },
   "risk_management": {
-    "position_size_percent": 5.0,
-    "max_daily_loss_percent": 10.0,
-    "max_open_positions": 5
+    "position_size_percent": 7,
+    "max_daily_loss_percent": 10,
+    "max_open_positions": null
   },
-  "trading_mode": "live"
+  "trading_mode": "paper",
+  "paper_starting_capital": 200
 }

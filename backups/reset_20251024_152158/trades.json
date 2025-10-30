@@ -1,0 +1,74 @@
+[
+  {
+    "timestamp": "2025-10-24T15:21:49.210429",
+    "action": "buy",
+    "symbol": "UNIUSD",
+    "price": 6.278,
+    "amount": 0.0,
+    "gross_value": 0.0,
+    "fee": 0.0,
+    "net_value": 0.0,
+    "reason": "BUY signal from 1 strategies: volume: Volume: OBV rising (accumulation)",
+    "value": 0.0
+  },
+  {
+    "timestamp": "2025-10-24T15:21:49.526684",
+    "action": "buy",
+    "symbol": "ADAUSD",
+    "price": 0.656,
+    "amount": 0.0,
+    "gross_value": 0.0,
+    "fee": 0.0,
+    "net_value": 0.0,
+    "reason": "BUY signal from 1 strategies: volume: Volume: OBV rising (accumulation)",
+    "value": 0.0
+  },
+  {
+    "timestamp": "2025-10-24T15:21:50.004897",
+    "action": "buy",
+    "symbol": "DOTUSD",
+    "price": 3.077,
+    "amount": 0.0,
+    "gross_value": 0.0,
+    "fee": 0.0,
+    "net_value": 0.0,
+    "reason": "BUY signal from 1 strategies: volume: Volume: OBV rising (accumulation)",
+    "value": 0.0
+  },
+  {
+    "timestamp": "2025-10-24T15:21:51.319079",
+    "action": "buy",
+    "symbol": "LINKUSD",
+    "price": 17.87453,
+    "amount": 0.0,
+    "gross_value": 0.0,
+    "fee": 0.0,
+    "net_value": 0.0,
+    "reason": "BUY signal from 1 strategies: volume: Volume: OBV rising (accumulation)",
+    "value": 0.0
+  },
+  {
+    "timestamp": "2025-10-24T15:21:51.651341",
+    "action": "sell",
+    "symbol": "BTCUSD",
+    "price": 110743.9,
+    "amount": 0.0,
+    "gross_value": 0.0,
+    "fee": 0.0,
+    "net_value": 0.0,
+    "reason": "SELL signal from 1 strategies: sentiment: Sentiment: Keyword match (negative): Swiss Bank Sygnum to Launch Bitcoin-Backed Loan Platform With Multi-Sig Wallet Control",
+    "value": 0.0
+  },
+  {
+    "timestamp": "2025-10-24T15:21:52.496916",
+    "action": "buy",
+    "symbol": "SOLUSD",
+    "price": 193.65,
+    "amount": 0.0,
+    "gross_value": 0.0,
+    "fee": 0.0,
+    "net_value": 0.0,
+    "reason": "BUY signal from 1 strategies: volume: Volume: OBV rising (accumulation)",
+    "value": 0.0
+  }
+]

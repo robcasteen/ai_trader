@@ -5,38 +5,48 @@ Tests for RSS feed management - edit and disable functionality.
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.database.connection import get_db
+from app.database.repositories import RSSFeedRepository
 
 client = TestClient(app)
 
 
+@pytest.fixture
+def test_feed():
+    """Create a test RSS feed."""
+    with get_db() as db:
+        repo = RSSFeedRepository(db)
+        feed = repo.create(
+            name="Test Feed",
+            url="https://test.example.com/rss",
+            enabled=True
+        )
+        db.commit()
+        db.refresh(feed)
+        yield feed
+
+
 class TestFeedEdit:
     """Test editing RSS feed name and URL."""
-    
+
     def test_edit_feed_endpoint_exists(self):
         """PUT /api/feeds/{id} should exist."""
         response = client.put("/api/feeds/1", json={"name": "Test", "url": "http://test.com"})
         assert response.status_code in [200, 404]
-    
-    def test_edit_feed_updates_name(self):
+
+    def test_edit_feed_updates_name(self, test_feed):
         """Should be able to update feed name."""
-        # Get existing feeds
-        feeds_response = client.get("/api/feeds")
-        initial_feeds = feeds_response.json()["feeds"]
-        
-        if not initial_feeds:
-            pytest.skip("No feeds to test with")
-        
-        feed_id = initial_feeds[0]["id"]
-        original_url = initial_feeds[0]["url"]
-        
+        feed_id = test_feed.id
+        original_url = test_feed.url
+
         # Edit the name
         edit_response = client.put(f"/api/feeds/{feed_id}", json={
             "name": "Test Updated Name",
             "url": original_url
         })
-        
+
         assert edit_response.status_code == 200
-        
+
         # Verify name changed
         feeds_after = client.get("/api/feeds").json()["feeds"]
         updated_feed = next((f for f in feeds_after if f["id"] == feed_id), None)
@@ -47,13 +57,14 @@ class TestFeedEdit:
 class TestFeedDisable:
     """Test disabling/enabling feeds without deleting."""
     
-    def test_feed_has_status_field(self):
-        """Feeds should have a 'status' field (currently exists)."""
+    def test_feed_has_enabled_field(self):
+        """Feeds should have an 'enabled' field for toggling."""
         response = client.get("/api/feeds")
         feeds = response.json()["feeds"]
-        
+
         if feeds:
-            assert "status" in feeds[0], "Feed should have 'status' field"
+            assert "enabled" in feeds[0], "Feed should have 'enabled' field"
+            assert isinstance(feeds[0]["enabled"], bool), "'enabled' should be a boolean"
     
     def test_feed_needs_active_field(self):
         """Feeds should have an 'active' boolean field for enable/disable."""
@@ -69,15 +80,10 @@ class TestFeedDisable:
         response = client.put("/api/feeds/1/toggle")
         assert response.status_code in [200, 404]
     
-    def test_toggle_feed_changes_active_status(self):
+    def test_toggle_feed_changes_active_status(self, test_feed):
         """Toggling should change active state."""
-        feeds = client.get("/api/feeds").json()["feeds"]
-        
-        if not feeds:
-            pytest.skip("No feeds to test with")
-        
-        feed_id = feeds[0]["id"]
-        original_active = feeds[0].get("active", True)
+        feed_id = test_feed.id
+        original_active = test_feed.enabled
         
         # Toggle it
         toggle_response = client.put(f"/api/feeds/{feed_id}/toggle")
@@ -88,3 +94,67 @@ class TestFeedDisable:
         updated_feed = next((f for f in feeds_after if f["id"] == feed_id), None)
         new_active = updated_feed.get("active", True)
         assert new_active != original_active
+
+
+class TestFeedDelete:
+    """Test deleting RSS feeds."""
+
+    def test_delete_feed_endpoint_exists(self):
+        """DELETE /api/feeds/{id} should exist."""
+        response = client.delete("/api/feeds/99999")  # Non-existent ID
+        assert response.status_code in [404, 500]  # Should return 404 for not found
+
+    def test_delete_nonexistent_feed_returns_404(self):
+        """Deleting non-existent feed should return 404."""
+        response = client.delete("/api/feeds/99999")
+        assert response.status_code == 404
+        data = response.json()
+        assert "error" in data
+        assert "not found" in data["error"].lower()
+
+    def test_delete_feed_removes_from_database(self, test_feed):
+        """Deleting a feed should remove it from the database."""
+        feed_id = test_feed.id
+
+        # Verify it exists
+        feeds_before = client.get("/api/feeds").json()["feeds"]
+        assert any(f["id"] == feed_id for f in feeds_before)
+
+        # Delete it
+        delete_response = client.delete(f"/api/feeds/{feed_id}")
+        assert delete_response.status_code == 200
+
+        # Verify it's gone
+        feeds_after = client.get("/api/feeds").json()["feeds"]
+        assert not any(f["id"] == feed_id for f in feeds_after)
+
+    def test_toggle_feed_uses_database(self, test_feed):
+        """Toggle should persist to database, not JSON files."""
+        feed_id = test_feed.id
+
+        # Toggle it
+        toggle_response = client.put(f"/api/feeds/{feed_id}/toggle")
+        assert toggle_response.status_code == 200
+
+        # Verify response has correct structure
+        data = toggle_response.json()
+        assert "success" in data
+        assert "active" in data
+        assert "feed_id" in data
+        assert data["success"] is True
+        assert data["feed_id"] == feed_id
+
+    def test_delete_feed_uses_database(self, test_feed):
+        """Delete should remove from database, not JSON files."""
+        feed_id = test_feed.id
+
+        # Delete it
+        delete_response = client.delete(f"/api/feeds/{feed_id}")
+        assert delete_response.status_code == 200
+
+        # Verify response structure
+        data = delete_response.json()
+        assert "status" in data
+        assert data["status"] == "success"
+        assert "id" in data
+        assert data["id"] == feed_id

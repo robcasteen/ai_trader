@@ -1,0 +1,897 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0 -- /home/rcasteen/kraken-ai-bot/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/rcasteen/kraken-ai-bot
+configfile: pytest.ini
+plugins: anyio-4.10.0
+collecting ... collected 438 items
+
+tests/test_api_strategy_endpoints.py::TestSummaryEndpoint::test_summary_with_data PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestSummaryEndpoint::test_summary_with_no_data PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestCurrentSignalsEndpoint::test_current_signals PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestCurrentSignalsEndpoint::test_current_signals_empty PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_default PASSED [  1%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_with_limit PASSED [  1%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_with_symbol_filter PASSED [  1%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_invalid_limit PASSED [  1%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_respects_max_limit PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestPerformanceEndpoint::test_performance_with_lookback PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestPerformanceEndpoint::test_performance_invalid_lookback PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestPerformanceEndpoint::test_performance_respects_max_lookback PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestSingleStrategyPerformanceEndpoint::test_single_strategy_performance PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestSingleStrategyPerformanceEndpoint::test_nonexistent_strategy PASSED [  3%]
+tests/test_api_strategy_endpoints.py::TestCorrelationEndpoint::test_correlation_matrix PASSED [  3%]
+tests/test_api_strategy_endpoints.py::TestCorrelationEndpoint::test_correlation_empty PASSED [  3%]
+tests/test_api_strategy_endpoints.py::TestLatestSignalEndpoint::test_latest_signal PASSED [  3%]
+tests/test_api_strategy_endpoints.py::TestLatestSignalEndpoint::test_latest_signal_empty PASSED [  4%]
+tests/test_api_strategy_endpoints.py::TestAPIResponseFormat::test_all_success_responses_have_status PASSED [  4%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_portfolio_initialization PASSED [  4%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_buy_order_success PASSED [  4%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_buy_order_insufficient_funds PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_sell_order_success PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_sell_order_insufficient_holdings PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_partial_sell PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_fee_calculation PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_get_portfolio_value PASSED [  6%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_record_value_snapshot PASSED [  6%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_multiple_positions PASSED [  6%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_initialization PASSED [  6%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_update_exchange_balance PASSED [  7%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_update_calculated_balance_from_trade PASSED [  7%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_slippage_calculation PASSED [  7%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_get_balance_for_position_sizing PASSED [  7%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_reconciliation_report PASSED [  7%]
+tests/test_base_strategy.py::TestBaseStrategy::test_initialization PASSED [  8%]
+tests/test_base_strategy.py::TestBaseStrategy::test_enable_disable PASSED [  8%]
+tests/test_base_strategy.py::TestBaseStrategy::test_abstract_method_enforcement PASSED [  8%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_create_new_config PASSED [  8%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_update_existing_config PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_get_current_config PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_get_config_dict_with_data PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_get_config_dict_returns_defaults_when_empty PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_partial_update_preserves_other_fields PASSED [ 10%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_timestamp_updates_on_save PASSED [ 10%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_config_persists_across_sessions PASSED [ 10%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_decimal_precision_preserved PASSED [ 10%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_config_dict_converts_decimals_to_floats PASSED [ 10%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_multiple_configs_gets_latest PASSED [ 11%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_config_with_extra_fields PASSED [ 11%]
+tests/test_config.py::TestGetCurrentConfig::test_default_config_no_file PASSED [ 11%]
+tests/test_config.py::TestGetCurrentConfig::test_load_existing_config PASSED [ 11%]
+tests/test_config.py::TestGetCurrentConfig::test_strategy_normalization_gpt_to_gpt_sentiment PASSED [ 12%]
+tests/test_config.py::TestGetCurrentConfig::test_overlay_defaults_on_partial_config PASSED [ 12%]
+tests/test_config.py::TestGetCurrentConfig::test_corrupted_config_file_returns_defaults PASSED [ 12%]
+tests/test_config.py::TestUpdateConfig::test_update_strategy PASSED      [ 12%]
+tests/test_config.py::TestUpdateConfig::test_update_interval PASSED      [ 13%]
+tests/test_config.py::TestUpdateConfig::test_update_multiple_values PASSED [ 13%]
+tests/test_config.py::TestUpdateConfig::test_update_ignores_non_whitelisted_keys PASSED [ 13%]
+tests/test_config.py::TestUpdateConfig::test_update_preserves_existing_values PASSED [ 13%]
+tests/test_config.py::TestUpdateConfig::test_update_creates_file_if_missing PASSED [ 13%]
+tests/test_config.py::TestUpdateConfig::test_update_returns_full_config PASSED [ 14%]
+tests/test_config.py::TestUpdateConfig::test_whitelisted_keys_only PASSED [ 14%]
+tests/test_config.py::TestConfigPersistence::test_config_persists_across_reads PASSED [ 14%]
+tests/test_config.py::TestConfigPersistence::test_json_formatting PASSED [ 14%]
+tests/test_config.py::TestEdgeCases::test_empty_update PASSED            [ 15%]
+tests/test_config.py::TestEdgeCases::test_none_values PASSED             [ 15%]
+tests/test_config.py::TestEdgeCases::test_numeric_strategy PASSED        [ 15%]
+tests/test_config_api.py::TestConfigAPI::test_get_config_returns_defaults PASSED [ 15%]
+tests/test_config_api.py::TestConfigAPI::test_get_config_has_strategy_settings PASSED [ 15%]
+tests/test_config_api.py::TestConfigAPI::test_get_config_has_risk_management PASSED [ 16%]
+tests/test_config_api.py::TestConfigAPI::test_get_config_has_aggregation_settings PASSED [ 16%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_strategy_weight PASSED [ 16%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_min_confidence PASSED [ 16%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_risk_management PASSED [ 17%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_rejects_invalid_trading_mode PASSED [ 17%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_accepts_valid_trading_mode PASSED [ 17%]
+tests/test_config_api.py::TestConfigAPI::test_disable_strategy PASSED    [ 17%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_saves_min_confidence_to_database PASSED [ 18%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_saves_trading_mode_to_database PASSED [ 18%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_saves_position_size_to_database PASSED [ 18%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_updates_existing_database_config PASSED [ 18%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_settings_modal_workflow_saves_to_database PASSED [ 18%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_config_persists_after_bot_restart_simulation PASSED [ 19%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_does_not_write_to_json_file PASSED [ 19%]
+tests/test_dashboard.py::TestDashboardRoute::test_dashboard_loads PASSED [ 19%]
+tests/test_dashboard.py::TestDashboardRoute::test_dashboard_loads_terminal_ui PASSED [ 19%]
+tests/test_dashboard.py::TestPartialRoute::test_partial_returns_json PASSED [ 20%]
+tests/test_dashboard.py::TestPartialRoute::test_partial_structure PASSED [ 20%]
+tests/test_dashboard.py::TestStatusRoute::test_status_returns_json PASSED [ 20%]
+tests/test_dashboard.py::TestStatusRoute::test_status_structure PASSED   [ 20%]
+tests/test_dashboard.py::TestStatusRoute::test_status_missing_file PASSED [ 21%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_empty_trades PASSED [ 21%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_buy_and_sell PASSED [ 21%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_hold_not_counted_in_trades PASSED [ 21%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_per_symbol_data PASSED [ 21%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_case_insensitive_action PASSED [ 22%]
+tests/test_dashboard_db_integration.py::TestStrategyEndpoint::test_strategy_endpoint_returns_db_data PASSED [ 22%]
+tests/test_dashboard_db_integration.py::TestStrategyEndpoint::test_strategy_endpoint_filters_test_data PASSED [ 22%]
+tests/test_dashboard_db_integration.py::TestFeedsEndpoint::test_feeds_endpoint_returns_db_data PASSED [ 22%]
+tests/test_dashboard_db_integration.py::TestFeedsEndpoint::test_feeds_endpoint_includes_all_required_fields PASSED [ 23%]
+tests/test_data_collector.py::test_collector_initialization PASSED       [ 23%]
+tests/test_data_collector.py::test_collect_snapshot PASSED               [ 23%]
+tests/test_data_collector.py::test_get_price_history PASSED              [ 23%]
+tests/test_database_repositories.py::TestSignalRepository::test_create_signal PASSED [ 23%]
+tests/test_database_repositories.py::TestSignalRepository::test_get_recent_signals PASSED [ 24%]
+tests/test_database_repositories.py::TestSignalRepository::test_filter_by_test_mode PASSED [ 24%]
+tests/test_database_repositories.py::TestTradeRepository::test_create_trade PASSED [ 24%]
+tests/test_database_repositories.py::TestTradeRepository::test_get_all_trades PASSED [ 24%]
+tests/test_database_repositories.py::TestTradeRepository::test_filter_trades_by_test_mode PASSED [ 25%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_create_feed PASSED [ 25%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_get_all_feeds PASSED [ 25%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_get_feed_by_url PASSED [ 25%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_update_feed PASSED [ 26%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_delete_feed PASSED [ 26%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_feed_has_required_attributes PASSED [ 26%]
+tests/test_database_repositories.py::TestHoldingRepository::test_create_holding PASSED [ 26%]
+tests/test_error_tracker.py::TestErrorTrackerBasics::test_initialization PASSED [ 26%]
+tests/test_error_tracker.py::TestErrorTrackerBasics::test_log_error_basic PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorTrackerBasics::test_log_error_with_exception PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorTrackerBasics::test_log_error_with_metadata PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_errors_all PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_errors_by_component PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_errors_by_severity PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_errors_with_limit PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_component_errors PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_error_count PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_last_error PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_last_error_none PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorClearing::test_clear_all_errors PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorClearing::test_clear_component_errors PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorClearing::test_clear_nonexistent_component PASSED [ 30%]
+tests/test_error_tracker.py::TestErrorPersistence::test_save_to_disk PASSED [ 30%]
+tests/test_error_tracker.py::TestErrorPersistence::test_load_from_disk PASSED [ 30%]
+tests/test_error_tracker.py::TestErrorPersistence::test_no_persistence_without_log_file PASSED [ 30%]
+tests/test_error_tracker.py::TestErrorBounds::test_max_errors_limit PASSED [ 31%]
+tests/test_error_tracker.py::TestErrorBounds::test_empty_tracker PASSED  [ 31%]
+tests/test_error_tracker.py::TestHealthSummary::test_get_health_summary PASSED [ 31%]
+tests/test_error_tracker.py::TestHealthSummary::test_get_health_summary_empty PASSED [ 31%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_has_timestamp PASSED [ 31%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_has_component PASSED [ 32%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_has_message PASSED [ 32%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_has_severity PASSED [ 32%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_default_severity PASSED [ 32%]
+tests/test_error_tracker.py::TestConcurrency::test_multiple_components_simultaneously PASSED [ 33%]
+tests/test_executed_indicator_integration.py::TestExecutedIndicatorIntegration::test_dashboard_api_shows_executed_signals PASSED [ 33%]
+tests/test_executed_indicator_integration.py::TestExecutedIndicatorIntegration::test_dashboard_endpoint_structure PASSED [ 33%]
+tests/test_executed_indicator_integration.py::TestExecutedIndicatorIntegration::test_executed_indicator_logic PASSED [ 33%]
+tests/test_feed_management.py::TestFeedEdit::test_edit_feed_endpoint_exists PASSED [ 34%]
+tests/test_feed_management.py::TestFeedEdit::test_edit_feed_updates_name PASSED [ 34%]
+tests/test_feed_management.py::TestFeedDisable::test_feed_has_enabled_field PASSED [ 34%]
+tests/test_feed_management.py::TestFeedDisable::test_feed_needs_active_field PASSED [ 34%]
+tests/test_feed_management.py::TestFeedDisable::test_toggle_feed_endpoint_exists PASSED [ 34%]
+tests/test_feed_management.py::TestFeedDisable::test_toggle_feed_changes_active_status PASSED [ 35%]
+tests/test_feed_management.py::TestFeedDelete::test_delete_feed_endpoint_exists PASSED [ 35%]
+tests/test_feed_management.py::TestFeedDelete::test_delete_nonexistent_feed_returns_404 PASSED [ 35%]
+tests/test_feed_management.py::TestFeedDelete::test_delete_feed_removes_from_database PASSED [ 35%]
+tests/test_feed_management.py::TestFeedDelete::test_toggle_feed_uses_database PASSED [ 36%]
+tests/test_feed_management.py::TestFeedDelete::test_delete_feed_uses_database PASSED [ 36%]
+tests/test_health_endpoints.py::TestGetErrors::test_get_errors_empty PASSED [ 36%]
+tests/test_health_endpoints.py::TestGetErrors::test_get_errors_with_data PASSED [ 36%]
+tests/test_health_endpoints.py::TestGetErrors::test_get_errors_filter_by_component PASSED [ 36%]
+tests/test_health_endpoints.py::TestGetErrors::test_get_errors_with_limit PASSED [ 37%]
+tests/test_health_endpoints.py::TestClearErrors::test_clear_all_errors PASSED [ 37%]
+tests/test_health_endpoints.py::TestClearErrors::test_clear_component_errors PASSED [ 37%]
+tests/test_health_endpoints.py::TestTestOpenAI::test_openai_test_success PASSED [ 37%]
+tests/test_health_endpoints.py::TestTestOpenAI::test_openai_test_failure PASSED [ 38%]
+tests/test_health_endpoints.py::TestTestOpenAI::test_openai_test_exception PASSED [ 38%]
+tests/test_health_endpoints.py::TestTestKraken::test_kraken_test_success PASSED [ 38%]
+tests/test_health_endpoints.py::TestTestKraken::test_kraken_test_degraded PASSED [ 38%]
+tests/test_health_endpoints.py::TestTestRSS::test_rss_test_success PASSED [ 39%]
+tests/test_health_endpoints.py::TestTestRSS::test_rss_test_failure PASSED [ 39%]
+tests/test_health_endpoints.py::TestDetailedHealth::test_detailed_health_all_operational PASSED [ 39%]
+tests/test_health_endpoints.py::TestDetailedHealth::test_detailed_health_with_errors PASSED [ 39%]
+tests/test_health_endpoints.py::TestEndpointIntegration::test_error_workflow PASSED [ 39%]
+tests/test_health_endpoints.py::TestEndpointIntegration::test_test_and_monitor_workflow PASSED [ 40%]
+tests/test_health_endpoints.py::TestErrorLogging::test_test_endpoint_logs_error_on_failure PASSED [ 40%]
+tests/test_health_endpoints.py::TestErrorLogging::test_test_endpoint_no_log_on_success PASSED [ 40%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_simple_buy_includes_fees PASSED [ 40%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_buy_then_sell_with_fees PASSED [ 41%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_complete_exit PASSED [ 41%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_multiple_buys_with_fees PASSED [ 41%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_hold_actions_ignored PASSED [ 41%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_multiple_symbols PASSED [ 42%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_sell_without_buy PASSED [ 42%]
+tests/test_holdings_calculation.py::TestConfidenceCalculation::test_buy_signal_uses_actionable_weight_only PASSED [ 42%]
+tests/test_holdings_calculation.py::TestConfidenceCalculation::test_sell_signal_uses_actionable_weight_only PASSED [ 42%]
+tests/test_holdings_calculation.py::TestConfidenceCalculation::test_hold_signal_uses_total_weight PASSED [ 42%]
+tests/test_holdings_calculation.py::TestConfidenceCalculation::test_mixed_signals_buy_wins PASSED [ 43%]
+tests/test_kraken_client.py::TestGetPrice::test_get_price_success PASSED [ 43%]
+tests/test_kraken_client.py::TestGetPrice::test_get_price_api_error PASSED [ 43%]
+tests/test_kraken_client.py::TestGetPrice::test_get_price_malformed_response PASSED [ 43%]
+tests/test_kraken_client.py::TestGetPrice::test_get_price_invalid_float PASSED [ 44%]
+tests/test_kraken_client.py::TestGetBalance::test_get_balance_success PASSED [ 44%]
+tests/test_kraken_client.py::TestGetBalance::test_get_balance_asset_not_found PASSED [ 44%]
+tests/test_kraken_client.py::TestGetBalance::test_get_balance_api_error PASSED [ 44%]
+tests/test_kraken_client.py::TestGetBalance::test_get_balance_default_asset PASSED [ 44%]
+tests/test_kraken_client.py::TestGetTickers::test_get_tickers_success PASSED [ 45%]
+tests/test_kraken_client.py::TestGetTickers::test_get_tickers_empty_result PASSED [ 45%]
+tests/test_kraken_client.py::TestGetTickers::test_get_tickers_api_error PASSED [ 45%]
+tests/test_kraken_client.py::TestGetTickers::test_get_tickers_invalid_data PASSED [ 45%]
+tests/test_main_balance_integration.py::test_calculate_position_size_should_accept_balance_parameter PASSED [ 46%]
+tests/test_main_balance_integration.py::test_main_should_pass_balance_to_calculate_position_size PASSED [ 46%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_trades_json_file_created PASSED [ 46%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_holdings_json_file_created PASSED [ 46%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_bot_status_json_file_created PASSED [ 47%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_rss_feeds_json_file_read PASSED [ 47%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_dashboard_loads_trades_from_database_only PASSED [ 47%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_json_file_dependencies_in_paper_trader PASSED [ 47%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_config_json_is_only_allowed_json_file FAILED [ 47%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_trades_come_from_database PASSED [ 48%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_holdings_come_from_database PASSED [ 48%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_signals_come_from_database PASSED [ 48%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_bot_status_comes_from_database PASSED [ 48%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_rss_feeds_come_from_database PASSED [ 49%]
+tests/test_notifier.py::TestSendNotification::test_send_complete_trade PASSED [ 49%]
+tests/test_notifier.py::TestSendNotification::test_send_sell_trade PASSED [ 49%]
+tests/test_notifier.py::TestSendNotification::test_send_hold_signal PASSED [ 49%]
+tests/test_notifier.py::TestMissingData::test_send_none_trade_result PASSED [ 50%]
+tests/test_notifier.py::TestMissingData::test_send_empty_dict PASSED     [ 50%]
+tests/test_notifier.py::TestMissingData::test_send_missing_symbol PASSED [ 50%]
+tests/test_notifier.py::TestMissingData::test_send_missing_action PASSED [ 50%]
+tests/test_notifier.py::TestMissingData::test_send_missing_price PASSED  [ 50%]
+tests/test_notifier.py::TestMissingData::test_send_missing_reason PASSED [ 51%]
+tests/test_notifier.py::TestLoggingFormat::test_log_level_is_info PASSED [ 51%]
+tests/test_notifier.py::TestLoggingFormat::test_alert_prefix_present PASSED [ 51%]
+tests/test_notifier.py::TestLoggingFormat::test_price_at_symbol_format PASSED [ 51%]
+tests/test_notifier.py::TestMultipleNotifications::test_send_multiple_notifications PASSED [ 52%]
+tests/test_paper_trader.py::TestTradeExecution::test_execute_buy_trade PASSED [ 52%]
+tests/test_paper_trader.py::TestTradeExecution::test_execute_sell_trade PASSED [ 52%]
+tests/test_paper_trader.py::TestTradeExecution::test_default_amount PASSED [ 52%]
+tests/test_paper_trader.py::TestTradeDataStructure::test_timestamp_format PASSED [ 52%]
+tests/test_paper_trader.py::TestTradeDataStructure::test_value_calculation PASSED [ 53%]
+tests/test_paper_trader.py::TestTradeDataStructure::test_all_required_fields_present PASSED [ 53%]
+tests/test_paper_trader.py::TestEdgeCases::test_zero_price PASSED        [ 53%]
+tests/test_paper_trader.py::TestEdgeCases::test_large_amounts PASSED     [ 53%]
+tests/test_paper_trader.py::TestEdgeCases::test_fractional_amounts PASSED [ 54%]
+tests/test_paper_trader.py::TestFeeCalculation::test_buy_fee_increases_cost PASSED [ 54%]
+tests/test_paper_trader.py::TestFeeCalculation::test_sell_fee_reduces_proceeds PASSED [ 54%]
+tests/test_paper_trader.py::TestFeeCalculation::test_fee_rate_is_correct PASSED [ 54%]
+tests/test_paper_trader.py::TestFeeCalculation::test_round_trip_cost PASSED [ 55%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_buy_trade_creates_holding PASSED [ 55%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_sell_trade_reduces_holding PASSED [ 55%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_sell_entire_position_removes_holding PASSED [ 55%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_multiple_buys_average_price PASSED [ 55%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_hold_action_does_not_update_holdings PASSED [ 56%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_multiple_symbols_tracked_separately PASSED [ 56%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_buy_trade_writes_to_database PASSED [ 56%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_sell_trade_writes_to_database PASSED [ 56%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_hold_action_does_not_write_to_database PASSED [ 57%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_multiple_trades_all_in_database PASSED [ 57%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_trade_has_utc_timestamp PASSED [ 57%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_trade_fee_calculation_saved_correctly PASSED [ 57%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_database_write_failure_is_logged PASSED [ 57%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_symbol_normalization_in_database PASSED [ 58%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_successful_buy_and_sell_updates_database PASSED [ 58%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_buy_with_slash_format_normalizes PASSED [ 58%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_multiple_formats_same_position PASSED [ 58%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_kraken_format_normalizes PASSED [ 59%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_sell_with_different_format_reduces_position PASSED [ 59%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_trades_log_uses_canonical_format PASSED [ 59%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_case_insensitive_symbol_handling PASSED [ 59%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_multiple_symbols_normalized_separately PASSED [ 60%]
+tests/test_performance_tracker.py::test_empty_trades_returns_defaults PASSED [ 60%]
+tests/test_performance_tracker.py::test_corrupted_trades_file_returns_defaults PASSED [ 60%]
+tests/test_performance_tracker.py::test_zero_amount_trade_ignored PASSED [ 60%]
+tests/test_performance_tracker.py::test_invalid_trade_missing_fields PASSED [ 60%]
+tests/test_performance_tracker.py::test_basic_buy_sell_win PASSED        [ 61%]
+tests/test_performance_tracker.py::test_basic_buy_sell_loss PASSED       [ 61%]
+tests/test_performance_tracker.py::test_partial_sell PASSED              [ 61%]
+tests/test_performance_tracker.py::test_multiple_buys_then_sell PASSED   [ 61%]
+tests/test_performance_tracker.py::test_multiple_symbols PASSED          [ 62%]
+tests/test_performance_tracker.py::test_sell_before_buy_raises_error PASSED [ 62%]
+tests/test_performance_tracker.py::test_oversell_raises_error PASSED     [ 62%]
+tests/test_performance_tracker.py::test_persistence_round_trip PASSED    [ 62%]
+tests/test_performance_tracker.py::test_replay_vs_batch_consistency PASSED [ 63%]
+tests/test_performance_tracker.py::test_output_contract_with_no_trades PASSED [ 63%]
+tests/test_performance_tracker.py::test_output_contract_with_real_trades PASSED [ 63%]
+tests/test_risk_manager.py::test_initialization PASSED                   [ 63%]
+tests/test_risk_manager.py::test_position_size_calculation PASSED        [ 63%]
+tests/test_risk_manager.py::test_daily_loss_limit_shutdown PASSED        [ 64%]
+tests/test_risk_manager.py::TestPositionSizingWithBalance::test_position_size_uses_provided_balance PASSED [ 64%]
+tests/test_risk_manager.py::TestPositionSizingWithBalance::test_position_size_falls_back_to_internal_capital PASSED [ 64%]
+tests/test_risk_manager.py::TestPositionSizingWithBalance::test_position_size_with_higher_exchange_balance PASSED [ 64%]
+tests/test_sentiment_signal.py::TestFallbackParse::test_positive_keywords PASSED [ 65%]
+tests/test_sentiment_signal.py::TestFallbackParse::test_negative_keywords PASSED [ 65%]
+tests/test_sentiment_signal.py::TestFallbackParse::test_neutral_headline PASSED [ 65%]
+tests/test_sentiment_signal.py::TestFallbackParse::test_case_insensitive PASSED [ 65%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_gpt_success PASSED [ 65%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_fallback_triggers_first PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_gpt_error PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_invalid_json PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_invalid_signal_value PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_empty_list PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_fallback_sell_priority PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_fallback_buy_over_hold PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_gpt_consolidation PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_gpt_error PASSED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_initialization PASSED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_no_headlines PASSED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_single_headline_buy PASSED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_single_headline_sell PASSED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_multiple_headlines PASSED [ 69%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_confidence_scoring_strong_positive PASSED [ 69%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_confidence_scoring_weak_positive PASSED [ 69%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_confidence_scoring_hold PASSED [ 69%]
+tests/test_signal_performance.py::test_correlate_signals_to_trades_match PASSED [ 70%]
+tests/test_signal_performance.py::test_correlate_signals_to_trades_no_match PASSED [ 70%]
+tests/test_signal_performance.py::test_correlate_signals_excludes_hold PASSED [ 70%]
+tests/test_signal_performance.py::test_correlate_signals_time_window PASSED [ 70%]
+tests/test_signal_performance.py::test_analyze_strategy_performance PASSED [ 71%]
+tests/test_signal_performance.py::test_analyze_strategy_performance_partial_execution PASSED [ 71%]
+tests/test_signal_performance.py::test_get_signal_performance_analysis PASSED [ 71%]
+tests/test_signal_performance.py::test_timezone_handling PASSED          [ 71%]
+tests/test_signal_performance.py::test_edge_case_empty_inputs PASSED     [ 71%]
+tests/test_signal_performance.py::test_edge_case_missing_fields PASSED   [ 72%]
+tests/test_signal_to_trade_linking.py::TestSignalToTradeLinking::test_strategy_manager_returns_signal_id PASSED [ 72%]
+tests/test_signal_to_trade_linking.py::TestSignalToTradeLinking::test_trade_links_to_signal PASSED [ 72%]
+tests/test_signal_to_trade_linking.py::TestSignalToTradeLinking::test_dashboard_shows_executed_indicator PASSED [ 72%]
+tests/test_strategy_manager.py::TestStrategyManager::test_initialization PASSED [ 73%]
+tests/test_strategy_manager.py::TestStrategyManager::test_add_strategy PASSED [ 73%]
+tests/test_strategy_manager.py::TestStrategyManager::test_remove_strategy PASSED [ 73%]
+tests/test_strategy_manager.py::TestStrategyManager::test_enable_disable_strategy PASSED [ 73%]
+tests/test_strategy_manager.py::TestStrategyManager::test_weighted_vote_all_buy PASSED [ 73%]
+tests/test_strategy_manager.py::TestStrategyManager::test_weighted_vote_mixed PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_confidence_threshold PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_highest_confidence_aggregation PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_unanimous_aggregation_agree PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_unanimous_aggregation_disagree PASSED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManager::test_get_strategy_summary PASSED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManager::test_update_config PASSED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManagerSymbolNormalization::test_signals_logged_with_normalized_symbols FAILED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManagerSymbolNormalization::test_mixed_symbol_formats_all_normalized FAILED [ 76%]
+tests/test_strategy_manager_logging.py::TestSignalLogging::test_signal_file_created_after_decision FAILED [ 76%]
+tests/test_strategy_manager_logging.py::TestSignalLogging::test_logs_all_strategy_details FAILED [ 76%]
+tests/test_strategy_manager_logging.py::TestSignalLogging::test_logs_correct_data_structure FAILED [ 76%]
+tests/test_strategy_manager_logging.py::TestSignalLogging::test_multiple_signals_appended FAILED [ 76%]
+tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_signals_unchanged_with_logging PASSED [ 77%]
+tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_logging_failure_does_not_crash PASSED [ 77%]
+tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_no_price_does_not_log PASSED [ 77%]
+tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_existing_tests_still_pass PASSED [ 77%]
+tests/test_strategy_manager_logging.py::TestLoggingContent::test_logs_actual_strategy_outputs FAILED [ 78%]
+tests/test_strategy_manager_logging.py::TestLoggingContent::test_logs_aggregation_method FAILED [ 78%]
+tests/test_strategy_signal_logger.py::TestInitialization::test_creates_data_directory PASSED [ 78%]
+tests/test_strategy_signal_logger.py::TestInitialization::test_uses_existing_directory PASSED [ 78%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_logs_complete_decision FAILED [ 78%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_includes_timestamp FAILED [ 79%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_includes_optional_metadata FAILED [ 79%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_appends_multiple_records FAILED [ 79%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_returns_empty_for_no_data PASSED [ 79%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_returns_recent_signals PASSED [ 80%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_respects_limit PASSED [ 80%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_filters_by_symbol PASSED [ 80%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_handles_corrupted_file PASSED [ 80%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_empty_performance_for_no_data PASSED [ 81%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_calculates_signal_distribution PASSED [ 81%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_calculates_average_confidence PASSED [ 81%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_calculates_agreement_rate PASSED [ 81%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_filters_by_lookback_period PASSED [ 81%]
+tests/test_strategy_signal_logger.py::TestAllStrategiesPerformance::test_returns_all_strategies PASSED [ 82%]
+tests/test_strategy_signal_logger.py::TestAllStrategiesPerformance::test_returns_empty_for_no_data PASSED [ 82%]
+tests/test_strategy_signal_logger.py::TestSignalCorrelation::test_perfect_agreement PASSED [ 82%]
+tests/test_strategy_signal_logger.py::TestSignalCorrelation::test_no_agreement PASSED [ 82%]
+tests/test_strategy_signal_logger.py::TestSignalCorrelation::test_self_correlation_is_one PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestSignalCorrelation::test_returns_empty_for_no_data PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestClearOldSignals::test_returns_zero_for_no_file PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestClearOldSignals::test_preserves_recent_signals PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestThreadSafety::test_concurrent_writes FAILED [ 84%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_bitcoin_variations PASSED [ 84%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_ethereum_variations PASSED [ 84%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_case_insensitive PASSED [ 84%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_whitespace_handling PASSED [ 84%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_unknown_symbol_raises_error PASSED [ 85%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_empty_symbol_raises_error PASSED [ 85%]
+tests/test_symbol_normalizer.py::TestDisplayFormat::test_btc_display PASSED [ 85%]
+tests/test_symbol_normalizer.py::TestDisplayFormat::test_unknown_symbol_returns_unchanged PASSED [ 85%]
+tests/test_symbol_normalizer.py::TestKrakenFormat::test_btc_kraken_format PASSED [ 86%]
+tests/test_symbol_normalizer.py::TestKrakenFormat::test_newer_coins_no_x_prefix PASSED [ 86%]
+tests/test_symbol_normalizer.py::TestExtractBaseSymbol::test_extract_btc PASSED [ 86%]
+tests/test_symbol_normalizer.py::TestExtractBaseSymbol::test_extract_eth PASSED [ 86%]
+tests/test_symbol_normalizer.py::TestIsValidSymbol::test_valid_symbols PASSED [ 86%]
+tests/test_symbol_normalizer.py::TestIsValidSymbol::test_invalid_symbols PASSED [ 87%]
+tests/test_symbol_normalizer.py::TestGetAllCanonicalSymbols::test_returns_list PASSED [ 87%]
+tests/test_symbol_normalizer.py::TestGetAllCanonicalSymbols::test_contains_expected_symbols PASSED [ 87%]
+tests/test_symbol_scanner.py::TestGetTopSymbols::test_basic_filtering_and_sorting PASSED [ 87%]
+tests/test_symbol_scanner.py::TestGetTopSymbols::test_limit_enforcement PASSED [ 88%]
+tests/test_symbol_scanner.py::TestGetTopSymbols::test_default_limit PASSED [ 88%]
+tests/test_symbol_scanner.py::TestGetTopSymbols::test_volume_sorting_descending PASSED [ 88%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_uses_default_priority_when_none_provided PASSED [ 88%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_uses_custom_priority_when_provided PASSED [ 89%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_empty_priority_list_uses_volume_sorting PASSED [ 89%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_skips_unknown_symbols_in_priority_list PASSED [ 89%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_respects_limit_parameter PASSED [ 89%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_default_priority_symbols_exist PASSED [ 89%]
+tests/test_symbol_scanner_normalization.py::TestSymbolScannerNormalization::test_kraken_xbtcusd_normalized_to_btcusd PASSED [ 90%]
+tests/test_symbol_scanner_normalization.py::TestSymbolScannerNormalization::test_mixed_kraken_formats_all_normalized PASSED [ 90%]
+tests/test_symbol_scanner_normalization.py::TestSymbolScannerNormalization::test_symbols_still_sorted_by_volume PASSED [ 90%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_initialization PASSED [ 90%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_no_price_data PASSED [ 91%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_insufficient_history PASSED [ 91%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_bullish_sma_signal PASSED [ 91%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_bearish_sma_signal PASSED [ 91%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_rsi_oversold PASSED [ 92%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_rsi_overbought PASSED [ 92%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_momentum_bullish PASSED [ 92%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_momentum_bearish PASSED [ 92%]
+tests/test_trade_signal_integrity.py::TestTradeSignalHoldingIntegrity::test_buy_trade_creates_linked_records PASSED [ 92%]
+tests/test_trade_signal_integrity.py::TestTradeSignalHoldingIntegrity::test_sell_trade_maintains_links PASSED [ 93%]
+tests/test_trade_signal_integrity.py::TestTradeSignalHoldingIntegrity::test_hold_signal_no_trade_created PASSED [ 93%]
+tests/test_ui_data_validation.py::TestPortfolioData::test_portfolio_balance_exists PASSED [ 93%]
+tests/test_ui_data_validation.py::TestHoldingsData::test_holdings_count PASSED [ 93%]
+tests/test_ui_data_validation.py::TestHoldingsData::test_holdings_market_value PASSED [ 94%]
+tests/test_ui_data_validation.py::TestHoldingsData::test_holdings_unrealized_pnl PASSED [ 94%]
+tests/test_ui_data_validation.py::TestHoldingsData::test_position_details_table_complete PASSED [ 94%]
+tests/test_ui_data_validation.py::TestSystemStatus::test_system_status_data_exists PASSED [ 94%]
+tests/test_ui_data_validation.py::TestRecentSignals::test_recent_signals_endpoint FAILED [ 94%]
+tests/test_ui_data_validation.py::TestRecentSignals::test_signal_has_all_columns FAILED [ 95%]
+tests/test_ui_data_validation.py::TestRecentSignals::test_signal_executed_status FAILED [ 95%]
+tests/test_ui_data_validation.py::TestRecentTrades::test_recent_trades_endpoint PASSED [ 95%]
+tests/test_ui_data_validation.py::TestRecentTrades::test_trade_has_all_columns PASSED [ 95%]
+tests/test_ui_data_validation.py::TestRecentTrades::test_trade_has_signal_link PASSED [ 96%]
+tests/test_ui_data_validation.py::TestTradeHoldingIntegrity::test_buy_trade_creates_holding PASSED [ 96%]
+tests/test_ui_data_validation.py::TestTradeHoldingIntegrity::test_holding_has_entry_trade_link PASSED [ 96%]
+tests/test_ui_data_validation.py::TestHealthPage::test_health_endpoint PASSED [ 96%]
+tests/test_ui_data_validation.py::TestHealthPage::test_health_detailed_endpoint PASSED [ 97%]
+tests/test_ui_data_validation.py::TestFeedsPage::test_feeds_endpoint PASSED [ 97%]
+tests/test_ui_data_validation.py::TestFeedsPage::test_feed_has_all_columns PASSED [ 97%]
+tests/test_ui_data_validation.py::TestFeedsPage::test_feed_error_status_correct PASSED [ 97%]
+tests/test_ui_data_validation.py::TestDataConsistency::test_trade_count_matches PASSED [ 97%]
+tests/test_ui_data_validation.py::TestDataConsistency::test_holdings_count PASSED [ 98%]
+tests/test_ui_data_validation.py::TestUIDataCompleteness::test_all_ui_data_present FAILED [ 98%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_initialization PASSED [ 98%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_no_volume_data PASSED [ 98%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_volume_spike_detection PASSED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_bullish_divergence PASSED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_bearish_divergence PASSED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_obv_rising PASSED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_obv_falling PASSED [100%]
+
+=================================== FAILURES ===================================
+__________ TestNOJsonFiles.test_config_json_is_only_allowed_json_file __________
+tests/test_no_json_files.py:99: in test_config_json_is_only_allowed_json_file
+    pytest.fail(
+E   Failed: Found operational JSON files that should be in database: [PosixPath('src/app/logs/errors.json')]
+_ TestStrategyManagerSymbolNormalization.test_signals_logged_with_normalized_symbols _
+tests/test_strategy_manager.py:211: in test_signals_logged_with_normalized_symbols
+    assert last_signal["symbol"] == "BTCUSD"
+E   AssertionError: assert 'ETHUSD' == 'BTCUSD'
+E     
+E     - BTCUSD
+E     + ETHUSD
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.84
+⚠️ CALC HOLD: 0.84 / 2.8 = 0.3
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to tests/test_logs/strategy_signals.jsonl
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-40a1c2d3-9a3b-46c8-ae7b-63fe022b6205', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test headline" and the crypto symbol BTCUSD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e33a49e0>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x7669e33a8050> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e33a4800>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:49:41 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'851'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1279'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9998'), (b'x-ratelimit-remaining-tokens', b'199927'), (b'x-ratelimit-reset-requests', b'14.539s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_9b3e5ae215b94ba0a06ad80532aa1504'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=XgvyAl2URQd8zELoPNLz1waimTAWRZyh.yxHXbBbp04-1761774581-1.0.1.1-jgmWqy94DPG4ZsONT_nf.6uAVpha5K977mSsyxpeyNMf_PheWpjFvYIgDgAo70VzsNQI_93ZH49E3lAjqMGLWLhKEnKmiZ3u.Yoa.jahMaA; path=/; expires=Wed, 29-Oct-25 22:19:41 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=UIUkWRtdS6twDaxkq9Rx8f3bNgnOJJj3W8B4XkRqvf8-1761774581882-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e25228252c96-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Wed, 29 Oct 2025 21:49:41 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '851'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '1279'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9998'), ('x-ratelimit-remaining-tokens', '199927'), ('x-ratelimit-reset-requests', '14.539s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_9b3e5ae215b94ba0a06ad80532aa1504'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=XgvyAl2URQd8zELoPNLz1waimTAWRZyh.yxHXbBbp04-1761774581-1.0.1.1-jgmWqy94DPG4ZsONT_nf.6uAVpha5K977mSsyxpeyNMf_PheWpjFvYIgDgAo70VzsNQI_93ZH49E3lAjqMGLWLhKEnKmiZ3u.Yoa.jahMaA; path=/; expires=Wed, 29-Oct-25 22:19:41 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=UIUkWRtdS6twDaxkq9Rx8f3bNgnOJJj3W8B4XkRqvf8-1761774581882-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9965e25228252c96-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_9b3e5ae215b94ba0a06ad80532aa1504
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: HOLD (conf: 0.30) - Sentiment: Market conditions are uncertain, and there is no significant news to warrant a buy or sell.
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: HOLD (conf: 0.30) - Insufficient price history for technical analysis
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: HOLD (conf: 0.30) - Insufficient volume history for analysis
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.84
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: HOLD (conf: 0.30)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.30 below threshold 0.5, converting to HOLD
+_ TestStrategyManagerSymbolNormalization.test_mixed_symbol_formats_all_normalized _
+tests/test_strategy_manager.py:235: in test_mixed_symbol_formats_all_normalized
+    assert last_signal["symbol"] == expected_normalized, \
+E   AssertionError: Input BTC/USD should normalize to BTCUSD
+E   assert 'ETHUSD' == 'BTCUSD'
+E     
+E     - BTCUSD
+E     + ETHUSD
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.84
+⚠️ CALC HOLD: 0.84 / 2.8 = 0.3
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to tests/test_logs/strategy_signals.jsonl
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-3ba48e5f-4060-4c6f-aee9-1f9391ff3f47', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test headline" and the crypto symbol BTCUSD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e33a4f20>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x7669e33a90d0> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e33a46e0>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:49:43 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'902'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1232'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9997'), (b'x-ratelimit-remaining-tokens', b'199927'), (b'x-ratelimit-reset-requests', b'21.146s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_b52b54a6fba542a4b7d415857afbb57f'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=pHQyu53daZg.uLShMr.YK.idlNAkjiP8EsfwjV2cijI-1761774583-1.0.1.1-O28Nzxeazq_2KJL75AkDdNvUSEUu73fxVQYWlu9aNEIEhIJ3RhPpzSwl0st3eOm_At_EpmCgvt9Sgd.pnJeUgFDl53sHDP6KOhPs3QR9Dqo; path=/; expires=Wed, 29-Oct-25 22:19:43 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=CvvCzUeqnmLWDnGMTy12z.nP_Whj.7xA77ijsQN3qC4-1761774583953-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e261dd356b89-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Wed, 29 Oct 2025 21:49:43 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '902'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '1232'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9997'), ('x-ratelimit-remaining-tokens', '199927'), ('x-ratelimit-reset-requests', '21.146s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_b52b54a6fba542a4b7d415857afbb57f'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=pHQyu53daZg.uLShMr.YK.idlNAkjiP8EsfwjV2cijI-1761774583-1.0.1.1-O28Nzxeazq_2KJL75AkDdNvUSEUu73fxVQYWlu9aNEIEhIJ3RhPpzSwl0st3eOm_At_EpmCgvt9Sgd.pnJeUgFDl53sHDP6KOhPs3QR9Dqo; path=/; expires=Wed, 29-Oct-25 22:19:43 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=CvvCzUeqnmLWDnGMTy12z.nP_Whj.7xA77ijsQN3qC4-1761774583953-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9965e261dd356b89-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_b52b54a6fba542a4b7d415857afbb57f
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: HOLD (conf: 0.30) - Sentiment: Market conditions are uncertain, and there is no strong indication for a significant price movement.
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: HOLD (conf: 0.30) - Insufficient price history for technical analysis
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: HOLD (conf: 0.30) - Insufficient volume history for analysis
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=0, hold_weight=2.8, raw_score=0.84
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: HOLD (conf: 0.30)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.30 below threshold 0.5, converting to HOLD
+__________ TestSignalLogging.test_signal_file_created_after_decision ___________
+tests/test_strategy_manager_logging.py:48: in test_signal_file_created_after_decision
+    assert signal_file.exists(), "Signal file should be created"
+E   AssertionError: Signal file should be created
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/tmp/tmpcphyu4ld/strategy_signals.jsonl').exists
+------------------------------ Captured log setup ------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.76
+✅ CALC BUY/SELL: 0.76 / 2.8 = 0.27142857142857146
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: BUY (conf: 0.60) - Sentiment: Keyword match (positive): Bitcoin adoption growing
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.76
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: BUY (conf: 0.27)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.27 below threshold 0.5, converting to HOLD
+_______________ TestSignalLogging.test_logs_all_strategy_details _______________
+tests/test_strategy_manager_logging.py:68: in test_logs_all_strategy_details
+    with open(signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpoh58fylf/strategy_signals.jsonl'
+------------------------------ Captured log setup ------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.9600000000000001
+✅ CALC BUY/SELL: 0.9600000000000001 / 2.8 = 0.3428571428571429
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: BUY (conf: 0.80) - Sentiment: Keyword match (positive): Bitcoin bullish
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.9600000000000001
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: BUY (conf: 0.34)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.34 below threshold 0.5, converting to HOLD
+______________ TestSignalLogging.test_logs_correct_data_structure ______________
+tests/test_strategy_manager_logging.py:95: in test_logs_correct_data_structure
+    with open(signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpwkf9tri5/strategy_signals.jsonl'
+------------------------------ Captured log setup ------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+⚠️ CALC HOLD: 0.54 / 2.8 = 0.1928571428571429
+------------------------------ Captured log call -------------------------------
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-a9fc364f-0f4b-4f84-8342-7d2f013897da', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test headline" and the crypto symbol BTCUSD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e31ccda0>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x7669e33aacd0> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e31ccc50>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:49:45 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'910'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'1161'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9996'), (b'x-ratelimit-remaining-tokens', b'199927'), (b'x-ratelimit-reset-requests', b'27.876s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_d74c39242249481e8e9b31ebd1ccf68e'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=mHmtadZCmh47LVTp2kYiWzLkmqZozSwwDhnjzRnAdBo-1761774585-1.0.1.1-jpgljwl0g915wSH2PAra0KrwzgHFrUblJUGX60UpzPBbdVUJKTGTWt1K23uxY9Gw9BJ64zXluKjem14PvDP59jhNkMBblz7KspC_07CIHns; path=/; expires=Wed, 29-Oct-25 22:19:45 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=ZSvPW2A6kffFag.wwOuRqeiYY9yiVFtOdO7u2IQMGWA-1761774585861-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e26eea98476c-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Wed, 29 Oct 2025 21:49:45 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '910'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '1161'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9996'), ('x-ratelimit-remaining-tokens', '199927'), ('x-ratelimit-reset-requests', '27.876s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_d74c39242249481e8e9b31ebd1ccf68e'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=mHmtadZCmh47LVTp2kYiWzLkmqZozSwwDhnjzRnAdBo-1761774585-1.0.1.1-jpgljwl0g915wSH2PAra0KrwzgHFrUblJUGX60UpzPBbdVUJKTGTWt1K23uxY9Gw9BJ64zXluKjem14PvDP59jhNkMBblz7KspC_07CIHns; path=/; expires=Wed, 29-Oct-25 22:19:45 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=ZSvPW2A6kffFag.wwOuRqeiYY9yiVFtOdO7u2IQMGWA-1761774585861-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9965e26eea98476c-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_d74c39242249481e8e9b31ebd1ccf68e
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: HOLD (conf: 0.30) - Sentiment: Market conditions are uncertain, and there is no clear indication of a strong upward or downward trend.
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+_______________ TestSignalLogging.test_multiple_signals_appended _______________
+tests/test_strategy_manager_logging.py:127: in test_multiple_signals_appended
+    with open(signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpf6e1wqra/strategy_signals.jsonl'
+------------------------------ Captured log setup ------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+⚠️ CALC HOLD: 0.54 / 2.8 = 0.1928571428571429
+🔍 PRE-CALC: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+⚠️ CALC HOLD: 0.54 / 2.8 = 0.1928571428571429
+🔍 PRE-CALC: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+⚠️ CALC HOLD: 0.54 / 2.8 = 0.1928571428571429
+------------------------------ Captured log call -------------------------------
+WARNING  root:strategy_manager.py:119 [StrategyManager] Unknown symbol format: SYMBOL0/USD, using as-is
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-f336f775-292c-4531-bf91-abc937a35d55', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol SYMBOL0/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e31cc680>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x7669e33aa6d0> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e31cc4d0>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:49:47 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'692'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'851'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9995'), (b'x-ratelimit-remaining-tokens', b'199928'), (b'x-ratelimit-reset-requests', b'34.851s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_689f9a2654da45c3a3f94515e83d390a'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=0D6b2uM8T1VqCY8x.puR_zi9hUmHEAbQ_AIWZpJQwyw-1761774587-1.0.1.1-aKM4vx0QGF8hLmR401JdDdhv_CzrTjq_2lkl_6KgEpbFlyIaeLs9KxnsoK6ciPxUEa6pIkDMQwHcOQZSjoos3iBE5P.EQkOW.eJx11rJY60; path=/; expires=Wed, 29-Oct-25 22:19:47 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=djFkMLvyf5EeVxfoJjN3aK1Py9aAYpJXOMFMdiLH0vU-1761774587302-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e27aeea469df-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Wed, 29 Oct 2025 21:49:47 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '692'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '851'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9995'), ('x-ratelimit-remaining-tokens', '199928'), ('x-ratelimit-reset-requests', '34.851s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_689f9a2654da45c3a3f94515e83d390a'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=0D6b2uM8T1VqCY8x.puR_zi9hUmHEAbQ_AIWZpJQwyw-1761774587-1.0.1.1-aKM4vx0QGF8hLmR401JdDdhv_CzrTjq_2lkl_6KgEpbFlyIaeLs9KxnsoK6ciPxUEa6pIkDMQwHcOQZSjoos3iBE5P.EQkOW.eJx11rJY60; path=/; expires=Wed, 29-Oct-25 22:19:47 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=djFkMLvyf5EeVxfoJjN3aK1Py9aAYpJXOMFMdiLH0vU-1761774587302-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9965e27aeea469df-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_689f9a2654da45c3a3f94515e83d390a
+INFO     root:strategy_manager.py:141 [sentiment] SYMBOL0/USD: HOLD (conf: 0.30) - Sentiment: Insufficient information to determine a clear trend or market sentiment.
+INFO     root:strategy_manager.py:141 [technical] SYMBOL0/USD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:141 [volume] SYMBOL0/USD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for SYMBOL0/USD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+WARNING  root:strategy_manager.py:119 [StrategyManager] Unknown symbol format: SYMBOL1/USD, using as-is
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-2b899830-1a9f-4a83-a603-fff9cfe3c672', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol SYMBOL1/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:49:50 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'1984'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'2449'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9995'), (b'x-ratelimit-remaining-tokens', b'199928'), (b'x-ratelimit-reset-requests', b'41.643s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_b422d4c5e17f4c2f9375cc39629a4fcd'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e2830c1669df-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers({'date': 'Wed, 29 Oct 2025 21:49:50 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'user-6mwxkngxge9likbrzlxbfa92', 'openai-processing-ms': '1984', 'openai-project': 'proj_3jfjrR4jauJSvtuUZKgvj2Vp', 'openai-version': '2020-10-01', 'x-envoy-upstream-service-time': '2449', 'x-ratelimit-limit-requests': '10000', 'x-ratelimit-limit-tokens': '200000', 'x-ratelimit-remaining-requests': '9995', 'x-ratelimit-remaining-tokens': '199928', 'x-ratelimit-reset-requests': '41.643s', 'x-ratelimit-reset-tokens': '21ms', 'x-request-id': 'req_b422d4c5e17f4c2f9375cc39629a4fcd', 'x-openai-proxy-wasm': 'v0.1', 'cf-cache-status': 'DYNAMIC', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '9965e2830c1669df-DFW', 'content-encoding': 'gzip', 'alt-svc': 'h3=":443"; ma=86400'})
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_b422d4c5e17f4c2f9375cc39629a4fcd
+INFO     root:strategy_manager.py:141 [sentiment] SYMBOL1/USD: HOLD (conf: 0.30) - Sentiment: Lack of clear market direction and uncertainty in recent trends.
+INFO     root:strategy_manager.py:141 [technical] SYMBOL1/USD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:141 [volume] SYMBOL1/USD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for SYMBOL1/USD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+WARNING  root:strategy_manager.py:119 [StrategyManager] Unknown symbol format: SYMBOL2/USD, using as-is
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-0b8ce8e3-3667-415a-99a1-093c0a2a7e25', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol SYMBOL2/USD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:49:51 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'681'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'704'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9994'), (b'x-ratelimit-remaining-tokens', b'199928'), (b'x-ratelimit-reset-requests', b'48.041s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_0216ed19c10b48088289119e182f22b9'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e297884569df-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers({'date': 'Wed, 29 Oct 2025 21:49:51 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'user-6mwxkngxge9likbrzlxbfa92', 'openai-processing-ms': '681', 'openai-project': 'proj_3jfjrR4jauJSvtuUZKgvj2Vp', 'openai-version': '2020-10-01', 'x-envoy-upstream-service-time': '704', 'x-ratelimit-limit-requests': '10000', 'x-ratelimit-limit-tokens': '200000', 'x-ratelimit-remaining-requests': '9994', 'x-ratelimit-remaining-tokens': '199928', 'x-ratelimit-reset-requests': '48.041s', 'x-ratelimit-reset-tokens': '21ms', 'x-request-id': 'req_0216ed19c10b48088289119e182f22b9', 'x-openai-proxy-wasm': 'v0.1', 'cf-cache-status': 'DYNAMIC', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '9965e297884569df-DFW', 'content-encoding': 'gzip', 'alt-svc': 'h3=":443"; ma=86400'})
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_0216ed19c10b48088289119e182f22b9
+INFO     root:strategy_manager.py:141 [sentiment] SYMBOL2/USD: HOLD (conf: 0.30) - Sentiment: Insufficient information to determine a clear trend or sentiment.
+INFO     root:strategy_manager.py:141 [technical] SYMBOL2/USD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:141 [volume] SYMBOL2/USD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for SYMBOL2/USD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+_____________ TestLoggingContent.test_logs_actual_strategy_outputs _____________
+tests/test_strategy_manager_logging.py:235: in test_logs_actual_strategy_outputs
+    with open(signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpivuybtdp/strategy_signals.jsonl'
+------------------------------ Captured log setup ------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.76
+✅ CALC BUY/SELL: 0.76 / 2.8 = 0.27142857142857146
+------------------------------ Captured log call -------------------------------
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-72ab632b-ed46-4b60-a85a-71b1ed47f5b1', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Bitcoin is rising" and the crypto symbol BTCUSD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e31d2300>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x7669e31dcb50> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e31d1fd0>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.connection:_trace.py:47 close.started
+DEBUG    httpcore.connection:_trace.py:47 close.complete
+DEBUG    httpcore.connection:_trace.py:47 close.started
+DEBUG    httpcore.connection:_trace.py:47 close.complete
+DEBUG    httpcore.connection:_trace.py:47 close.started
+DEBUG    httpcore.connection:_trace.py:47 close.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:49:58 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'641'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'658'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9996'), (b'x-ratelimit-remaining-tokens', b'199926'), (b'x-ratelimit-reset-requests', b'32.736s'), (b'x-ratelimit-reset-tokens', b'22ms'), (b'x-request-id', b'req_246903efad6f4868842195d435280b66'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=NIt1QDinKrZ.kH6X5epGbc00Dn9jN626PvEsQd6RgLE-1761774598-1.0.1.1-CKPxICIbzjOmvr0mpVc9KsX2wltB4TNBkcE.RZsyPiDVxYOMfSIyj_Dr2GQ7Ys4um0TVwjHIh1lEcCt1IzACaPCYKfXFfSxmImHBsMm6WpM; path=/; expires=Wed, 29-Oct-25 22:19:58 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=Dp71srLwhEsratLMOdOSKyWAfIush2N1xLkYT1xMeiY-1761774598026-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e2c10915f075-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Wed, 29 Oct 2025 21:49:58 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '641'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '658'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9996'), ('x-ratelimit-remaining-tokens', '199926'), ('x-ratelimit-reset-requests', '32.736s'), ('x-ratelimit-reset-tokens', '22ms'), ('x-request-id', 'req_246903efad6f4868842195d435280b66'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=NIt1QDinKrZ.kH6X5epGbc00Dn9jN626PvEsQd6RgLE-1761774598-1.0.1.1-CKPxICIbzjOmvr0mpVc9KsX2wltB4TNBkcE.RZsyPiDVxYOMfSIyj_Dr2GQ7Ys4um0TVwjHIh1lEcCt1IzACaPCYKfXFfSxmImHBsMm6WpM; path=/; expires=Wed, 29-Oct-25 22:19:58 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=Dp71srLwhEsratLMOdOSKyWAfIush2N1xLkYT1xMeiY-1761774598026-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9965e2c10915f075-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_246903efad6f4868842195d435280b66
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: BUY (conf: 0.60) - Sentiment: The headline indicates a positive trend in Bitcoin's price, suggesting potential for profit.
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.76
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: BUY (conf: 0.27)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.27 below threshold 0.5, converting to HOLD
+_______________ TestLoggingContent.test_logs_aggregation_method ________________
+tests/test_strategy_manager_logging.py:263: in test_logs_aggregation_method
+    with open(signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpihhsvjoi/strategy_signals.jsonl'
+------------------------------ Captured log setup ------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+⚠️ CALC HOLD: 0.54 / 2.8 = 0.1928571428571429
+------------------------------ Captured log call -------------------------------
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-d0d64ba3-2b40-4760-9a3f-de891355985a', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Test" and the crypto symbol BTCUSD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e33a6d50>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x7669e339e850> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7669e33a5280>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:49:59 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'780'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'793'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9989'), (b'x-ratelimit-remaining-tokens', b'199930'), (b'x-ratelimit-reset-requests', b'1m32.308s'), (b'x-ratelimit-reset-tokens', b'21ms'), (b'x-request-id', b'req_98dc47b0ef524dafa141e7bde88a91db'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=zTbNVatj1Wy23ryPaft8k1euMvSup6l0y5JtBce5mjw-1761774599-1.0.1.1-tfMdQ8uSOoi6.C_ex.VxRAT5rcRbYVIF5ygFseq6EI_f2ES1ozHIkbt1m9W.bT_SvDSnpzY9zdgqEZ9YmkCW4jVTFc_LxtDsCQxMm74FQvM; path=/; expires=Wed, 29-Oct-25 22:19:59 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=yari9QqLch0B7duoOZqvRGRztBQdZJifATl0kSti_5U-1761774599052-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e2c6d9f123b8-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Wed, 29 Oct 2025 21:49:59 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '780'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '793'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9989'), ('x-ratelimit-remaining-tokens', '199930'), ('x-ratelimit-reset-requests', '1m32.308s'), ('x-ratelimit-reset-tokens', '21ms'), ('x-request-id', 'req_98dc47b0ef524dafa141e7bde88a91db'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=zTbNVatj1Wy23ryPaft8k1euMvSup6l0y5JtBce5mjw-1761774599-1.0.1.1-tfMdQ8uSOoi6.C_ex.VxRAT5rcRbYVIF5ygFseq6EI_f2ES1ozHIkbt1m9W.bT_SvDSnpzY9zdgqEZ9YmkCW4jVTFc_LxtDsCQxMm74FQvM; path=/; expires=Wed, 29-Oct-25 22:19:59 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=yari9QqLch0B7duoOZqvRGRztBQdZJifATl0kSti_5U-1761774599052-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9965e2c6d9f123b8-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_98dc47b0ef524dafa141e7bde88a91db
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: HOLD (conf: 0.30) - Sentiment: Market conditions are uncertain, and there is no clear indication of a strong upward or downward trend.
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: SELL (conf: 0.27) - Technical: SMA: HOLD, RSI: SELL, Momentum: HOLD
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: HOLD (conf: 0.30) - Volume: Normal volume | No clear volume-price pattern | OBV neutral
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=HOLD, actionable_weight=1.0, hold_weight=1.8, raw_score=0.54
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: HOLD (conf: 0.19)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.19 below threshold 0.5, converting to HOLD
+_________________ TestLogDecision.test_logs_complete_decision __________________
+tests/test_strategy_signal_logger.py:87: in test_logs_complete_decision
+    assert logger.signal_file.exists()
+E   AssertionError: assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/tmp/tmpqtp2pmmb/strategy_signals.jsonl').exists
+E    +      where PosixPath('/tmp/tmpqtp2pmmb/strategy_signals.jsonl') = <app.strategy_signal_logger.StrategySignalLogger object at 0x7669e33a7290>.signal_file
+___________________ TestLogDecision.test_includes_timestamp ____________________
+tests/test_strategy_signal_logger.py:117: in test_includes_timestamp
+    with open(logger.signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpqvzloao7/strategy_signals.jsonl'
+_______________ TestLogDecision.test_includes_optional_metadata ________________
+tests/test_strategy_signal_logger.py:141: in test_includes_optional_metadata
+    with open(logger.signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmp0nylq42z/strategy_signals.jsonl'
+________________ TestLogDecision.test_appends_multiple_records _________________
+tests/test_strategy_signal_logger.py:158: in test_appends_multiple_records
+    with open(logger.signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpikmgb105/strategy_signals.jsonl'
+___________________ TestThreadSafety.test_concurrent_writes ____________________
+tests/test_strategy_signal_logger.py:497: in test_concurrent_writes
+    with open(logger.signal_file, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpu1a4m6jz/strategy_signals.jsonl'
+________________ TestRecentSignals.test_recent_signals_endpoint ________________
+tests/test_ui_data_validation.py:138: in test_recent_signals_endpoint
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = <Response [404 Not Found]>.status_code
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/strategy/signals/latest "HTTP/1.1 404 Not Found"
+________________ TestRecentSignals.test_signal_has_all_columns _________________
+tests/test_ui_data_validation.py:148: in test_signal_has_all_columns
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = <Response [404 Not Found]>.status_code
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/strategy/signals/latest "HTTP/1.1 404 Not Found"
+________________ TestRecentSignals.test_signal_executed_status _________________
+tests/test_ui_data_validation.py:172: in test_signal_executed_status
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = <Response [404 Not Found]>.status_code
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/strategy/signals/latest "HTTP/1.1 404 Not Found"
+_______________ TestUIDataCompleteness.test_all_ui_data_present ________________
+tests/test_ui_data_validation.py:449: in test_all_ui_data_present
+    pytest.fail("UI data validation failed:\n" + "\n".join(errors))
+E   Failed: UI data validation failed:
+E   Signals data: assert 404 == 200
+E    +  where 404 = <Response [404 Not Found]>.status_code
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     root:dashboard.py:434 [Balance] Paper trading: $200.00 (P&L: $+0.00)
+DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): api.kraken.com:443
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "POST /0/private/Balance HTTP/1.1" 200 41
+INFO     root:kraken.py:38 [KrakenClient] Balance API response keys: ['ZUSD']
+INFO     root:kraken.py:39 [KrakenClient] Full balances: {'ZUSD': '200.0000'}
+INFO     root:dashboard.py:457 [Balance] Real Kraken balance: $200.00 (available for live trading)
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/balance "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/holdings "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/strategy/signals/latest "HTTP/1.1 404 Not Found"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:1215 [Dashboard] Loaded 0 trades from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/trades/all "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-9b8952c3-bf15-4e11-b666-d9c0a268f8fe', 'json_data': {'messages': [{'role': 'user', 'content': 'test'}], 'model': 'gpt-3.5-turbo', 'max_tokens': 5}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 29 Oct 2025 21:50:04 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'248'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'537'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9997'), (b'x-ratelimit-remaining-tokens', b'199997'), (b'x-ratelimit-reset-requests', b'23.111s'), (b'x-ratelimit-reset-tokens', b'0s'), (b'x-request-id', b'req_ef9d8cb833dd4d85872ae99871a76e47'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9965e2e4390d4755-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers({'date': 'Wed, 29 Oct 2025 21:50:04 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'user-6mwxkngxge9likbrzlxbfa92', 'openai-processing-ms': '248', 'openai-project': 'proj_3jfjrR4jauJSvtuUZKgvj2Vp', 'openai-version': '2020-10-01', 'x-envoy-upstream-service-time': '537', 'x-ratelimit-limit-requests': '10000', 'x-ratelimit-limit-tokens': '200000', 'x-ratelimit-remaining-requests': '9997', 'x-ratelimit-remaining-tokens': '199997', 'x-ratelimit-reset-requests': '23.111s', 'x-ratelimit-reset-tokens': '0s', 'x-request-id': 'req_ef9d8cb833dd4d85872ae99871a76e47', 'x-openai-proxy-wasm': 'v0.1', 'cf-cache-status': 'DYNAMIC', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '9965e2e4390d4755-DFW', 'content-encoding': 'gzip', 'alt-svc': 'h3=":443"; ma=86400'})
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_ef9d8cb833dd4d85872ae99871a76e47
+DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): api.kraken.com:443
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://api.kraken.com:443 "GET /0/public/Ticker?pair=BTCUSD HTTP/1.1" 200 None
+INFO     root:dashboard.py:157 [Dashboard] Loaded 0 RSS feeds from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/health "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:157 [Dashboard] Loaded 0 RSS feeds from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/feeds "HTTP/1.1 200 OK"
+=========================== short test summary info ============================
+FAILED tests/test_no_json_files.py::TestNOJsonFiles::test_config_json_is_only_allowed_json_file - Failed: Found operational JSON files that should be in database: [PosixPath('src/app/logs/errors.json')]
+FAILED tests/test_strategy_manager.py::TestStrategyManagerSymbolNormalization::test_signals_logged_with_normalized_symbols - AssertionError: assert 'ETHUSD' == 'BTCUSD'
+  
+  - BTCUSD
+  + ETHUSD
+FAILED tests/test_strategy_manager.py::TestStrategyManagerSymbolNormalization::test_mixed_symbol_formats_all_normalized - AssertionError: Input BTC/USD should normalize to BTCUSD
+assert 'ETHUSD' == 'BTCUSD'
+  
+  - BTCUSD
+  + ETHUSD
+FAILED tests/test_strategy_manager_logging.py::TestSignalLogging::test_signal_file_created_after_decision - AssertionError: Signal file should be created
+assert False
+ +  where False = exists()
+ +    where exists = PosixPath('/tmp/tmpcphyu4ld/strategy_signals.jsonl').exists
+FAILED tests/test_strategy_manager_logging.py::TestSignalLogging::test_logs_all_strategy_details - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpoh58fylf/strategy_signals.jsonl'
+FAILED tests/test_strategy_manager_logging.py::TestSignalLogging::test_logs_correct_data_structure - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpwkf9tri5/strategy_signals.jsonl'
+FAILED tests/test_strategy_manager_logging.py::TestSignalLogging::test_multiple_signals_appended - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpf6e1wqra/strategy_signals.jsonl'
+FAILED tests/test_strategy_manager_logging.py::TestLoggingContent::test_logs_actual_strategy_outputs - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpivuybtdp/strategy_signals.jsonl'
+FAILED tests/test_strategy_manager_logging.py::TestLoggingContent::test_logs_aggregation_method - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpihhsvjoi/strategy_signals.jsonl'
+FAILED tests/test_strategy_signal_logger.py::TestLogDecision::test_logs_complete_decision - AssertionError: assert False
+ +  where False = exists()
+ +    where exists = PosixPath('/tmp/tmpqtp2pmmb/strategy_signals.jsonl').exists
+ +      where PosixPath('/tmp/tmpqtp2pmmb/strategy_signals.jsonl') = <app.strategy_signal_logger.StrategySignalLogger object at 0x7669e33a7290>.signal_file
+FAILED tests/test_strategy_signal_logger.py::TestLogDecision::test_includes_timestamp - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpqvzloao7/strategy_signals.jsonl'
+FAILED tests/test_strategy_signal_logger.py::TestLogDecision::test_includes_optional_metadata - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmp0nylq42z/strategy_signals.jsonl'
+FAILED tests/test_strategy_signal_logger.py::TestLogDecision::test_appends_multiple_records - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpikmgb105/strategy_signals.jsonl'
+FAILED tests/test_strategy_signal_logger.py::TestThreadSafety::test_concurrent_writes - FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpu1a4m6jz/strategy_signals.jsonl'
+FAILED tests/test_ui_data_validation.py::TestRecentSignals::test_recent_signals_endpoint - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/test_ui_data_validation.py::TestRecentSignals::test_signal_has_all_columns - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/test_ui_data_validation.py::TestRecentSignals::test_signal_executed_status - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/test_ui_data_validation.py::TestUIDataCompleteness::test_all_ui_data_present - Failed: UI data validation failed:
+Signals data: assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+================ 18 failed, 420 passed, 702 warnings in 34.39s =================

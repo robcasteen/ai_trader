@@ -1,0 +1,42 @@
+# Trading Strategy Configuration
+#
+# Configure which strategies are active, their weights, and parameters.
+# Weights determine how much each strategy influences the final trading decision.
+
+strategies:
+  - name: sentiment
+    enabled: true
+    weight: 1.0
+    description: Analyzes sentiment from news headlines using AI
+    params:
+      min_confidence: 0.5
+      # Add more sentiment-specific params here
+
+  - name: technical
+    enabled: true
+    weight: 1.0
+    description: Technical analysis using SMA, RSI, and momentum indicators
+    params:
+      sma_period: 20
+      rsi_period: 14
+      rsi_overbought: 70
+      rsi_oversold: 30
+      # Add more technical params here
+
+  - name: volume
+    enabled: true
+    weight: 0.8
+    description: Volume analysis and On-Balance Volume (OBV) indicators
+    params:
+      spike_threshold: 2.0
+      obv_sensitivity: 0.1
+      # Add more volume params here
+
+# Example: Add your own custom strategy
+# - name: my_custom_strategy
+#   enabled: false
+#   weight: 1.5
+#   description: My custom trading strategy
+#   params:
+#     param1: value1
+#     param2: value2

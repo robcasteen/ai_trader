@@ -33,7 +33,10 @@ class TestSignalLogging:
     """Test that signal logging works correctly."""
     
     def test_signal_file_created_after_decision(self, strategy_manager, temp_data_dir):
-        """Should create signal log file after first decision."""
+        """Should log signal to TEST database after first decision."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         context = {
             'price': 50000,
             'headlines': ['Bitcoin adoption growing'],
@@ -41,19 +44,21 @@ class TestSignalLogging:
             'volume': 1000,
             'volume_history': [1000] * 50
         }
-        
-        signal, confidence, reason = strategy_manager.get_signal("BTC/USD", context)
-        
-        signal_file = Path(temp_data_dir) / "strategy_signals.jsonl"
-        assert signal_file.exists(), "Signal file should be created"
-        
-        # Verify it has content
-        with open(signal_file, 'r') as f:
-            lines = f.readlines()
-        assert len(lines) > 0, "Signal file should have at least one record"
+
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
+
+        # Verify signal was logged to TEST database
+        assert signal_id is not None, "Signal ID should be returned"
+
+        with get_db() as db:
+            logged_signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert logged_signal is not None, "Signal should exist in TEST database"
     
     def test_logs_all_strategy_details(self, strategy_manager, temp_data_dir):
-        """Should log individual strategy signals."""
+        """Should log individual strategy signals to TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         context = {
             'price': 50000,
             'headlines': ['Bitcoin bullish'],
@@ -61,26 +66,30 @@ class TestSignalLogging:
             'volume': 1000,
             'volume_history': [1000] * 50
         }
-        
-        strategy_manager.get_signal("BTC/USD", context)
-        
-        signal_file = Path(temp_data_dir) / "strategy_signals.jsonl"
-        with open(signal_file, 'r') as f:
-            record = json.loads(f.readline())
-        
-        assert 'strategies' in record
-        # Check that at least sentiment strategy is logged
-        assert len(record['strategies']) > 0
-        
-        # Check structure of strategy data
-        for strategy_name, strategy_data in record['strategies'].items():
-            assert 'signal' in strategy_data
-            assert 'confidence' in strategy_data
-            assert 'reason' in strategy_data
-            assert 'weight' in strategy_data
+
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
+
+        # Query TEST database for logged signal
+        with get_db() as db:
+            logged_signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert logged_signal is not None, "Signal should exist in TEST database"
+
+            # Verify strategies were logged
+            assert logged_signal.strategies is not None, "Strategies should be logged"
+            assert len(logged_signal.strategies) > 0, "At least one strategy should be logged"
+
+            # Check structure of strategy data
+            for strategy_name, strategy_data in logged_signal.strategies.items():
+                assert 'signal' in strategy_data, f"{strategy_name} should have signal"
+                assert 'confidence' in strategy_data, f"{strategy_name} should have confidence"
+                assert 'reason' in strategy_data, f"{strategy_name} should have reason"
+                assert 'weight' in strategy_data, f"{strategy_name} should have weight"
     
     def test_logs_correct_data_structure(self, strategy_manager, temp_data_dir):
-        """Should log complete and correct data structure."""
+        """Should log complete and correct data structure to TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         context = {
             'price': 50000,
             'headlines': ['Test headline'],
@@ -88,29 +97,31 @@ class TestSignalLogging:
             'volume': 1000,
             'volume_history': [1000] * 50
         }
-        
-        strategy_manager.get_signal("BTC/USD", context)
-        
-        signal_file = Path(temp_data_dir) / "strategy_signals.jsonl"
-        with open(signal_file, 'r') as f:
-            record = json.loads(f.readline())
-        
-        # Verify top-level structure
-        assert 'timestamp' in record
-        assert 'symbol' in record
-        assert record["symbol"] == "BTCUSD"
-        assert 'price' in record
-        assert record['price'] == 50000
-        assert 'final_signal' in record
-        assert record['final_signal'] in ["BUY", "SELL", "HOLD"]
-        assert 'final_confidence' in record
-        assert 0 <= record['final_confidence'] <= 1
-        assert 'aggregation_method' in record
-        assert 'strategies' in record
-        assert 'metadata' in record
+
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
+
+        # Query TEST database and verify structure
+        with get_db() as db:
+            logged_signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert logged_signal is not None, "Signal should exist in TEST database"
+
+            # Verify top-level structure
+            assert logged_signal.timestamp is not None, "Should have timestamp"
+            assert logged_signal.symbol is not None, "Should have symbol"
+            assert logged_signal.symbol == "BTCUSD", "Symbol should be normalized to BTCUSD"
+            assert logged_signal.price is not None, "Should have price"
+            assert float(logged_signal.price) == 50000, "Price should match"
+            assert logged_signal.final_signal in ["BUY", "SELL", "HOLD"], "Final signal should be valid"
+            assert 0 <= float(logged_signal.final_confidence) <= 1, "Confidence should be 0-1"
+            assert logged_signal.aggregation_method is not None, "Should have aggregation method"
+            assert logged_signal.strategies is not None, "Should have strategies"
+            assert logged_signal.signal_metadata is not None, "Should have metadata"
     
     def test_multiple_signals_appended(self, strategy_manager, temp_data_dir):
-        """Should append multiple signals to file."""
+        """Should append multiple signals to TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         context = {
             'price': 50000,
             'headlines': ['Test'],
@@ -118,16 +129,17 @@ class TestSignalLogging:
             'volume': 1000,
             'volume_history': [1000] * 50
         }
-        
+
         # Generate 3 signals
+        signal_ids = []
         for i in range(3):
-            strategy_manager.get_signal(f"SYMBOL{i}/USD", context)
-        
-        signal_file = Path(temp_data_dir) / "strategy_signals.jsonl"
-        with open(signal_file, 'r') as f:
-            lines = f.readlines()
-        
-        assert len(lines) == 3
+            _, _, _, signal_id = strategy_manager.get_signal(f"SYMBOL{i}/USD", context)
+            signal_ids.append(signal_id)
+
+        # Verify all 3 signals exist in TEST database
+        with get_db() as db:
+            signals = db.query(Signal).filter(Signal.id.in_(signal_ids)).all()
+            assert len(signals) == 3, "All 3 signals should exist in TEST database"
 
 
 class TestBackwardCompatibility:
@@ -144,10 +156,10 @@ class TestBackwardCompatibility:
         }
         
         # Get signal with logging enabled
-        signal1, conf1, reason1 = strategy_manager.get_signal("BTC/USD", context)
-        
+        signal1, conf1, reason1, signal_id1 = strategy_manager.get_signal("BTC/USD", context)
+
         # Get signal again with same context
-        signal2, conf2, reason2 = strategy_manager.get_signal("BTC/USD", context)
+        signal2, conf2, reason2, signal_id2 = strategy_manager.get_signal("BTC/USD", context)
         
         # Should be identical
         assert signal1 == signal2
@@ -175,7 +187,7 @@ class TestBackwardCompatibility:
         
         # Should NOT raise exception
         with caplog.at_level(logging.WARNING):
-            signal, confidence, reason = strategy_manager.get_signal("BTC/USD", context)
+            signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
         
         # Should still return valid signal
         assert signal in ["BUY", "SELL", "HOLD"]
@@ -218,7 +230,10 @@ class TestLoggingContent:
     """Test the content being logged is accurate."""
     
     def test_logs_actual_strategy_outputs(self, strategy_manager, temp_data_dir):
-        """Logged strategy signals should match what strategies actually returned."""
+        """Logged strategy signals in TEST database should match what strategies actually returned."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         context = {
             'price': 50000,
             'headlines': ['Bitcoin is rising'],
@@ -226,29 +241,32 @@ class TestLoggingContent:
             'volume': 1000,
             'volume_history': [1000] * 50
         }
-        
+
         # Get the final signal
-        final_signal, final_conf, final_reason = strategy_manager.get_signal("BTC/USD", context)
-        
-        # Read what was logged
-        signal_file = Path(temp_data_dir) / "strategy_signals.jsonl"
-        with open(signal_file, 'r') as f:
-            record = json.loads(f.readline())
-        
-        # Verify logged signal is valid (might differ from final if confidence filter applied)
-        assert record['final_signal'] in ["BUY", "SELL", "HOLD"]
-        assert 0 <= record['final_confidence'] <= 1
-        
-        # If confidence was above threshold, signals should match
-        # If below threshold, final will be HOLD but logged might be BUY/SELL
-        if record['final_confidence'] >= strategy_manager.min_confidence:
-            assert record['final_signal'] == final_signal
-        
-        # Verify strategies were logged
-        assert len(record['strategies']) > 0
+        final_signal, final_conf, final_reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
+
+        # Query TEST database for logged signal
+        with get_db() as db:
+            logged_signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert logged_signal is not None, "Signal should exist in TEST database"
+
+            # Verify logged signal is valid (might differ from final if confidence filter applied)
+            assert logged_signal.final_signal in ["BUY", "SELL", "HOLD"], "Logged signal should be valid"
+            assert 0 <= float(logged_signal.final_confidence) <= 1, "Logged confidence should be 0-1"
+
+            # If confidence was above threshold, signals should match
+            # If below threshold, final will be HOLD but logged might be BUY/SELL
+            if float(logged_signal.final_confidence) >= strategy_manager.min_confidence:
+                assert logged_signal.final_signal == final_signal, "Signals should match when above threshold"
+
+            # Verify strategies were logged
+            assert len(logged_signal.strategies) > 0, "At least one strategy should be logged"
     
     def test_logs_aggregation_method(self, strategy_manager, temp_data_dir):
-        """Should log which aggregation method was used."""
+        """Should log which aggregation method was used to TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         context = {
             'price': 50000,
             'headlines': ['Test'],
@@ -256,11 +274,12 @@ class TestLoggingContent:
             'volume': 1000,
             'volume_history': [1000] * 50
         }
-        
-        strategy_manager.get_signal("BTC/USD", context)
-        
-        signal_file = Path(temp_data_dir) / "strategy_signals.jsonl"
-        with open(signal_file, 'r') as f:
-            record = json.loads(f.readline())
-        
-        assert record['aggregation_method'] == strategy_manager.aggregation_method
+
+        _, _, _, signal_id = strategy_manager.get_signal("BTC/USD", context)
+
+        # Query TEST database and verify aggregation method
+        with get_db() as db:
+            logged_signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert logged_signal is not None, "Signal should exist in TEST database"
+            assert logged_signal.aggregation_method == strategy_manager.aggregation_method, \
+                "Aggregation method should match strategy manager's method"

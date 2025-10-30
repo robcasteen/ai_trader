@@ -10,10 +10,17 @@ This module provides atomic logging of all strategy signals for:
 
 import json
 import os
+import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Any, Optional
 from pathlib import Path
+from decimal import Decimal
 import threading
+
+from app.database.connection import get_db
+from app.database.repositories import SignalRepository
+
+logger = logging.getLogger(__name__)
 
 
 class StrategySignalLogger:
@@ -27,11 +34,13 @@ class StrategySignalLogger:
     - Data integrity guarantees
     """
     
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = "data", use_database: bool = True, test_mode: bool = False):
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.signal_file = self.data_dir / "strategy_signals.jsonl"
         self._write_lock = threading.Lock()
+        self.use_database = use_database
+        self.test_mode = test_mode  # Track if this is test mode
     
     def log_decision(
         self,
@@ -42,10 +51,10 @@ class StrategySignalLogger:
         strategy_signals: Dict[str, Dict[str, Any]],
         aggregation_method: str,
         metadata: Optional[Dict[str, Any]] = None
-    ) -> None:
+    ) -> Optional[int]:
         """
         Log a complete trading decision with all strategy inputs.
-        
+
         Args:
             symbol: Trading pair (e.g., "BTC/USD")
             price: Current price
@@ -63,9 +72,12 @@ class StrategySignalLogger:
                 }
             aggregation_method: How signals were combined
             metadata: Optional additional context (market conditions, etc.)
+
+        Returns:
+            Database ID of the logged signal (or None if logging failed)
         """
         timestamp = datetime.now(timezone.utc).isoformat()
-        
+
         record = {
             "timestamp": timestamp,
             "symbol": symbol,
@@ -76,18 +88,41 @@ class StrategySignalLogger:
             "strategies": strategy_signals,
             "metadata": metadata or {}
         }
-        
-        self._append_record(record)
+
+        return self._append_record(record)
     
-    def _append_record(self, record: Dict[str, Any]) -> None:
-        """Atomically append a record to the JSONL file."""
+    def _append_record(self, record: Dict[str, Any]) -> Optional[int]:
+        """
+        Write signal record to database.
+
+        Returns:
+            Database ID of the created signal (or None if database write failed)
+        """
         with self._write_lock:
-            try:
-                with open(self.signal_file, 'a') as f:
-                    f.write(json.dumps(record) + '\n')
-            except Exception as e:
-                # Log error but don't crash the trading bot
-                print(f"⚠️  Failed to log strategy signal: {e}")
+            # Write to database (primary and only storage)
+            signal_id = None
+            if self.use_database:
+                try:
+                    with get_db() as db:
+                        repo = SignalRepository(db)
+                        signal_model = repo.create(
+                            timestamp=datetime.fromisoformat(record['timestamp'].replace('Z', '+00:00')).replace(tzinfo=None),
+                            symbol=record['symbol'],
+                            price=Decimal(str(record['price'])),
+                            final_signal=record['final_signal'],
+                            final_confidence=Decimal(str(record['final_confidence'])),
+                            aggregation_method=record['aggregation_method'],
+                            strategies=record['strategies'],
+                            test_mode=self.test_mode,
+                            bot_version="1.0.0",
+                            signal_metadata=record.get('metadata')
+                        )
+                        # Commit happens automatically in context manager
+                        signal_id = signal_model.id
+                except Exception as e:
+                    logger.error(f"Failed to write signal to database: {e}", exc_info=True)
+
+            return signal_id
     
     def get_recent_signals(
         self,
@@ -95,31 +130,45 @@ class StrategySignalLogger:
         symbol: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
-        Retrieve recent signals for analysis.
-        
+        Retrieve recent signals for analysis from database.
+
         Args:
             limit: Maximum number of records to return
             symbol: Optional filter by symbol
-            
+
         Returns:
             List of signal records, newest first
         """
-        if not self.signal_file.exists():
+        if not self.use_database:
             return []
-        
+
         try:
-            signals = []
-            with open(self.signal_file, 'r') as f:
-                for line in f:
-                    if line.strip():
-                        record = json.loads(line)
-                        if symbol is None or record.get('symbol') == symbol:
-                            signals.append(record)
-            
-            # Return most recent first
-            return signals[-limit:][::-1]
+            with get_db() as db:
+                repo = SignalRepository(db)
+                # Get recent signals from last 7 days
+                signals_models = repo.get_recent(hours=24*7, test_mode=self.test_mode, limit=limit)
+
+                # Filter by symbol if provided
+                if symbol:
+                    signals_models = [s for s in signals_models if s.symbol == symbol]
+
+                # Convert to dict format
+                signals = []
+                for s in signals_models:
+                    signals.append({
+                        'timestamp': s.timestamp.isoformat() + 'Z' if s.timestamp else None,
+                        'symbol': s.symbol,
+                        'price': float(s.price) if s.price else 0,
+                        'final_signal': s.final_signal,
+                        'final_confidence': float(s.final_confidence) if s.final_confidence else 0,
+                        'aggregation_method': s.aggregation_method,
+                        'strategies': s.strategies or {},
+                        'metadata': s.signal_metadata or {}
+                    })
+
+                return signals
         except Exception as e:
-            print(f"⚠️  Failed to read strategy signals: {e}")
+            logger.error(f"Failed to read strategy signals from database: {e}")
             return []
     
     def get_strategy_performance(
@@ -277,41 +326,34 @@ class StrategySignalLogger:
     
     def clear_old_signals(self, days_to_keep: int = 30) -> int:
         """
-        Archive or delete old signals to manage file size.
-        
+        Delete old signals from database.
+
         Args:
             days_to_keep: Keep signals from last N days
-            
+
         Returns:
             Number of records removed
         """
-        if not self.signal_file.exists():
+        if not self.use_database:
             return 0
-        
+
         cutoff = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
-        cutoff_iso = cutoff.isoformat()
-        
-        kept_records = []
-        removed_count = 0
-        
+
         with self._write_lock:
             try:
-                # Read all records
-                with open(self.signal_file, 'r') as f:
-                    for line in f:
-                        if line.strip():
-                            record = json.loads(line)
-                            if record['timestamp'] >= cutoff_iso:
-                                kept_records.append(record)
-                            else:
-                                removed_count += 1
-                
-                # Rewrite file with kept records only
-                with open(self.signal_file, 'w') as f:
-                    for record in kept_records:
-                        f.write(json.dumps(record) + '\n')
-                
-                return removed_count
+                with get_db() as db:
+                    repo = SignalRepository(db)
+                    # Get all old signals
+                    all_signals = repo.get_all(test_mode=self.test_mode)
+                    removed_count = 0
+
+                    for signal in all_signals:
+                        if signal.timestamp and signal.timestamp < cutoff.replace(tzinfo=None):
+                            db.delete(signal)
+                            removed_count += 1
+
+                    db.commit()
+                    return removed_count
             except Exception as e:
-                print(f"⚠️  Failed to clear old signals: {e}")
+                logger.error(f"Failed to clear old signals from database: {e}")
                 return 0

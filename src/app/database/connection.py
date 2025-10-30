@@ -18,12 +18,20 @@ from app.database.models import Base
 logger = logging.getLogger(__name__)
 
 # Database file location
-DB_DIR = Path(__file__).parent.parent.parent.parent / "data"
-DB_DIR.mkdir(parents=True, exist_ok=True)
-DB_PATH = DB_DIR / "trading_bot.db"
+import os
 
-# Connection string
-DATABASE_URL = f"sqlite:///{DB_PATH}"
+# Check for test database override first
+if os.getenv('PYTEST_CURRENT_TEST'):
+    # Running under pytest - use test database
+    import tempfile
+    TEST_DB_PATH = Path(tempfile.gettempdir()) / "test_trading_bot.db"
+    DATABASE_URL = f"sqlite:///{TEST_DB_PATH}"
+else:
+    # Production database
+    DB_DIR = Path(__file__).parent.parent.parent.parent / "data"
+    DB_DIR.mkdir(parents=True, exist_ok=True)
+    DB_PATH = DB_DIR / "trading_bot.db"
+    DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 
 # Enable WAL mode and foreign keys for SQLite
@@ -72,13 +80,15 @@ SessionLocal = sessionmaker(
 def init_db():
     """Initialize database - create all tables."""
     try:
-        logger.info(f"Initializing database at: {DB_PATH}")
+        # Use TEST_DB_PATH if in test mode, otherwise DB_PATH
+        db_path = TEST_DB_PATH if os.getenv('PYTEST_CURRENT_TEST') else DB_PATH
+        logger.info(f"Initializing database at: {db_path}")
         Base.metadata.create_all(bind=engine)
         logger.info("Database initialized successfully")
 
         # Log database info
-        logger.info(f"Database location: {DB_PATH.absolute()}")
-        logger.info(f"Database size: {DB_PATH.stat().st_size if DB_PATH.exists() else 0} bytes")
+        logger.info(f"Database location: {db_path.absolute()}")
+        logger.info(f"Database size: {db_path.stat().st_size if db_path.exists() else 0} bytes")
 
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
@@ -145,22 +155,27 @@ def health_check() -> dict:
         dict with status, database info
     """
     try:
+        # Use TEST_DB_PATH if in test mode, otherwise DB_PATH
+        db_path = TEST_DB_PATH if os.getenv('PYTEST_CURRENT_TEST') else DB_PATH
+
         with get_db() as db:
             # Try a simple query
             result = db.execute("SELECT 1").scalar()
 
             return {
                 "status": "healthy",
-                "database": str(DB_PATH),
-                "size_bytes": DB_PATH.stat().st_size if DB_PATH.exists() else 0,
+                "database": str(db_path),
+                "size_bytes": db_path.stat().st_size if db_path.exists() else 0,
                 "connection_test": result == 1,
                 "wal_enabled": db.execute("PRAGMA journal_mode").scalar() == "wal"
             }
     except Exception as e:
+        # Use TEST_DB_PATH if in test mode, otherwise DB_PATH
+        db_path = TEST_DB_PATH if os.getenv('PYTEST_CURRENT_TEST') else DB_PATH
         return {
             "status": "unhealthy",
             "error": str(e),
-            "database": str(DB_PATH)
+            "database": str(db_path)
         }
 
 

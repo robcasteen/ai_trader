@@ -77,8 +77,8 @@ class TestStrategyManager:
         strategy_manager.add_strategy(MockStrategy("s3", "BUY", 0.9))
         
         context = {'headlines': [], 'price': 50000}
-        signal, confidence, reason = strategy_manager.get_signal("BTC/USD", context)
-        
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
+
         assert signal == "BUY"
         assert confidence > 0.5
     
@@ -91,8 +91,8 @@ class TestStrategyManager:
         strategy_manager.add_strategy(MockStrategy("s3", "BUY", 0.9))
         
         context = {'headlines': [], 'price': 50000}
-        signal, confidence, reason = strategy_manager.get_signal("BTC/USD", context)
-        
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
+
         # BUY should win (2 votes with higher confidence)
         assert signal == "BUY"
     
@@ -106,7 +106,7 @@ class TestStrategyManager:
         strategy_manager.add_strategy(MockStrategy("s2", "BUY", 0.4))
         
         context = {'headlines': [], 'price': 50000}
-        signal, confidence, reason = strategy_manager.get_signal("BTC/USD", context)
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
         
         # Should convert to HOLD due to low confidence
         assert signal == "HOLD"
@@ -122,7 +122,7 @@ class TestStrategyManager:
         strategy_manager.add_strategy(MockStrategy("s3", "HOLD", 0.5))
         
         context = {'headlines': [], 'price': 50000}
-        signal, confidence, reason = strategy_manager.get_signal("BTC/USD", context)
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
         
         # Should pick SELL (highest confidence)
         assert signal == "SELL"
@@ -138,7 +138,7 @@ class TestStrategyManager:
         strategy_manager.add_strategy(MockStrategy("s3", "BUY", 0.9))
         
         context = {'headlines': [], 'price': 50000}
-        signal, confidence, reason = strategy_manager.get_signal("BTC/USD", context)
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
         
         assert signal == "BUY"
         assert "All strategies agree" in reason
@@ -153,7 +153,7 @@ class TestStrategyManager:
         strategy_manager.add_strategy(MockStrategy("s3", "BUY", 0.9))
         
         context = {'headlines': [], 'price': 50000}
-        signal, confidence, reason = strategy_manager.get_signal("BTC/USD", context)
+        signal, confidence, reason, signal_id = strategy_manager.get_signal("BTC/USD", context)
         
         # Should default to HOLD when disagreement
         assert signal == "HOLD"
@@ -197,24 +197,26 @@ class TestStrategyManagerSymbolNormalization:
         manager = StrategyManager(config)
         
         # Pass in Kraken format
-        result = manager.get_signal("XXBTZUSD", sample_context)
-        
-        # Logger should receive normalized format
-        # Check the last logged signal
-        import json
-        log_file = Path("tests/test_logs/strategy_signals.jsonl")
-        if log_file.exists():
-            with open(log_file, 'r') as f:
-                lines = f.readlines()
-                last_signal = json.loads(lines[-1])
-                # Should be normalized to BTCUSD, not XXBTZUSD
-                assert last_signal["symbol"] == "BTCUSD"
+        signal, conf, reason, signal_id = manager.get_signal("XXBTZUSD", sample_context)
+
+        # Verify symbol was normalized in TEST database
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
+        with get_db() as db:
+            logged_signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert logged_signal is not None, "Signal should exist in TEST database"
+            # Should be normalized to BTCUSD, not XXBTZUSD
+            assert logged_signal.symbol == "BTCUSD", "Symbol should be normalized to BTCUSD"
     
     def test_mixed_symbol_formats_all_normalized(self, sample_context):
-        """Test that various input formats all normalize correctly."""
+        """Test that various input formats all normalize correctly in TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         config = {"logs_dir": "tests/test_logs"}
         manager = StrategyManager(config)
-        
+
         test_cases = [
             ("BTC/USD", "BTCUSD"),
             ("XXBTZUSD", "BTCUSD"),
@@ -222,18 +224,16 @@ class TestStrategyManagerSymbolNormalization:
             ("ETH/USD", "ETHUSD"),
             ("XETHZUSD", "ETHUSD"),
         ]
-        
+
         for input_symbol, expected_normalized in test_cases:
-            manager.get_signal(input_symbol, sample_context)
-            
-            # Verify logged symbol is normalized
-            import json
-            log_file = Path("tests/test_logs/strategy_signals.jsonl")
-            with open(log_file, 'r') as f:
-                lines = f.readlines()
-                last_signal = json.loads(lines[-1])
-                assert last_signal["symbol"] == expected_normalized, \
-                    f"Input {input_symbol} should normalize to {expected_normalized}"
+            signal, conf, reason, signal_id = manager.get_signal(input_symbol, sample_context)
+
+            # Verify logged symbol is normalized in TEST database
+            with get_db() as db:
+                logged_signal = db.query(Signal).filter(Signal.id == signal_id).first()
+                assert logged_signal is not None, f"Signal should exist in TEST database for {input_symbol}"
+                assert logged_signal.symbol == expected_normalized, \
+                    f"Input {input_symbol} should normalize to {expected_normalized}, got {logged_signal.symbol}"
 
 
 @pytest.fixture

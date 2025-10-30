@@ -1,0 +1,1504 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0 -- /home/rcasteen/kraken-ai-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/rcasteen/kraken-ai-bot
+configfile: pytest.ini
+plugins: anyio-4.10.0
+collecting ... collected 519 items
+
+tests/test_api_strategy_endpoints.py::TestSummaryEndpoint::test_summary_with_data PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestSummaryEndpoint::test_summary_with_no_data PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestCurrentSignalsEndpoint::test_current_signals PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestCurrentSignalsEndpoint::test_current_signals_empty PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_default PASSED [  0%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_with_limit PASSED [  1%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_with_symbol_filter PASSED [  1%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_invalid_limit PASSED [  1%]
+tests/test_api_strategy_endpoints.py::TestHistoryEndpoint::test_history_respects_max_limit PASSED [  1%]
+tests/test_api_strategy_endpoints.py::TestPerformanceEndpoint::test_performance_all_strategies FAILED [  1%]
+tests/test_api_strategy_endpoints.py::TestPerformanceEndpoint::test_performance_with_lookback PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestPerformanceEndpoint::test_performance_invalid_lookback PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestPerformanceEndpoint::test_performance_respects_max_lookback PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestSingleStrategyPerformanceEndpoint::test_single_strategy_performance PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestSingleStrategyPerformanceEndpoint::test_nonexistent_strategy PASSED [  2%]
+tests/test_api_strategy_endpoints.py::TestCorrelationEndpoint::test_correlation_matrix PASSED [  3%]
+tests/test_api_strategy_endpoints.py::TestCorrelationEndpoint::test_correlation_empty PASSED [  3%]
+tests/test_api_strategy_endpoints.py::TestLatestSignalEndpoint::test_latest_signal PASSED [  3%]
+tests/test_api_strategy_endpoints.py::TestLatestSignalEndpoint::test_latest_signal_empty PASSED [  3%]
+tests/test_api_strategy_endpoints.py::TestAPIErrorHandling::test_endpoints_handle_logger_errors FAILED [  3%]
+tests/test_api_strategy_endpoints.py::TestAPIResponseFormat::test_all_success_responses_have_status PASSED [  4%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_portfolio_initialization PASSED [  4%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_buy_order_success PASSED [  4%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_buy_order_insufficient_funds PASSED [  4%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_sell_order_success PASSED [  4%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_sell_order_insufficient_holdings PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_partial_sell FAILED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_fee_calculation PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_get_portfolio_value PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_record_value_snapshot PASSED [  5%]
+tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_multiple_positions PASSED [  5%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_initialization PASSED [  6%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_update_exchange_balance PASSED [  6%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_update_calculated_balance_from_trade PASSED [  6%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_slippage_calculation PASSED [  6%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_get_balance_for_position_sizing PASSED [  6%]
+tests/test_balance_reconciliation.py::TestBalanceReconciliation::test_reconciliation_report PASSED [  7%]
+tests/test_base_strategy.py::TestBaseStrategy::test_initialization PASSED [  7%]
+tests/test_base_strategy.py::TestBaseStrategy::test_enable_disable PASSED [  7%]
+tests/test_base_strategy.py::TestBaseStrategy::test_abstract_method_enforcement PASSED [  7%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_create_new_config PASSED [  7%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_update_existing_config PASSED [  8%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_get_current_config PASSED [  8%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_get_config_dict_with_data PASSED [  8%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_get_config_dict_returns_defaults_when_empty PASSED [  8%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_partial_update_preserves_other_fields PASSED [  8%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_timestamp_updates_on_save PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_config_persists_across_sessions PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_decimal_precision_preserved PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_config_dict_converts_decimals_to_floats PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_multiple_configs_gets_latest PASSED [  9%]
+tests/test_bot_config_repository.py::TestBotConfigRepository::test_config_with_extra_fields PASSED [ 10%]
+tests/test_config.py::TestGetCurrentConfig::test_default_config_no_file PASSED [ 10%]
+tests/test_config.py::TestGetCurrentConfig::test_load_existing_config PASSED [ 10%]
+tests/test_config.py::TestGetCurrentConfig::test_strategy_normalization_gpt_to_gpt_sentiment PASSED [ 10%]
+tests/test_config.py::TestGetCurrentConfig::test_overlay_defaults_on_partial_config PASSED [ 10%]
+tests/test_config.py::TestGetCurrentConfig::test_corrupted_config_file_returns_defaults PASSED [ 10%]
+tests/test_config.py::TestUpdateConfig::test_update_strategy PASSED      [ 11%]
+tests/test_config.py::TestUpdateConfig::test_update_interval PASSED      [ 11%]
+tests/test_config.py::TestUpdateConfig::test_update_multiple_values PASSED [ 11%]
+tests/test_config.py::TestUpdateConfig::test_update_ignores_non_whitelisted_keys PASSED [ 11%]
+tests/test_config.py::TestUpdateConfig::test_update_preserves_existing_values PASSED [ 11%]
+tests/test_config.py::TestUpdateConfig::test_update_creates_file_if_missing PASSED [ 12%]
+tests/test_config.py::TestUpdateConfig::test_update_returns_full_config PASSED [ 12%]
+tests/test_config.py::TestUpdateConfig::test_whitelisted_keys_only PASSED [ 12%]
+tests/test_config.py::TestConfigPersistence::test_config_persists_across_reads PASSED [ 12%]
+tests/test_config.py::TestConfigPersistence::test_json_formatting PASSED [ 12%]
+tests/test_config.py::TestEdgeCases::test_empty_update PASSED            [ 13%]
+tests/test_config.py::TestEdgeCases::test_none_values PASSED             [ 13%]
+tests/test_config.py::TestEdgeCases::test_numeric_strategy PASSED        [ 13%]
+tests/test_config_api.py::TestConfigAPI::test_get_config_returns_defaults PASSED [ 13%]
+tests/test_config_api.py::TestConfigAPI::test_get_config_has_strategy_settings PASSED [ 13%]
+tests/test_config_api.py::TestConfigAPI::test_get_config_has_risk_management PASSED [ 14%]
+tests/test_config_api.py::TestConfigAPI::test_get_config_has_aggregation_settings PASSED [ 14%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_strategy_weight PASSED [ 14%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_min_confidence PASSED [ 14%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_risk_management PASSED [ 14%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_rejects_invalid_trading_mode PASSED [ 15%]
+tests/test_config_api.py::TestConfigAPI::test_update_config_accepts_valid_trading_mode PASSED [ 15%]
+tests/test_config_api.py::TestConfigAPI::test_disable_strategy PASSED    [ 15%]
+tests/test_config_api.py::TestConfigAPI::test_config_persists_across_requests FAILED [ 15%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_saves_min_confidence_to_database PASSED [ 15%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_saves_trading_mode_to_database PASSED [ 15%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_saves_position_size_to_database PASSED [ 16%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_updates_existing_database_config PASSED [ 16%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_settings_modal_workflow_saves_to_database PASSED [ 16%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_config_persists_after_bot_restart_simulation PASSED [ 16%]
+tests/test_config_save_to_database.py::TestConfigSavesToDatabase::test_post_config_does_not_write_to_json_file PASSED [ 16%]
+tests/test_dashboard.py::TestDashboardRoute::test_dashboard_loads PASSED [ 17%]
+tests/test_dashboard.py::TestDashboardRoute::test_dashboard_loads_terminal_ui PASSED [ 17%]
+tests/test_dashboard.py::TestPartialRoute::test_partial_returns_json PASSED [ 17%]
+tests/test_dashboard.py::TestPartialRoute::test_partial_structure PASSED [ 17%]
+tests/test_dashboard.py::TestPartialRoute::test_partial_with_trades FAILED [ 17%]
+tests/test_dashboard.py::TestStatusRoute::test_status_returns_json PASSED [ 18%]
+tests/test_dashboard.py::TestStatusRoute::test_status_structure PASSED   [ 18%]
+tests/test_dashboard.py::TestStatusRoute::test_status_with_bot_status_file FAILED [ 18%]
+tests/test_dashboard.py::TestStatusRoute::test_status_missing_file PASSED [ 18%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_empty_trades PASSED [ 18%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_buy_and_sell PASSED [ 19%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_hold_not_counted_in_trades PASSED [ 19%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_per_symbol_data PASSED [ 19%]
+tests/test_dashboard.py::TestBuildSummary::test_build_summary_case_insensitive_action PASSED [ 19%]
+tests/test_dashboard.py::TestLoadPnLData::test_load_pnl_empty_trades PASSED [ 19%]
+tests/test_dashboard.py::TestLoadPnLData::test_load_pnl_simple_profit FAILED [ 20%]
+tests/test_dashboard.py::TestLoadPnLData::test_load_pnl_simple_loss FAILED [ 20%]
+tests/test_dashboard.py::TestLoadPnLData::test_load_pnl_multiple_symbols FAILED [ 20%]
+tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_empty_file PASSED [ 20%]
+tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_with_data FAILED [ 20%]
+tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_normalizes_signals FAILED [ 21%]
+tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_empty_signal_defaults_to_hold FAILED [ 21%]
+tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_corrupted_file PASSED [ 21%]
+tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_handles_timestamp_variants FAILED [ 21%]
+tests/test_dashboard.py::TestPartialDataIntegration::test_partial_filters_holds_from_recent_trades FAILED [ 21%]
+tests/test_dashboard.py::TestPartialDataIntegration::test_partial_limits_recent_trades_to_20 FAILED [ 21%]
+tests/test_dashboard.py::TestPartialDataIntegration::test_partial_fallback_sentiment_for_unknown_symbols FAILED [ 22%]
+tests/test_dashboard_db_integration.py::TestTradesEndpoint::test_trades_endpoint_returns_db_data FAILED [ 22%]
+tests/test_dashboard_db_integration.py::TestTradesEndpoint::test_trades_endpoint_filters_test_data FAILED [ 22%]
+tests/test_dashboard_db_integration.py::TestTradesEndpoint::test_trades_endpoint_filters_hold_actions FAILED [ 22%]
+tests/test_dashboard_db_integration.py::TestStrategyEndpoint::test_strategy_endpoint_returns_db_data PASSED [ 22%]
+tests/test_dashboard_db_integration.py::TestStrategyEndpoint::test_strategy_endpoint_filters_test_data PASSED [ 23%]
+tests/test_dashboard_db_integration.py::TestFeedsEndpoint::test_feeds_endpoint_returns_db_data PASSED [ 23%]
+tests/test_dashboard_db_integration.py::TestFeedsEndpoint::test_feeds_endpoint_includes_all_required_fields PASSED [ 23%]
+tests/test_dashboard_db_integration.py::TestHoldingsEndpoint::test_holdings_calculated_from_db_trades FAILED [ 23%]
+tests/test_data_collector.py::test_collector_initialization PASSED       [ 23%]
+tests/test_data_collector.py::test_collect_snapshot PASSED               [ 24%]
+tests/test_data_collector.py::test_get_price_history PASSED              [ 24%]
+tests/test_database_repositories.py::TestSignalRepository::test_create_signal PASSED [ 24%]
+tests/test_database_repositories.py::TestSignalRepository::test_get_recent_signals PASSED [ 24%]
+tests/test_database_repositories.py::TestSignalRepository::test_filter_by_test_mode PASSED [ 24%]
+tests/test_database_repositories.py::TestTradeRepository::test_create_trade PASSED [ 25%]
+tests/test_database_repositories.py::TestTradeRepository::test_get_all_trades PASSED [ 25%]
+tests/test_database_repositories.py::TestTradeRepository::test_filter_trades_by_test_mode PASSED [ 25%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_create_feed PASSED [ 25%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_get_all_feeds PASSED [ 25%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_get_feed_by_url PASSED [ 26%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_update_feed PASSED [ 26%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_delete_feed PASSED [ 26%]
+tests/test_database_repositories.py::TestRSSFeedRepository::test_feed_has_required_attributes PASSED [ 26%]
+tests/test_database_repositories.py::TestHoldingRepository::test_create_holding PASSED [ 26%]
+tests/test_error_tracker.py::TestErrorTrackerBasics::test_initialization PASSED [ 26%]
+tests/test_error_tracker.py::TestErrorTrackerBasics::test_log_error_basic PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorTrackerBasics::test_log_error_with_exception PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorTrackerBasics::test_log_error_with_metadata PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_errors_all PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_errors_by_component PASSED [ 27%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_errors_by_severity PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_errors_with_limit PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_component_errors PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_error_count PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_last_error PASSED [ 28%]
+tests/test_error_tracker.py::TestErrorRetrieval::test_get_last_error_none PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorClearing::test_clear_all_errors PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorClearing::test_clear_component_errors PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorClearing::test_clear_nonexistent_component PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorPersistence::test_save_to_disk PASSED [ 29%]
+tests/test_error_tracker.py::TestErrorPersistence::test_load_from_disk PASSED [ 30%]
+tests/test_error_tracker.py::TestErrorPersistence::test_no_persistence_without_log_file PASSED [ 30%]
+tests/test_error_tracker.py::TestErrorBounds::test_max_errors_limit PASSED [ 30%]
+tests/test_error_tracker.py::TestErrorBounds::test_empty_tracker PASSED  [ 30%]
+tests/test_error_tracker.py::TestHealthSummary::test_get_health_summary PASSED [ 30%]
+tests/test_error_tracker.py::TestHealthSummary::test_get_health_summary_empty PASSED [ 31%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_has_timestamp PASSED [ 31%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_has_component PASSED [ 31%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_has_message PASSED [ 31%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_has_severity PASSED [ 31%]
+tests/test_error_tracker.py::TestErrorMetadata::test_error_default_severity PASSED [ 31%]
+tests/test_error_tracker.py::TestConcurrency::test_multiple_components_simultaneously PASSED [ 32%]
+tests/test_feed_management.py::TestFeedEdit::test_edit_feed_endpoint_exists PASSED [ 32%]
+tests/test_feed_management.py::TestFeedEdit::test_edit_feed_updates_name SKIPPED [ 32%]
+tests/test_feed_management.py::TestFeedDisable::test_feed_has_enabled_field PASSED [ 32%]
+tests/test_feed_management.py::TestFeedDisable::test_feed_needs_active_field PASSED [ 32%]
+tests/test_feed_management.py::TestFeedDisable::test_toggle_feed_endpoint_exists PASSED [ 33%]
+tests/test_feed_management.py::TestFeedDisable::test_toggle_feed_changes_active_status SKIPPED [ 33%]
+tests/test_feed_management.py::TestFeedDelete::test_delete_feed_endpoint_exists PASSED [ 33%]
+tests/test_feed_management.py::TestFeedDelete::test_delete_nonexistent_feed_returns_404 PASSED [ 33%]
+tests/test_feed_management.py::TestFeedDelete::test_delete_feed_removes_from_database SKIPPED [ 33%]
+tests/test_feed_management.py::TestFeedDelete::test_toggle_feed_uses_database SKIPPED [ 34%]
+tests/test_feed_management.py::TestFeedDelete::test_delete_feed_uses_database SKIPPED [ 34%]
+tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_handles_dict_feeds FAILED [ 34%]
+tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_filters_seen_headlines FAILED [ 34%]
+tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_handles_feed_fetch_errors FAILED [ 34%]
+tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_skips_headlines_without_symbols FAILED [ 35%]
+tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_returns_empty_when_no_feeds FAILED [ 35%]
+tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_aggregates_headlines_by_symbol FAILED [ 35%]
+tests/test_health_endpoints.py::TestGetErrors::test_get_errors_empty PASSED [ 35%]
+tests/test_health_endpoints.py::TestGetErrors::test_get_errors_with_data PASSED [ 35%]
+tests/test_health_endpoints.py::TestGetErrors::test_get_errors_filter_by_component PASSED [ 36%]
+tests/test_health_endpoints.py::TestGetErrors::test_get_errors_with_limit PASSED [ 36%]
+tests/test_health_endpoints.py::TestClearErrors::test_clear_all_errors PASSED [ 36%]
+tests/test_health_endpoints.py::TestClearErrors::test_clear_component_errors PASSED [ 36%]
+tests/test_health_endpoints.py::TestTestOpenAI::test_openai_test_success PASSED [ 36%]
+tests/test_health_endpoints.py::TestTestOpenAI::test_openai_test_failure PASSED [ 36%]
+tests/test_health_endpoints.py::TestTestOpenAI::test_openai_test_exception PASSED [ 37%]
+tests/test_health_endpoints.py::TestTestKraken::test_kraken_test_success PASSED [ 37%]
+tests/test_health_endpoints.py::TestTestKraken::test_kraken_test_degraded PASSED [ 37%]
+tests/test_health_endpoints.py::TestTestRSS::test_rss_test_success PASSED [ 37%]
+tests/test_health_endpoints.py::TestTestRSS::test_rss_test_failure PASSED [ 37%]
+tests/test_health_endpoints.py::TestDetailedHealth::test_detailed_health_all_operational PASSED [ 38%]
+tests/test_health_endpoints.py::TestDetailedHealth::test_detailed_health_with_errors PASSED [ 38%]
+tests/test_health_endpoints.py::TestEndpointIntegration::test_error_workflow PASSED [ 38%]
+tests/test_health_endpoints.py::TestEndpointIntegration::test_test_and_monitor_workflow PASSED [ 38%]
+tests/test_health_endpoints.py::TestErrorLogging::test_test_endpoint_logs_error_on_failure PASSED [ 38%]
+tests/test_health_endpoints.py::TestErrorLogging::test_test_endpoint_no_log_on_success PASSED [ 39%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_simple_buy_includes_fees PASSED [ 39%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_buy_then_sell_with_fees PASSED [ 39%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_complete_exit PASSED [ 39%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_multiple_buys_with_fees PASSED [ 39%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_hold_actions_ignored PASSED [ 40%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_multiple_symbols PASSED [ 40%]
+tests/test_holdings_calculation.py::TestHoldingsCalculation::test_sell_without_buy PASSED [ 40%]
+tests/test_holdings_calculation.py::TestConfidenceCalculation::test_buy_signal_uses_actionable_weight_only PASSED [ 40%]
+tests/test_holdings_calculation.py::TestConfidenceCalculation::test_sell_signal_uses_actionable_weight_only PASSED [ 40%]
+tests/test_holdings_calculation.py::TestConfidenceCalculation::test_hold_signal_uses_total_weight PASSED [ 41%]
+tests/test_holdings_calculation.py::TestConfidenceCalculation::test_mixed_signals_buy_wins PASSED [ 41%]
+tests/test_kraken_client.py::TestGetPrice::test_get_price_success PASSED [ 41%]
+tests/test_kraken_client.py::TestGetPrice::test_get_price_api_error PASSED [ 41%]
+tests/test_kraken_client.py::TestGetPrice::test_get_price_malformed_response PASSED [ 41%]
+tests/test_kraken_client.py::TestGetPrice::test_get_price_invalid_float PASSED [ 42%]
+tests/test_kraken_client.py::TestGetBalance::test_get_balance_success PASSED [ 42%]
+tests/test_kraken_client.py::TestGetBalance::test_get_balance_asset_not_found PASSED [ 42%]
+tests/test_kraken_client.py::TestGetBalance::test_get_balance_api_error PASSED [ 42%]
+tests/test_kraken_client.py::TestGetBalance::test_get_balance_default_asset PASSED [ 42%]
+tests/test_kraken_client.py::TestGetTickers::test_get_tickers_success PASSED [ 42%]
+tests/test_kraken_client.py::TestGetTickers::test_get_tickers_empty_result PASSED [ 43%]
+tests/test_kraken_client.py::TestGetTickers::test_get_tickers_api_error PASSED [ 43%]
+tests/test_kraken_client.py::TestGetTickers::test_get_tickers_invalid_data PASSED [ 43%]
+tests/test_main_balance_integration.py::test_calculate_position_size_should_accept_balance_parameter PASSED [ 43%]
+tests/test_main_balance_integration.py::test_main_should_pass_balance_to_calculate_position_size PASSED [ 43%]
+tests/test_news_fetcher_database.py::test_news_fetcher_uses_database_only FAILED [ 44%]
+tests/test_news_fetcher_database.py::test_news_fetcher_stores_seen_in_database SKIPPED [ 44%]
+tests/test_news_fetcher_database.py::test_news_fetcher_deduplication SKIPPED [ 44%]
+tests/test_news_fetcher_database.py::test_feeds_tab_shows_correct_counts FAILED [ 44%]
+tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_load_feeds_from_json FAILED [ 44%]
+tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_filters_inactive_feeds FAILED [ 45%]
+tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_returns_empty_list_when_no_active_feeds FAILED [ 45%]
+tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_fallback_when_file_not_found FAILED [ 45%]
+tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_fallback_when_json_corrupted FAILED [ 45%]
+tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_handles_missing_active_field FAILED [ 45%]
+tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_preserves_feed_metadata FAILED [ 46%]
+tests/test_news_fetcher_feeds.py::TestProductionFeedLoading::test_loads_actual_feeds FAILED [ 46%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_trades_json_file_created PASSED [ 46%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_holdings_json_file_created PASSED [ 46%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_bot_status_json_file_created PASSED [ 46%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_rss_feeds_json_file_read PASSED [ 47%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_dashboard_loads_trades_from_database_only PASSED [ 47%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_no_json_file_dependencies_in_paper_trader PASSED [ 47%]
+tests/test_no_json_files.py::TestNOJsonFiles::test_config_json_is_only_allowed_json_file FAILED [ 47%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_trades_come_from_database PASSED [ 47%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_holdings_come_from_database PASSED [ 47%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_signals_come_from_database PASSED [ 48%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_bot_status_comes_from_database PASSED [ 48%]
+tests/test_no_json_files.py::TestDatabaseIsSourceOfTruth::test_rss_feeds_come_from_database PASSED [ 48%]
+tests/test_notifier.py::TestSendNotification::test_send_complete_trade PASSED [ 48%]
+tests/test_notifier.py::TestSendNotification::test_send_sell_trade PASSED [ 48%]
+tests/test_notifier.py::TestSendNotification::test_send_hold_signal PASSED [ 49%]
+tests/test_notifier.py::TestMissingData::test_send_none_trade_result PASSED [ 49%]
+tests/test_notifier.py::TestMissingData::test_send_empty_dict PASSED     [ 49%]
+tests/test_notifier.py::TestMissingData::test_send_missing_symbol PASSED [ 49%]
+tests/test_notifier.py::TestMissingData::test_send_missing_action PASSED [ 49%]
+tests/test_notifier.py::TestMissingData::test_send_missing_price PASSED  [ 50%]
+tests/test_notifier.py::TestMissingData::test_send_missing_reason PASSED [ 50%]
+tests/test_notifier.py::TestLoggingFormat::test_log_level_is_info PASSED [ 50%]
+tests/test_notifier.py::TestLoggingFormat::test_alert_prefix_present PASSED [ 50%]
+tests/test_notifier.py::TestLoggingFormat::test_price_at_symbol_format PASSED [ 50%]
+tests/test_notifier.py::TestMultipleNotifications::test_send_multiple_notifications PASSED [ 51%]
+tests/test_paper_trader.py::TestTradeExecution::test_execute_buy_trade PASSED [ 51%]
+tests/test_paper_trader.py::TestTradeExecution::test_execute_sell_trade PASSED [ 51%]
+tests/test_paper_trader.py::TestTradeExecution::test_default_amount PASSED [ 51%]
+tests/test_paper_trader.py::TestFilePersistence::test_trades_persisted_to_file FAILED [ 51%]
+tests/test_paper_trader.py::TestFilePersistence::test_multiple_trades_appended FAILED [ 52%]
+tests/test_paper_trader.py::TestFilePersistence::test_corrupted_file_recovery FAILED [ 52%]
+tests/test_paper_trader.py::TestTradeDataStructure::test_timestamp_format PASSED [ 52%]
+tests/test_paper_trader.py::TestTradeDataStructure::test_value_calculation PASSED [ 52%]
+tests/test_paper_trader.py::TestTradeDataStructure::test_all_required_fields_present PASSED [ 52%]
+tests/test_paper_trader.py::TestEdgeCases::test_zero_price PASSED        [ 52%]
+tests/test_paper_trader.py::TestEdgeCases::test_large_amounts PASSED     [ 53%]
+tests/test_paper_trader.py::TestEdgeCases::test_fractional_amounts PASSED [ 53%]
+tests/test_paper_trader.py::TestFeeCalculation::test_buy_fee_increases_cost PASSED [ 53%]
+tests/test_paper_trader.py::TestFeeCalculation::test_sell_fee_reduces_proceeds PASSED [ 53%]
+tests/test_paper_trader.py::TestFeeCalculation::test_fee_rate_is_correct PASSED [ 53%]
+tests/test_paper_trader.py::TestFeeCalculation::test_round_trip_cost PASSED [ 54%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_buy_trade_creates_holding PASSED [ 54%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_sell_trade_reduces_holding PASSED [ 54%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_sell_entire_position_removes_holding FAILED [ 54%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_multiple_buys_average_price PASSED [ 54%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_hold_action_does_not_update_holdings PASSED [ 55%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_multiple_symbols_tracked_separately PASSED [ 55%]
+tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_holdings_persisted_to_file FAILED [ 55%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_buy_trade_writes_to_database PASSED [ 55%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_sell_trade_writes_to_database PASSED [ 55%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_hold_action_does_not_write_to_database PASSED [ 56%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_multiple_trades_all_in_database PASSED [ 56%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_trade_has_utc_timestamp PASSED [ 56%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_trade_fee_calculation_saved_correctly PASSED [ 56%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_database_write_failure_is_logged PASSED [ 56%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_symbol_normalization_in_database FAILED [ 57%]
+tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_successful_buy_and_sell_updates_database PASSED [ 57%]
+tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_hold_does_not_execute_trade FAILED [ 57%]
+tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_hold_does_not_modify_holdings FAILED [ 57%]
+tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_buy_executes_correctly FAILED [ 57%]
+tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_sell_executes_correctly FAILED [ 57%]
+tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_action_case_insensitive FAILED [ 58%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_buy_with_slash_format_normalizes PASSED [ 58%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_multiple_formats_same_position PASSED [ 58%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_kraken_format_normalizes PASSED [ 58%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_sell_with_different_format_reduces_position PASSED [ 58%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_trades_log_uses_canonical_format PASSED [ 59%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_case_insensitive_symbol_handling PASSED [ 59%]
+tests/test_paper_trader_symbol_normalization.py::TestSymbolNormalization::test_multiple_symbols_normalized_separately PASSED [ 59%]
+tests/test_partial_endpoint.py::TestPartialEndpoint::test_partial_returns_signals_from_database PASSED [ 59%]
+tests/test_partial_endpoint.py::TestPartialEndpoint::test_partial_filters_out_hold_signals FAILED [ 59%]
+tests/test_partial_endpoint.py::TestPartialEndpoint::test_partial_returns_recent_signals_only FAILED [ 60%]
+tests/test_partial_endpoint.py::TestPartialEndpoint::test_partial_signal_format PASSED [ 60%]
+tests/test_performance_tracker.py::test_empty_trades_returns_defaults PASSED [ 60%]
+tests/test_performance_tracker.py::test_corrupted_trades_file_returns_defaults PASSED [ 60%]
+tests/test_performance_tracker.py::test_zero_amount_trade_ignored PASSED [ 60%]
+tests/test_performance_tracker.py::test_invalid_trade_missing_fields PASSED [ 61%]
+tests/test_performance_tracker.py::test_basic_buy_sell_win PASSED        [ 61%]
+tests/test_performance_tracker.py::test_basic_buy_sell_loss PASSED       [ 61%]
+tests/test_performance_tracker.py::test_partial_sell PASSED              [ 61%]
+tests/test_performance_tracker.py::test_multiple_buys_then_sell PASSED   [ 61%]
+tests/test_performance_tracker.py::test_multiple_symbols PASSED          [ 62%]
+tests/test_performance_tracker.py::test_sell_before_buy_raises_error PASSED [ 62%]
+tests/test_performance_tracker.py::test_oversell_raises_error PASSED     [ 62%]
+tests/test_performance_tracker.py::test_persistence_round_trip PASSED    [ 62%]
+tests/test_performance_tracker.py::test_replay_vs_batch_consistency PASSED [ 62%]
+tests/test_performance_tracker.py::test_output_contract_with_no_trades PASSED [ 63%]
+tests/test_performance_tracker.py::test_output_contract_with_real_trades PASSED [ 63%]
+tests/test_risk_manager.py::test_initialization PASSED                   [ 63%]
+tests/test_risk_manager.py::test_position_size_calculation PASSED        [ 63%]
+tests/test_risk_manager.py::test_daily_loss_limit_shutdown PASSED        [ 63%]
+tests/test_risk_manager.py::TestPositionSizingWithBalance::test_position_size_uses_provided_balance PASSED [ 63%]
+tests/test_risk_manager.py::TestPositionSizingWithBalance::test_position_size_falls_back_to_internal_capital PASSED [ 64%]
+tests/test_risk_manager.py::TestPositionSizingWithBalance::test_position_size_with_higher_exchange_balance PASSED [ 64%]
+tests/test_sell_validation.py::test_cannot_sell_nonexistent_position PASSED [ 64%]
+tests/test_sell_validation.py::test_cannot_sell_zero_amount_position PASSED [ 64%]
+tests/test_sell_validation.py::test_can_sell_existing_position FAILED    [ 64%]
+tests/test_sell_validation.py::test_sell_validation_uses_canonical_symbol FAILED [ 65%]
+tests/test_sell_validation.py::test_buy_still_works_without_position PASSED [ 65%]
+tests/test_sentiment_signal.py::TestFallbackParse::test_positive_keywords PASSED [ 65%]
+tests/test_sentiment_signal.py::TestFallbackParse::test_negative_keywords PASSED [ 65%]
+tests/test_sentiment_signal.py::TestFallbackParse::test_neutral_headline PASSED [ 65%]
+tests/test_sentiment_signal.py::TestFallbackParse::test_case_insensitive PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_gpt_success PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_fallback_triggers_first PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_gpt_error PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_invalid_json PASSED [ 66%]
+tests/test_sentiment_signal.py::TestGetSignal::test_get_signal_invalid_signal_value PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_empty_list PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_fallback_sell_priority PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_fallback_buy_over_hold PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_gpt_consolidation PASSED [ 67%]
+tests/test_sentiment_signal.py::TestGetSignals::test_get_signals_gpt_error PASSED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_initialization PASSED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_no_headlines FAILED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_single_headline_buy FAILED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_single_headline_sell FAILED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_multiple_headlines FAILED [ 68%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_confidence_scoring_strong_positive PASSED [ 69%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_confidence_scoring_weak_positive PASSED [ 69%]
+tests/test_sentiment_strategy.py::TestSentimentStrategy::test_confidence_scoring_hold PASSED [ 69%]
+tests/test_signal_performance.py::test_correlate_signals_to_trades_match PASSED [ 69%]
+tests/test_signal_performance.py::test_correlate_signals_to_trades_no_match PASSED [ 69%]
+tests/test_signal_performance.py::test_correlate_signals_excludes_hold PASSED [ 70%]
+tests/test_signal_performance.py::test_correlate_signals_time_window PASSED [ 70%]
+tests/test_signal_performance.py::test_analyze_strategy_performance PASSED [ 70%]
+tests/test_signal_performance.py::test_analyze_strategy_performance_partial_execution PASSED [ 70%]
+tests/test_signal_performance.py::test_get_signal_performance_analysis PASSED [ 70%]
+tests/test_signal_performance.py::test_timezone_handling PASSED          [ 71%]
+tests/test_signal_performance.py::test_edge_case_empty_inputs PASSED     [ 71%]
+tests/test_signal_performance.py::test_edge_case_missing_fields PASSED   [ 71%]
+tests/test_signal_to_trade_flow.py::TestSignalToTradeFlow::test_strategy_manager_returns_tuple PASSED [ 71%]
+tests/test_signal_to_trade_flow.py::TestSignalToTradeFlow::test_signal_gets_logged_to_jsonl FAILED [ 71%]
+tests/test_signal_to_trade_flow.py::TestSignalToTradeFlow::test_paper_trader_executes_buy_signal FAILED [ 72%]
+tests/test_signal_to_trade_flow.py::TestSignalToTradeFlow::test_paper_trader_respects_confidence_threshold FAILED [ 72%]
+tests/test_signal_to_trade_flow.py::TestSignalToTradeFlow::test_main_loop_converts_signal_to_trade PASSED [ 72%]
+tests/test_signal_to_trade_flow.py::TestSignalConfidenceThresholds::test_high_confidence_signals_execute PASSED [ 72%]
+tests/test_signal_to_trade_flow.py::TestSignalConfidenceThresholds::test_low_confidence_signals_filtered PASSED [ 72%]
+tests/test_signal_to_trade_flow.py::TestSignalConfidenceThresholds::test_threshold_is_configurable FAILED [ 73%]
+tests/test_signal_to_trade_flow.py::TestTradeExecution::test_buy_creates_new_position FAILED [ 73%]
+tests/test_signal_to_trade_flow.py::TestTradeExecution::test_sell_reduces_position FAILED [ 73%]
+tests/test_signal_to_trade_flow.py::TestTradeExecution::test_hold_does_not_trade PASSED [ 73%]
+tests/test_strategy_manager.py::TestStrategyManager::test_initialization PASSED [ 73%]
+tests/test_strategy_manager.py::TestStrategyManager::test_add_strategy PASSED [ 73%]
+tests/test_strategy_manager.py::TestStrategyManager::test_remove_strategy PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_enable_disable_strategy PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_weighted_vote_all_buy PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_weighted_vote_mixed PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_confidence_threshold PASSED [ 74%]
+tests/test_strategy_manager.py::TestStrategyManager::test_highest_confidence_aggregation PASSED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManager::test_unanimous_aggregation_agree PASSED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManager::test_unanimous_aggregation_disagree PASSED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManager::test_get_strategy_summary PASSED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManager::test_update_config PASSED [ 75%]
+tests/test_strategy_manager.py::TestStrategyManagerSymbolNormalization::test_signals_logged_with_normalized_symbols PASSED [ 76%]
+tests/test_strategy_manager.py::TestStrategyManagerSymbolNormalization::test_mixed_symbol_formats_all_normalized PASSED [ 76%]
+tests/test_strategy_manager_logging.py::TestSignalLogging::test_signal_file_created_after_decision PASSED [ 76%]
+tests/test_strategy_manager_logging.py::TestSignalLogging::test_logs_all_strategy_details PASSED [ 76%]
+tests/test_strategy_manager_logging.py::TestSignalLogging::test_logs_correct_data_structure PASSED [ 76%]
+tests/test_strategy_manager_logging.py::TestSignalLogging::test_multiple_signals_appended PASSED [ 77%]
+tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_signals_unchanged_with_logging FAILED [ 77%]
+tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_logging_failure_does_not_crash PASSED [ 77%]
+tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_no_price_does_not_log PASSED [ 77%]
+tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_existing_tests_still_pass PASSED [ 77%]
+tests/test_strategy_manager_logging.py::TestLoggingContent::test_logs_actual_strategy_outputs FAILED [ 78%]
+tests/test_strategy_manager_logging.py::TestLoggingContent::test_logs_aggregation_method PASSED [ 78%]
+tests/test_strategy_registry.py::TestStrategyRegistry::test_register_strategy_class PASSED [ 78%]
+tests/test_strategy_registry.py::TestStrategyRegistry::test_register_duplicate_strategy_raises_error PASSED [ 78%]
+tests/test_strategy_registry.py::TestStrategyRegistry::test_get_nonexistent_strategy_raises_error PASSED [ 78%]
+tests/test_strategy_registry.py::TestStrategyRegistry::test_list_all_strategies PASSED [ 78%]
+tests/test_strategy_registry.py::TestStrategyRegistry::test_unregister_strategy PASSED [ 79%]
+tests/test_strategy_registry.py::TestStrategyConfiguration::test_load_strategy_config_from_dict PASSED [ 79%]
+tests/test_strategy_registry.py::TestStrategyConfiguration::test_strategy_config_default_values PASSED [ 79%]
+tests/test_strategy_registry.py::TestStrategyConfiguration::test_strategy_config_to_dict PASSED [ 79%]
+tests/test_strategy_registry.py::TestStrategyConfiguration::test_load_multiple_strategy_configs PASSED [ 79%]
+tests/test_strategy_registry.py::TestStrategyConfiguration::test_filter_enabled_strategies PASSED [ 80%]
+tests/test_strategy_registry.py::TestStrategyManager::test_initialize_with_config FAILED [ 80%]
+tests/test_strategy_registry.py::TestStrategyManager::test_add_strategy_dynamically FAILED [ 80%]
+tests/test_strategy_registry.py::TestStrategyManager::test_remove_strategy_dynamically PASSED [ 80%]
+tests/test_strategy_registry.py::TestStrategyManager::test_enable_disabled_strategy FAILED [ 80%]
+tests/test_strategy_registry.py::TestStrategyManager::test_disable_enabled_strategy FAILED [ 81%]
+tests/test_strategy_registry.py::TestStrategyManager::test_update_strategy_weight FAILED [ 81%]
+tests/test_strategy_registry.py::TestStrategyManager::test_get_active_strategies_list FAILED [ 81%]
+tests/test_strategy_signal_logger.py::TestInitialization::test_creates_data_directory PASSED [ 81%]
+tests/test_strategy_signal_logger.py::TestInitialization::test_uses_existing_directory PASSED [ 81%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_logs_complete_decision PASSED [ 82%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_includes_timestamp PASSED [ 82%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_includes_optional_metadata PASSED [ 82%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_appends_multiple_records PASSED [ 82%]
+tests/test_strategy_signal_logger.py::TestLogDecision::test_handles_write_errors_gracefully FAILED [ 82%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_returns_empty_for_no_data PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_returns_recent_signals PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_respects_limit PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_filters_by_symbol PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestGetRecentSignals::test_handles_corrupted_file PASSED [ 83%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_empty_performance_for_no_data PASSED [ 84%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_calculates_signal_distribution PASSED [ 84%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_calculates_average_confidence PASSED [ 84%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_calculates_agreement_rate PASSED [ 84%]
+tests/test_strategy_signal_logger.py::TestStrategyPerformance::test_filters_by_lookback_period PASSED [ 84%]
+tests/test_strategy_signal_logger.py::TestAllStrategiesPerformance::test_returns_all_strategies PASSED [ 84%]
+tests/test_strategy_signal_logger.py::TestAllStrategiesPerformance::test_returns_empty_for_no_data PASSED [ 85%]
+tests/test_strategy_signal_logger.py::TestSignalCorrelation::test_perfect_agreement PASSED [ 85%]
+tests/test_strategy_signal_logger.py::TestSignalCorrelation::test_no_agreement PASSED [ 85%]
+tests/test_strategy_signal_logger.py::TestSignalCorrelation::test_self_correlation_is_one PASSED [ 85%]
+tests/test_strategy_signal_logger.py::TestSignalCorrelation::test_returns_empty_for_no_data PASSED [ 85%]
+tests/test_strategy_signal_logger.py::TestClearOldSignals::test_returns_zero_for_no_file PASSED [ 86%]
+tests/test_strategy_signal_logger.py::TestClearOldSignals::test_preserves_recent_signals PASSED [ 86%]
+tests/test_strategy_signal_logger.py::TestThreadSafety::test_concurrent_writes PASSED [ 86%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_bitcoin_variations PASSED [ 86%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_ethereum_variations PASSED [ 86%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_case_insensitive PASSED [ 87%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_whitespace_handling PASSED [ 87%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_unknown_symbol_raises_error PASSED [ 87%]
+tests/test_symbol_normalizer.py::TestNormalizeSymbol::test_empty_symbol_raises_error PASSED [ 87%]
+tests/test_symbol_normalizer.py::TestDisplayFormat::test_btc_display PASSED [ 87%]
+tests/test_symbol_normalizer.py::TestDisplayFormat::test_unknown_symbol_returns_unchanged PASSED [ 88%]
+tests/test_symbol_normalizer.py::TestKrakenFormat::test_btc_kraken_format PASSED [ 88%]
+tests/test_symbol_normalizer.py::TestKrakenFormat::test_newer_coins_no_x_prefix PASSED [ 88%]
+tests/test_symbol_normalizer.py::TestExtractBaseSymbol::test_extract_btc PASSED [ 88%]
+tests/test_symbol_normalizer.py::TestExtractBaseSymbol::test_extract_eth PASSED [ 88%]
+tests/test_symbol_normalizer.py::TestIsValidSymbol::test_valid_symbols PASSED [ 89%]
+tests/test_symbol_normalizer.py::TestIsValidSymbol::test_invalid_symbols PASSED [ 89%]
+tests/test_symbol_normalizer.py::TestGetAllCanonicalSymbols::test_returns_list PASSED [ 89%]
+tests/test_symbol_normalizer.py::TestGetAllCanonicalSymbols::test_contains_expected_symbols PASSED [ 89%]
+tests/test_symbol_scanner.py::TestGetTopSymbols::test_basic_filtering_and_sorting PASSED [ 89%]
+tests/test_symbol_scanner.py::TestGetTopSymbols::test_limit_enforcement PASSED [ 89%]
+tests/test_symbol_scanner.py::TestGetTopSymbols::test_default_limit PASSED [ 90%]
+tests/test_symbol_scanner.py::TestGetTopSymbols::test_volume_sorting_descending PASSED [ 90%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_uses_default_priority_when_none_provided PASSED [ 90%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_uses_custom_priority_when_provided PASSED [ 90%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_empty_priority_list_uses_volume_sorting PASSED [ 90%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_skips_unknown_symbols_in_priority_list PASSED [ 91%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_respects_limit_parameter PASSED [ 91%]
+tests/test_symbol_scanner_config.py::TestSymbolScannerConfig::test_default_priority_symbols_exist PASSED [ 91%]
+tests/test_symbol_scanner_normalization.py::TestSymbolScannerNormalization::test_kraken_xbtcusd_normalized_to_btcusd PASSED [ 91%]
+tests/test_symbol_scanner_normalization.py::TestSymbolScannerNormalization::test_mixed_kraken_formats_all_normalized PASSED [ 91%]
+tests/test_symbol_scanner_normalization.py::TestSymbolScannerNormalization::test_symbols_still_sorted_by_volume PASSED [ 92%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_initialization PASSED [ 92%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_no_price_data FAILED [ 92%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_insufficient_history FAILED [ 92%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_bullish_sma_signal FAILED [ 92%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_bearish_sma_signal FAILED [ 93%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_rsi_oversold PASSED [ 93%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_rsi_overbought PASSED [ 93%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_momentum_bullish PASSED [ 93%]
+tests/test_technical_strategy.py::TestTechnicalStrategy::test_momentum_bearish PASSED [ 93%]
+tests/test_trade_signal_integrity.py::TestTradeSignalHoldingIntegrity::test_buy_trade_creates_linked_records PASSED [ 94%]
+tests/test_trade_signal_integrity.py::TestTradeSignalHoldingIntegrity::test_sell_trade_maintains_links PASSED [ 94%]
+tests/test_trade_signal_integrity.py::TestTradeSignalHoldingIntegrity::test_hold_signal_no_trade_created PASSED [ 94%]
+tests/test_ui_data_validation.py::TestPortfolioData::test_portfolio_balance_exists PASSED [ 94%]
+tests/test_ui_data_validation.py::TestHoldingsData::test_holdings_count PASSED [ 94%]
+tests/test_ui_data_validation.py::TestHoldingsData::test_holdings_market_value PASSED [ 94%]
+tests/test_ui_data_validation.py::TestHoldingsData::test_holdings_unrealized_pnl PASSED [ 95%]
+tests/test_ui_data_validation.py::TestHoldingsData::test_position_details_table_complete PASSED [ 95%]
+tests/test_ui_data_validation.py::TestSystemStatus::test_system_status_data_exists PASSED [ 95%]
+tests/test_ui_data_validation.py::TestRecentSignals::test_recent_signals_endpoint PASSED [ 95%]
+tests/test_ui_data_validation.py::TestRecentSignals::test_signal_has_all_columns PASSED [ 95%]
+tests/test_ui_data_validation.py::TestRecentSignals::test_signal_executed_status PASSED [ 96%]
+tests/test_ui_data_validation.py::TestRecentTrades::test_recent_trades_endpoint PASSED [ 96%]
+tests/test_ui_data_validation.py::TestRecentTrades::test_trade_has_all_columns PASSED [ 96%]
+tests/test_ui_data_validation.py::TestRecentTrades::test_trade_has_signal_link PASSED [ 96%]
+tests/test_ui_data_validation.py::TestTradeHoldingIntegrity::test_buy_trade_creates_holding PASSED [ 96%]
+tests/test_ui_data_validation.py::TestTradeHoldingIntegrity::test_holding_has_entry_trade_link PASSED [ 97%]
+tests/test_ui_data_validation.py::TestHealthPage::test_health_endpoint PASSED [ 97%]
+tests/test_ui_data_validation.py::TestHealthPage::test_health_detailed_endpoint PASSED [ 97%]
+tests/test_ui_data_validation.py::TestFeedsPage::test_feeds_endpoint PASSED [ 97%]
+tests/test_ui_data_validation.py::TestFeedsPage::test_feed_has_all_columns PASSED [ 97%]
+tests/test_ui_data_validation.py::TestFeedsPage::test_feed_error_status_correct PASSED [ 98%]
+tests/test_ui_data_validation.py::TestDataConsistency::test_trade_count_matches PASSED [ 98%]
+tests/test_ui_data_validation.py::TestDataConsistency::test_holdings_count PASSED [ 98%]
+tests/test_ui_data_validation.py::TestUIDataCompleteness::test_all_ui_data_present PASSED [ 98%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_initialization PASSED [ 98%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_no_volume_data FAILED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_volume_spike_detection PASSED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_bullish_divergence PASSED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_bearish_divergence PASSED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_obv_rising PASSED [ 99%]
+tests/test_volume_strategy.py::TestVolumeStrategy::test_obv_falling PASSED [100%]
+
+=================================== FAILURES ===================================
+___________ TestPerformanceEndpoint.test_performance_all_strategies ____________
+tests/test_api_strategy_endpoints.py:241: in test_performance_all_strategies
+    assert 'signal_distribution' in tech
+E   AssertionError: assert 'signal_distribution' in {'total_signals': 10, 'buy_signals': 10, 'sell_signals': 0, 'hold_signals': 0, 'avg_confidence': 0.7}
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:670 [Dashboard] Calculated performance for 3 strategies from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/strategy/performance "HTTP/1.1 200 OK"
+___________ TestAPIErrorHandling.test_endpoints_handle_logger_errors ___________
+tests/test_api_strategy_endpoints.py:425: in test_endpoints_handle_logger_errors
+    assert response.status_code in [500, 404]  # 404 for not_found cases
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 200 in [500, 404]
+E    +  where 200 = <Response [200 OK]>.status_code
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+ERROR    root:dashboard.py:791 [API] Error in get_strategy_summary: Simulated error
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/strategy/summary "HTTP/1.1 500 Internal Server Error"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:565 [Dashboard] Loaded 0 current signals from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/strategy/current "HTTP/1.1 200 OK"
+___________________ TestBacktestPortfolio.test_partial_sell ____________________
+tests/test_backtest_portfolio.py:91: in test_partial_sell
+    assert portfolio.positions.get("BTCUSD", 0) == 0.1  # Half remaining
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert 0 == 0.1
+E    +  where 0 = <built-in method get of dict object at 0x7bea75796840>('BTCUSD', 0)
+E    +    where <built-in method get of dict object at 0x7bea75796840> = {}.get
+E    +      where {} = <app.backtesting.backtest_engine.BacktestPortfolio object at 0x7bea757184a0>.positions
+______________ TestConfigAPI.test_config_persists_across_requests ______________
+tests/test_config_api.py:180: in test_config_persists_across_requests
+    assert response.json()["config"]["aggregation"]["min_confidence"] == unique_value
+E   assert 0.5 == 0.777
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:1916 [Config] Saved to database: mode=paper, min_confidence=0.777, position_size=5.0
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/config "HTTP/1.1 200 OK"
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/config "HTTP/1.1 200 OK"
+__________________ TestPartialRoute.test_partial_with_trades ___________________
+tests/test_dashboard.py:112: in test_partial_with_trades
+    assert data["summary"]["total_trades"] == 2
+E   assert 0 == 2
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+_______________ TestStatusRoute.test_status_with_bot_status_file _______________
+tests/test_dashboard.py:148: in test_status_with_bot_status_file
+    assert data["last_status"]["time"] == "2025-01-01 12:00:00"
+E   AssertionError: assert None == '2025-01-01 12:00:00'
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/status "HTTP/1.1 200 OK"
+_________________ TestLoadPnLData.test_load_pnl_simple_profit __________________
+tests/test_dashboard.py:257: in test_load_pnl_simple_profit
+    assert "BTC/USD" in labels
+E   AssertionError: assert 'BTC/USD' in []
+------------------------------ Captured log call -------------------------------
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+__________________ TestLoadPnLData.test_load_pnl_simple_loss ___________________
+tests/test_dashboard.py:273: in test_load_pnl_simple_loss
+    idx = labels.index("BTC/USD")
+          ^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: 'BTC/USD' is not in list
+------------------------------ Captured log call -------------------------------
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+________________ TestLoadPnLData.test_load_pnl_multiple_symbols ________________
+tests/test_dashboard.py:290: in test_load_pnl_multiple_symbols
+    assert len(labels) == 2
+E   assert 0 == 2
+E    +  where 0 = len([])
+------------------------------ Captured log call -------------------------------
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+_______________ TestLoadSentiment.test_load_sentiment_with_data ________________
+tests/test_dashboard.py:322: in test_load_sentiment_with_data
+    assert "BTC/USD" in sentiment
+E   AssertionError: assert 'BTC/USD' in {}
+___________ TestLoadSentiment.test_load_sentiment_normalizes_signals ___________
+tests/test_dashboard.py:339: in test_load_sentiment_normalizes_signals
+    assert sentiment["BTC/USD"]["signal"] == "BUY"
+           ^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'BTC/USD'
+_____ TestLoadSentiment.test_load_sentiment_empty_signal_defaults_to_hold ______
+tests/test_dashboard.py:355: in test_load_sentiment_empty_signal_defaults_to_hold
+    assert sentiment["BTC/USD"]["signal"] == "HOLD"
+           ^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'BTC/USD'
+_______ TestLoadSentiment.test_load_sentiment_handles_timestamp_variants _______
+tests/test_dashboard.py:385: in test_load_sentiment_handles_timestamp_variants
+    assert sentiment["BTC/USD"]["updated_at"] == "2025-01-01T10:00:00"
+           ^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'BTC/USD'
+___ TestPartialDataIntegration.test_partial_filters_holds_from_recent_trades ___
+tests/test_dashboard.py:405: in test_partial_filters_holds_from_recent_trades
+    assert len(data["trades"]) == 2
+E   assert 0 == 2
+E    +  where 0 = len([])
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+______ TestPartialDataIntegration.test_partial_limits_recent_trades_to_20 ______
+tests/test_dashboard.py:421: in test_partial_limits_recent_trades_to_20
+    assert len(data["trades"]) == 20
+E   assert 0 == 20
+E    +  where 0 = len([])
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+_ TestPartialDataIntegration.test_partial_fallback_sentiment_for_unknown_symbols _
+tests/test_dashboard.py:436: in test_partial_fallback_sentiment_for_unknown_symbols
+    assert "BTC/USD" in data["sentiment"]
+E   AssertionError: assert 'BTC/USD' in {}
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     root:dashboard.py:64 [Dashboard] Loaded 0 trades from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+___________ TestTradesEndpoint.test_trades_endpoint_returns_db_data ____________
+tests/test_dashboard_db_integration.py:94: in test_trades_endpoint_returns_db_data
+    assert data[0]["symbol"] == "BTCUSD"
+           ^^^^^^^
+E   KeyError: 0
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:1185 [Dashboard] Loaded 1 trades from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/trades/all "HTTP/1.1 200 OK"
+__________ TestTradesEndpoint.test_trades_endpoint_filters_test_data ___________
+tests/test_dashboard_db_integration.py:136: in test_trades_endpoint_filters_test_data
+    assert data[0]["symbol"] == "BTCUSD"
+           ^^^^^^^
+E   KeyError: 0
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:1185 [Dashboard] Loaded 1 trades from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/trades/all "HTTP/1.1 200 OK"
+_________ TestTradesEndpoint.test_trades_endpoint_filters_hold_actions _________
+tests/test_dashboard_db_integration.py:176: in test_trades_endpoint_filters_hold_actions
+    assert data[0]["action"] == "BUY"
+           ^^^^^^^
+E   KeyError: 0
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:1185 [Dashboard] Loaded 1 trades from database
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/trades/all "HTTP/1.1 200 OK"
+_________ TestHoldingsEndpoint.test_holdings_calculated_from_db_trades _________
+tests/test_dashboard_db_integration.py:323: in test_holdings_calculated_from_db_trades
+    assert "BTCUSD" in data["holdings"]
+E   AssertionError: assert 'BTCUSD' in {}
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/holdings "HTTP/1.1 200 OK"
+_________ TestGetUnseenHeadlinesWithDictFeeds.test_handles_dict_feeds __________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+_______ TestGetUnseenHeadlinesWithDictFeeds.test_filters_seen_headlines ________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+______ TestGetUnseenHeadlinesWithDictFeeds.test_handles_feed_fetch_errors ______
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+___ TestGetUnseenHeadlinesWithDictFeeds.test_skips_headlines_without_symbols ___
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+_____ TestGetUnseenHeadlinesWithDictFeeds.test_returns_empty_when_no_feeds _____
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+___ TestGetUnseenHeadlinesWithDictFeeds.test_aggregates_headlines_by_symbol ____
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+_____________________ test_news_fetcher_uses_database_only _____________________
+tests/test_news_fetcher_database.py:20: in test_news_fetcher_uses_database_only
+    assert feed_count > 0, "Database should have enabled RSS feeds"
+E   AssertionError: Database should have enabled RSS feeds
+E   assert 0 > 0
+_____________________ test_feeds_tab_shows_correct_counts ______________________
+.venv/lib/python3.12/site-packages/urllib3/connection.py:198: in _new_conn
+    sock = connection.create_connection(
+.venv/lib/python3.12/site-packages/urllib3/util/connection.py:85: in create_connection
+    raise err
+.venv/lib/python3.12/site-packages/urllib3/util/connection.py:73: in create_connection
+    sock.connect(sa)
+E   ConnectionRefusedError: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+.venv/lib/python3.12/site-packages/urllib3/connectionpool.py:787: in urlopen
+    response = self._make_request(
+.venv/lib/python3.12/site-packages/urllib3/connectionpool.py:493: in _make_request
+    conn.request(
+.venv/lib/python3.12/site-packages/urllib3/connection.py:494: in request
+    self.endheaders()
+/usr/lib/python3.12/http/client.py:1331: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+/usr/lib/python3.12/http/client.py:1091: in _send_output
+    self.send(msg)
+/usr/lib/python3.12/http/client.py:1035: in send
+    self.connect()
+.venv/lib/python3.12/site-packages/urllib3/connection.py:325: in connect
+    self.sock = self._new_conn()
+                ^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/urllib3/connection.py:213: in _new_conn
+    raise NewConnectionError(
+E   urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7bea754bef60>: Failed to establish a new connection: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+.venv/lib/python3.12/site-packages/requests/adapters.py:644: in send
+    resp = conn.urlopen(
+.venv/lib/python3.12/site-packages/urllib3/connectionpool.py:841: in urlopen
+    retries = retries.increment(
+.venv/lib/python3.12/site-packages/urllib3/util/retry.py:519: in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7bea754bef60>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+During handling of the above exception, another exception occurred:
+tests/test_news_fetcher_database.py:89: in test_feeds_tab_shows_correct_counts
+    response = requests.get("http://localhost:8000/api/feeds")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/requests/api.py:73: in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/requests/api.py:59: in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/requests/sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/requests/sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/requests/adapters.py:677: in send
+    raise ConnectionError(e, request=request)
+E   requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7bea754bef60>: Failed to establish a new connection: [Errno 111] Connection refused'))
+------------------------------ Captured log call -------------------------------
+DEBUG    urllib3.connectionpool:connectionpool.py:241 Starting new HTTP connection (1): localhost:8000
+__________________ TestGetRssFeeds.test_load_feeds_from_json ___________________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+_________________ TestGetRssFeeds.test_filters_inactive_feeds __________________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+_________ TestGetRssFeeds.test_returns_empty_list_when_no_active_feeds _________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+______________ TestGetRssFeeds.test_fallback_when_file_not_found _______________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+______________ TestGetRssFeeds.test_fallback_when_json_corrupted _______________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+______________ TestGetRssFeeds.test_handles_missing_active_field _______________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+_________________ TestGetRssFeeds.test_preserves_feed_metadata _________________
+/usr/lib/python3.12/unittest/mock.py:1387: in patched
+    with self.decoration_helper(patched,
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+______________ TestProductionFeedLoading.test_loads_actual_feeds _______________
+tests/test_news_fetcher_feeds.py:186: in test_loads_actual_feeds
+    from app.news_fetcher import get_rss_feeds
+E   ImportError: cannot import name 'get_rss_feeds' from 'app.news_fetcher' (/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py)
+__________ TestNOJsonFiles.test_config_json_is_only_allowed_json_file __________
+tests/test_no_json_files.py:99: in test_config_json_is_only_allowed_json_file
+    pytest.fail(
+E   Failed: Found operational JSON files that should be in database: [PosixPath('src/app/logs/errors.json'), PosixPath('src/app/logs/bot_status.json')]
+______________ TestFilePersistence.test_trades_persisted_to_file _______________
+tests/test_paper_trader.py:134: in test_trades_persisted_to_file
+    assert len(trades) == 1
+E   assert 0 == 1
+E    +  where 0 = len([])
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, buy BTCUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: buy BTCUSD
+______________ TestFilePersistence.test_multiple_trades_appended _______________
+tests/test_paper_trader.py:150: in test_multiple_trades_appended
+    assert len(trades) == 4  # BTC buy, ETH buy, ETH sell, SOL buy
+    ^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 0 == 4
+E    +  where 0 = len([])
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, buy BTCUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: buy BTCUSD
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=2, buy ETHUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: buy ETHUSD
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=3, sell ETHUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: sell ETHUSD
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=4, buy SOLUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: buy SOLUSD
+_______________ TestFilePersistence.test_corrupted_file_recovery _______________
+tests/test_paper_trader.py:171: in test_corrupted_file_recovery
+    trades = json.load(f)
+             ^^^^^^^^^^^^
+/usr/lib/python3.12/json/__init__.py:293: in load
+    return loads(fp.read(),
+/usr/lib/python3.12/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/json/decoder.py:353: in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+E   json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 3 (char 2)
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, buy BTCUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: buy BTCUSD
+_____ TestHoldingsUpdateOnTrade.test_sell_entire_position_removes_holding ______
+tests/test_paper_trader.py:455: in test_sell_entire_position_removes_holding
+    assert "ETHUSD" not in holdings
+E   AssertionError: assert 'ETHUSD' not in {'ETHUSD': {'amount': 1.0, 'avg_price': 3000.0, 'current_price': 3000.0, 'market_value': 3000.0, 'cost_basis': 3000.0, 'unrealized_pnl': 0.0}}
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, buy ETHUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: buy ETHUSD
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=2, sell ETHUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: sell ETHUSD
+__________ TestHoldingsUpdateOnTrade.test_holdings_persisted_to_file ___________
+tests/test_paper_trader.py:557: in test_holdings_persisted_to_file
+    assert "BTCUSD" in holdings
+E   AssertionError: assert 'BTCUSD' in {}
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, buy BTCUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: buy BTCUSD
+___ TestPaperTraderDatabaseIntegration.test_symbol_normalization_in_database ___
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_paper_trader_database.py:276: in test_symbol_normalization_in_database
+    db.query(Trade).delete()
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3210: in delete
+    self.session.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2351: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2249: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2033: in orm_execute_statement
+    return super().orm_execute_statement(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:306: in orm_execute_statement
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM trades]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, BUY BTCUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: BUY BTCUSD
+_________ TestPaperTraderHoldActions.test_hold_does_not_execute_trade __________
+tests/test_paper_trader_hold.py:25: in test_hold_does_not_execute_trade
+    with patch('app.logic.paper_trader.TRADES_FILE', trades_file):
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+________ TestPaperTraderHoldActions.test_hold_does_not_modify_holdings _________
+tests/test_paper_trader_hold.py:62: in test_hold_does_not_modify_holdings
+    with patch('app.logic.paper_trader.TRADES_FILE', trades_file):
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+____________ TestPaperTraderHoldActions.test_buy_executes_correctly ____________
+tests/test_paper_trader_hold.py:93: in test_buy_executes_correctly
+    with patch('app.logic.paper_trader.TRADES_FILE', trades_file):
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+___________ TestPaperTraderHoldActions.test_sell_executes_correctly ____________
+tests/test_paper_trader_hold.py:129: in test_sell_executes_correctly
+    with patch('app.logic.paper_trader.TRADES_FILE', trades_file):
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+___________ TestPaperTraderHoldActions.test_action_case_insensitive ____________
+tests/test_paper_trader_hold.py:164: in test_action_case_insensitive
+    with patch('app.logic.paper_trader.TRADES_FILE', trades_file):
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+__________ TestPartialEndpoint.test_partial_filters_out_hold_signals ___________
+tests/test_partial_endpoint.py:143: in test_partial_filters_out_hold_signals
+    assert doge_signal is None, "Should NOT include HOLD signal"
+E   AssertionError: Should NOT include HOLD signal
+E   assert {'id': 1, 'symbol': 'DOGEUSD', 'signal': 'HOLD', 'confidence': 0.15, 'price': 0.2, 'timestamp': '2025-10-28T18:34:27.185306Z', 'executed': False} is None
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:64 [Dashboard] Loaded 3 trades from database
+INFO     root:dashboard.py:64 [Dashboard] Loaded 3 trades from database
+INFO     root:dashboard.py:208 [PnL] Labels: ['BTCUSD', 'ETHUSD']
+INFO     root:dashboard.py:209 [PnL] Data: [-50.0, 0.0]
+INFO     root:dashboard.py:64 [Dashboard] Loaded 3 trades from database
+INFO     root:dashboard.py:208 [PnL] Labels: ['BTCUSD', 'ETHUSD']
+INFO     root:dashboard.py:209 [PnL] Data: [-50.0, 0.0]
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+_________ TestPartialEndpoint.test_partial_returns_recent_signals_only _________
+tests/test_partial_endpoint.py:174: in test_partial_returns_recent_signals_only
+    assert len(signals) <= 20, "Should return at most 20 recent signals"
+E   AssertionError: Should return at most 20 recent signals
+E   assert 25 <= 20
+E    +  where 25 = len([{'id': 25, 'symbol': 'TEST24USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.219219Z', 'executed': False}, {'id': 24, 'symbol': 'TEST23USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.218768Z', 'executed': False}, {'id': 23, 'symbol': 'TEST22USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.218265Z', 'executed': False}, {'id': 22, 'symbol': 'TEST21USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.217850Z', 'executed': False}, {'id': 21, 'symbol': 'TEST20USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.217401Z', 'executed': False}, {'id': 20, 'symbol': 'TEST19USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.216971Z', 'executed': False}, {'id': 19, 'symbol': 'TEST18USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.216523Z', 'executed': False}, {'id': 18, 'symbol': 'TEST17USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.216092Z', 'executed': False}, {'id': 17, 'symbol': 'TEST16USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.215635Z', 'executed': False}, {'id': 16, 'symbol': 'TEST15USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.215200Z', 'executed': False}, {'id': 15, 'symbol': 'TEST14USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.214764Z', 'executed': False}, {'id': 14, 'symbol': 'TEST13USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.214295Z', 'executed': False}, {'id': 13, 'symbol': 'TEST12USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.213819Z', 'executed': False}, {'id': 12, 'symbol': 'TEST11USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.213334Z', 'executed': False}, {'id': 11, 'symbol': 'TEST10USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.212878Z', 'executed': False}, {'id': 10, 'symbol': 'TEST9USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.212401Z', 'executed': False}, {'id': 9, 'symbol': 'TEST8USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.211943Z', 'executed': False}, {'id': 8, 'symbol': 'TEST7USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.211377Z', 'executed': False}, {'id': 7, 'symbol': 'TEST6USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.210773Z', 'executed': False}, {'id': 6, 'symbol': 'TEST5USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.209853Z', 'executed': False}, {'id': 5, 'symbol': 'TEST4USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.208936Z', 'executed': False}, {'id': 4, 'symbol': 'TEST3USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.208334Z', 'executed': False}, {'id': 3, 'symbol': 'TEST2USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.207748Z', 'executed': False}, {'id': 2, 'symbol': 'TEST1USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.207172Z', 'executed': False}, {'id': 1, 'symbol': 'TEST0USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.206224Z', 'executed': False}])
+------------------------------ Captured log call -------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+INFO     root:dashboard.py:64 [Dashboard] Loaded 3 trades from database
+INFO     root:dashboard.py:64 [Dashboard] Loaded 3 trades from database
+INFO     root:dashboard.py:208 [PnL] Labels: ['BTCUSD', 'ETHUSD']
+INFO     root:dashboard.py:209 [PnL] Data: [-50.0, 0.0]
+INFO     root:dashboard.py:64 [Dashboard] Loaded 3 trades from database
+INFO     root:dashboard.py:208 [PnL] Labels: ['BTCUSD', 'ETHUSD']
+INFO     root:dashboard.py:209 [PnL] Data: [-50.0, 0.0]
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/partial "HTTP/1.1 200 OK"
+_______________________ test_can_sell_existing_position ________________________
+tests/test_sell_validation.py:75: in test_can_sell_existing_position
+    assert result["action"] == "sell"
+E   AssertionError: assert 'SELL' == 'sell'
+E     
+E     - sell
+E     + SELL
+__________________ test_sell_validation_uses_canonical_symbol __________________
+tests/test_sell_validation.py:98: in test_sell_validation_uses_canonical_symbol
+    assert result["action"] == "sell"
+E   AssertionError: assert 'SELL' == 'sell'
+E     
+E     - sell
+E     + SELL
+___________________ TestSentimentStrategy.test_no_headlines ____________________
+tests/test_sentiment_strategy.py:26: in test_no_headlines
+    signal, confidence, reason, signal_id = sentiment_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+________________ TestSentimentStrategy.test_single_headline_buy ________________
+tests/test_sentiment_strategy.py:36: in test_single_headline_buy
+    signal, confidence, reason, signal_id = sentiment_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+_______________ TestSentimentStrategy.test_single_headline_sell ________________
+tests/test_sentiment_strategy.py:46: in test_single_headline_sell
+    signal, confidence, reason, signal_id = sentiment_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+________________ TestSentimentStrategy.test_multiple_headlines _________________
+tests/test_sentiment_strategy.py:64: in test_multiple_headlines
+    signal, confidence, reason, signal_id = sentiment_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+------------------------------ Captured log call -------------------------------
+INFO     root:sentiment.py:304 [SentimentSignal] Sending 3 headlines for BTC/USD to GPT
+INFO     root:sentiment.py:323 [SentimentSignal] BTC/USD consolidated signal: BUY — Positive overall
+____________ TestSignalToTradeFlow.test_signal_gets_logged_to_jsonl ____________
+tests/test_signal_to_trade_flow.py:39: in test_signal_gets_logged_to_jsonl
+    with patch('app.strategies.strategy_manager.LOGS_DIR', tmp_path):
+/usr/lib/python3.12/unittest/mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.strategies.strategy_manager' from '/home/rcasteen/kraken-ai-bot/src/app/strategies/strategy_manager.py'> does not have the attribute 'LOGS_DIR'
+_________ TestSignalToTradeFlow.test_paper_trader_executes_buy_signal __________
+tests/test_signal_to_trade_flow.py:86: in test_paper_trader_executes_buy_signal
+    assert result["success"] == True
+           ^^^^^^^^^^^^^^^^^
+E   KeyError: 'success'
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, BUY BTCUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: BUY BTCUSD
+____ TestSignalToTradeFlow.test_paper_trader_respects_confidence_threshold _____
+tests/test_signal_to_trade_flow.py:109: in test_paper_trader_respects_confidence_threshold
+    assert result["success"] == True
+           ^^^^^^^^^^^^^^^^^
+E   KeyError: 'success'
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, BUY BTCUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: BUY BTCUSD
+________ TestSignalConfidenceThresholds.test_threshold_is_configurable _________
+tests/test_signal_to_trade_flow.py:146: in test_threshold_is_configurable
+    assert hasattr(config, 'min_confidence') or 'min_confidence' in config
+E   AssertionError: assert (False or 'min_confidence' in {'strategy': 'gpt-sentiment', 'interval_minutes': 5, 'trading_fee_percent': 0.26, 'strategies': {'sentiment': {'enabled': True, 'weight': 1.5}, 'technical': {'enabled': True, 'weight': 1}, 'volume': {'enabled': True, 'weight': 0.8}}, 'aggregation': {'method': 'weighted_vote', 'min_confidence': 0.5}, 'risk_management': {'position_size_percent': 7, 'max_daily_loss_percent': 10, 'max_open_positions': None}, 'trading_mode': 'paper', 'paper_starting_capital': 200})
+E    +  where False = hasattr({'strategy': 'gpt-sentiment', 'interval_minutes': 5, 'trading_fee_percent': 0.26, 'strategies': {'sentiment': {'enabled': True, 'weight': 1.5}, 'technical': {'enabled': True, 'weight': 1}, 'volume': {'enabled': True, 'weight': 0.8}}, 'aggregation': {'method': 'weighted_vote', 'min_confidence': 0.5}, 'risk_management': {'position_size_percent': 7, 'max_daily_loss_percent': 10, 'max_open_positions': None}, 'trading_mode': 'paper', 'paper_starting_capital': 200}, 'min_confidence')
+_______________ TestTradeExecution.test_buy_creates_new_position _______________
+tests/test_signal_to_trade_flow.py:176: in test_buy_creates_new_position
+    assert "BTCUSD" in holdings
+E   AssertionError: assert 'BTCUSD' in {}
+------------------------------ Captured log call -------------------------------
+INFO     root:paper_trader.py:227 [PaperTrader] Saved trade to database: ID=1, BUY BTCUSD | signal_id=None
+INFO     root:paper_trader.py:130 [PaperTrader] Updated holdings in database: BUY BTCUSD
+________________ TestTradeExecution.test_sell_reduces_position _________________
+tests/test_signal_to_trade_flow.py:203: in test_sell_reduces_position
+    assert holdings["BTCUSD"]["amount"] == 0.01  # 0.02 - 0.01
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 0.02 == 0.01
+________ TestBackwardCompatibility.test_signals_unchanged_with_logging _________
+tests/test_strategy_manager_logging.py:147: in test_signals_unchanged_with_logging
+    signal1, conf1, reason1 = strategy_manager.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: too many values to unpack (expected 3)
+------------------------------ Captured log setup ------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.76
+✅ CALC BUY/SELL: 0.76 / 2.8 = 0.27142857142857146
+------------------------------ Captured log call -------------------------------
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-df188aa4-8830-4106-ba10-99787f9331d7', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Bitcoin positive news" and the crypto symbol BTCUSD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7bea74fd48f0>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x7bea74aff250> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7bea7501d7c0>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Tue, 28 Oct 2025 18:34:45 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'776'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'791'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9989'), (b'x-ratelimit-remaining-tokens', b'199925'), (b'x-ratelimit-reset-requests', b'1m26.857s'), (b'x-ratelimit-reset-tokens', b'22ms'), (b'x-request-id', b'req_3744449d63524d6f98b26508fe95ddee'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=bGPkAKbahAYkWFRrL68DTShEmVoy2ql5VJZBbl8Ikvw-1761676485-1.0.1.1-sFLIgf0Ed7oH6lT8AWTN8aRYOG6v1wSsjUNzoTGGbUHI343bsMiERfjQKZT2MNHVfKEoVP6d6JUOuecv952xQq7nBzt1r4GZ4G0ixpckUKY; path=/; expires=Tue, 28-Oct-25 19:04:45 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=nXdStLDaG3tXUtjSefzco3O3gftRvXdBtUq4FwPJomg-1761676485728-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'995c876e5b95477b-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Tue, 28 Oct 2025 18:34:45 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '776'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '791'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9989'), ('x-ratelimit-remaining-tokens', '199925'), ('x-ratelimit-reset-requests', '1m26.857s'), ('x-ratelimit-reset-tokens', '22ms'), ('x-request-id', 'req_3744449d63524d6f98b26508fe95ddee'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=bGPkAKbahAYkWFRrL68DTShEmVoy2ql5VJZBbl8Ikvw-1761676485-1.0.1.1-sFLIgf0Ed7oH6lT8AWTN8aRYOG6v1wSsjUNzoTGGbUHI343bsMiERfjQKZT2MNHVfKEoVP6d6JUOuecv952xQq7nBzt1r4GZ4G0ixpckUKY; path=/; expires=Tue, 28-Oct-25 19:04:45 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=nXdStLDaG3tXUtjSefzco3O3gftRvXdBtUq4FwPJomg-1761676485728-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '995c876e5b95477b-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_3744449d63524d6f98b26508fe95ddee
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: BUY (conf: 0.60) - Sentiment: Positive news often leads to increased investor confidence and potential price appreciation.
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.76
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: BUY (conf: 0.27)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.27 below threshold 0.5, converting to HOLD
+_____________ TestLoggingContent.test_logs_actual_strategy_outputs _____________
+tests/test_strategy_manager_logging.py:231: in test_logs_actual_strategy_outputs
+    final_signal, final_conf, final_reason = strategy_manager.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: too many values to unpack (expected 3)
+------------------------------ Captured log setup ------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+----------------------------- Captured stdout call -----------------------------
+🔍 PRE-CALC: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.76
+✅ CALC BUY/SELL: 0.76 / 2.8 = 0.27142857142857146
+------------------------------ Captured log call -------------------------------
+DEBUG    openai._base_client:_base_client.py:482 Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-9d6a7af5-c354-4204-ac62-dbc1de80047c', 'json_data': {'messages': [{'role': 'user', 'content': 'Given the headline: "Bitcoin is rising" and the crypto symbol BTCUSD, determine the most appropriate trading signal from the options: BUY, HOLD, or SELL. Also explain briefly why. Your output should be a JSON object like: {"signal": "BUY", "reason": "High interest and positive news."}'}], 'model': 'gpt-4o-mini', 'max_tokens': 100, 'temperature': 0.2}}
+DEBUG    openai._base_client:_base_client.py:978 Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG    httpcore.connection:_trace.py:47 connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7bea74fd4110>
+DEBUG    httpcore.connection:_trace.py:47 start_tls.started ssl_context=<ssl.SSLContext object at 0x7bea75057350> server_hostname='api.openai.com' timeout=5.0
+DEBUG    httpcore.connection:_trace.py:47 start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7bea74fd4c80>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_headers.complete
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 send_request_body.complete
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Tue, 28 Oct 2025 18:34:49 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-6mwxkngxge9likbrzlxbfa92'), (b'openai-processing-ms', b'859'), (b'openai-project', b'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'879'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9987'), (b'x-ratelimit-remaining-tokens', b'199926'), (b'x-ratelimit-reset-requests', b'1m48.766s'), (b'x-ratelimit-reset-tokens', b'22ms'), (b'x-request-id', b'req_679773a0f9d44197bb6a9e47636b576e'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=sBmFh47ck_nIlwC8Pv5bv7Al_IBNOR92nbjSKgBANpc-1761676489-1.0.1.1-7vd3brvXRrNuWr1qHedc.Nl_O.4RaHXH5c3EdJ2YL9I8G6IWL3rwWMdj7wJlcvOc1vPZDfzCn3lX7VlqA5ScYfAu5YzEwBCWtMlT45T8vJI; path=/; expires=Tue, 28-Oct-25 19:04:49 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=HnJ8fCnIeJhy1nqstnUcSzHV8ZE3ErG4OUsyFk1raVI-1761676489833-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'995c878779c2ea98-DFW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO     httpx:_client.py:1025 HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.started request=<Request [b'POST']>
+DEBUG    httpcore.http11:_trace.py:47 receive_response_body.complete
+DEBUG    httpcore.http11:_trace.py:47 response_closed.started
+DEBUG    httpcore.http11:_trace.py:47 response_closed.complete
+DEBUG    openai._base_client:_base_client.py:1016 HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Tue, 28 Oct 2025 18:34:49 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-6mwxkngxge9likbrzlxbfa92'), ('openai-processing-ms', '859'), ('openai-project', 'proj_3jfjrR4jauJSvtuUZKgvj2Vp'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '879'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9987'), ('x-ratelimit-remaining-tokens', '199926'), ('x-ratelimit-reset-requests', '1m48.766s'), ('x-ratelimit-reset-tokens', '22ms'), ('x-request-id', 'req_679773a0f9d44197bb6a9e47636b576e'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=sBmFh47ck_nIlwC8Pv5bv7Al_IBNOR92nbjSKgBANpc-1761676489-1.0.1.1-7vd3brvXRrNuWr1qHedc.Nl_O.4RaHXH5c3EdJ2YL9I8G6IWL3rwWMdj7wJlcvOc1vPZDfzCn3lX7VlqA5ScYfAu5YzEwBCWtMlT45T8vJI; path=/; expires=Tue, 28-Oct-25 19:04:49 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=HnJ8fCnIeJhy1nqstnUcSzHV8ZE3ErG4OUsyFk1raVI-1761676489833-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '995c878779c2ea98-DFW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+DEBUG    openai._base_client:_base_client.py:1024 request_id: req_679773a0f9d44197bb6a9e47636b576e
+INFO     root:strategy_manager.py:141 [sentiment] BTCUSD: BUY (conf: 0.60) - Sentiment: The headline indicates a positive trend in Bitcoin's price, suggesting potential for profit.
+INFO     root:strategy_manager.py:141 [technical] BTCUSD: SELL (conf: 0.47) - Technical: SMA: HOLD, RSI: SELL, Momentum: SELL
+INFO     root:strategy_manager.py:141 [volume] BTCUSD: BUY (conf: 0.20) - Volume: Normal volume | No clear volume-price pattern | OBV rising (accumulation)
+INFO     root:strategy_manager.py:254 [StrategyManager] DEBUG: signal=BUY, actionable_weight=2.8, hold_weight=0, raw_score=0.76
+INFO     root:strategy_manager.py:171 [StrategyManager] Final signal for BTCUSD: BUY (conf: 0.27)
+INFO     root:strategy_manager.py:209 [StrategyManager] Confidence 0.27 below threshold 0.5, converting to HOLD
+_______________ TestStrategyManager.test_initialize_with_config ________________
+tests/test_strategy_registry.py:201: in test_initialize_with_config
+    assert len(manager.strategies) == 2
+E   assert 3 == 2
+E    +  where 3 = len([<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea7501f3b0>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea7501f800>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea7501e630>])
+E    +    where [<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea7501f3b0>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea7501f800>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea7501e630>] = <app.strategies.strategy_manager.StrategyManager object at 0x7bea75026a20>.strategies
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+______________ TestStrategyManager.test_add_strategy_dynamically _______________
+tests/test_strategy_registry.py:215: in test_add_strategy_dynamically
+    manager.add_strategy(CustomStrategy(), weight=2.0, enabled=True)
+                         ^^^^^^^^^^^^^^^^
+E   TypeError: Can't instantiate abstract class CustomStrategy without an implementation for abstract method 'get_signal'
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+______________ TestStrategyManager.test_enable_disabled_strategy _______________
+tests/test_strategy_registry.py:248: in test_enable_disabled_strategy
+    assert len(manager.strategies) == 0
+E   assert 3 == 0
+E    +  where 3 = len([<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea74bec680>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea74bee9c0>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea74befbf0>])
+E    +    where [<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea74bec680>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea74bee9c0>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea74befbf0>] = <app.strategies.strategy_manager.StrategyManager object at 0x7bea74beff20>.strategies
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+______________ TestStrategyManager.test_disable_enabled_strategy _______________
+tests/test_strategy_registry.py:264: in test_disable_enabled_strategy
+    assert len(manager.strategies) == 1
+E   assert 3 == 1
+E    +  where 3 = len([<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea74c875f0>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea763b7410>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea763b78f0>])
+E    +    where [<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea74c875f0>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea763b7410>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea763b78f0>] = <app.strategies.strategy_manager.StrategyManager object at 0x7bea74c87710>.strategies
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+_______________ TestStrategyManager.test_update_strategy_weight ________________
+tests/test_strategy_registry.py:281: in test_update_strategy_weight
+    manager.update_strategy_weight("sentiment", 2.5)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'StrategyManager' object has no attribute 'update_strategy_weight'
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+_____________ TestStrategyManager.test_get_active_strategies_list ______________
+tests/test_strategy_registry.py:299: in test_get_active_strategies_list
+    active = manager.get_active_strategies()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'StrategyManager' object has no attribute 'get_active_strategies'
+------------------------------ Captured log call -------------------------------
+INFO     root:strategy_manager.py:41 [StrategyManager] Logging to data/strategy_signals.jsonl
+_____________ TestLogDecision.test_handles_write_errors_gracefully _____________
+tests/test_strategy_signal_logger.py:186: in test_handles_write_errors_gracefully
+    assert "Failed to log strategy signal" in captured.out
+E   AssertionError: assert 'Failed to log strategy signal' in ''
+E    +  where '' = CaptureResult(out='', err='').out
+------------------------------ Captured log call -------------------------------
+ERROR    app.strategy_signal_logger:strategy_signal_logger.py:99 Failed to write signal to file: [Errno 13] Permission denied: '/tmp/tmpyfyxmeiy/strategy_signals.jsonl'
+___________________ TestTechnicalStrategy.test_no_price_data ___________________
+tests/test_technical_strategy.py:25: in test_no_price_data
+    signal, confidence, reason, signal_id = technical_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+_______________ TestTechnicalStrategy.test_insufficient_history ________________
+tests/test_technical_strategy.py:38: in test_insufficient_history
+    signal, confidence, reason, signal_id = technical_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+________________ TestTechnicalStrategy.test_bullish_sma_signal _________________
+tests/test_technical_strategy.py:54: in test_bullish_sma_signal
+    signal, confidence, reason, signal_id = technical_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+________________ TestTechnicalStrategy.test_bearish_sma_signal _________________
+tests/test_technical_strategy.py:70: in test_bearish_sma_signal
+    signal, confidence, reason, signal_id = technical_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+____________________ TestVolumeStrategy.test_no_volume_data ____________________
+tests/test_volume_strategy.py:25: in test_no_volume_data
+    signal, confidence, reason, signal_id = volume_strategy.get_signal("BTC/USD", context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: not enough values to unpack (expected 4, got 3)
+=========================== short test summary info ============================
+FAILED tests/test_api_strategy_endpoints.py::TestPerformanceEndpoint::test_performance_all_strategies - AssertionError: assert 'signal_distribution' in {'total_signals': 10, 'buy_signals': 10, 'sell_signals': 0, 'hold_signals': 0, 'avg_confidence': 0.7}
+FAILED tests/test_api_strategy_endpoints.py::TestAPIErrorHandling::test_endpoints_handle_logger_errors - assert 200 in [500, 404]
+ +  where 200 = <Response [200 OK]>.status_code
+FAILED tests/test_backtest_portfolio.py::TestBacktestPortfolio::test_partial_sell - AssertionError: assert 0 == 0.1
+ +  where 0 = <built-in method get of dict object at 0x7bea75796840>('BTCUSD', 0)
+ +    where <built-in method get of dict object at 0x7bea75796840> = {}.get
+ +      where {} = <app.backtesting.backtest_engine.BacktestPortfolio object at 0x7bea757184a0>.positions
+FAILED tests/test_config_api.py::TestConfigAPI::test_config_persists_across_requests - assert 0.5 == 0.777
+FAILED tests/test_dashboard.py::TestPartialRoute::test_partial_with_trades - assert 0 == 2
+FAILED tests/test_dashboard.py::TestStatusRoute::test_status_with_bot_status_file - AssertionError: assert None == '2025-01-01 12:00:00'
+FAILED tests/test_dashboard.py::TestLoadPnLData::test_load_pnl_simple_profit - AssertionError: assert 'BTC/USD' in []
+FAILED tests/test_dashboard.py::TestLoadPnLData::test_load_pnl_simple_loss - ValueError: 'BTC/USD' is not in list
+FAILED tests/test_dashboard.py::TestLoadPnLData::test_load_pnl_multiple_symbols - assert 0 == 2
+ +  where 0 = len([])
+FAILED tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_with_data - AssertionError: assert 'BTC/USD' in {}
+FAILED tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_normalizes_signals - KeyError: 'BTC/USD'
+FAILED tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_empty_signal_defaults_to_hold - KeyError: 'BTC/USD'
+FAILED tests/test_dashboard.py::TestLoadSentiment::test_load_sentiment_handles_timestamp_variants - KeyError: 'BTC/USD'
+FAILED tests/test_dashboard.py::TestPartialDataIntegration::test_partial_filters_holds_from_recent_trades - assert 0 == 2
+ +  where 0 = len([])
+FAILED tests/test_dashboard.py::TestPartialDataIntegration::test_partial_limits_recent_trades_to_20 - assert 0 == 20
+ +  where 0 = len([])
+FAILED tests/test_dashboard.py::TestPartialDataIntegration::test_partial_fallback_sentiment_for_unknown_symbols - AssertionError: assert 'BTC/USD' in {}
+FAILED tests/test_dashboard_db_integration.py::TestTradesEndpoint::test_trades_endpoint_returns_db_data - KeyError: 0
+FAILED tests/test_dashboard_db_integration.py::TestTradesEndpoint::test_trades_endpoint_filters_test_data - KeyError: 0
+FAILED tests/test_dashboard_db_integration.py::TestTradesEndpoint::test_trades_endpoint_filters_hold_actions - KeyError: 0
+FAILED tests/test_dashboard_db_integration.py::TestHoldingsEndpoint::test_holdings_calculated_from_db_trades - AssertionError: assert 'BTCUSD' in {}
+FAILED tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_handles_dict_feeds - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+FAILED tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_filters_seen_headlines - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+FAILED tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_handles_feed_fetch_errors - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+FAILED tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_skips_headlines_without_symbols - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+FAILED tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_returns_empty_when_no_feeds - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+FAILED tests/test_get_unseen_headlines.py::TestGetUnseenHeadlinesWithDictFeeds::test_aggregates_headlines_by_symbol - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'load_seen'
+FAILED tests/test_news_fetcher_database.py::test_news_fetcher_uses_database_only - AssertionError: Database should have enabled RSS feeds
+assert 0 > 0
+FAILED tests/test_news_fetcher_database.py::test_feeds_tab_shows_correct_counts - requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7bea754bef60>: Failed to establish a new connection: [Errno 111] Connection refused'))
+FAILED tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_load_feeds_from_json - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+FAILED tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_filters_inactive_feeds - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+FAILED tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_returns_empty_list_when_no_active_feeds - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+FAILED tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_fallback_when_file_not_found - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+FAILED tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_fallback_when_json_corrupted - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+FAILED tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_handles_missing_active_field - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+FAILED tests/test_news_fetcher_feeds.py::TestGetRssFeeds::test_preserves_feed_metadata - AttributeError: <module 'app.news_fetcher' from '/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py'> does not have the attribute 'Path'
+FAILED tests/test_news_fetcher_feeds.py::TestProductionFeedLoading::test_loads_actual_feeds - ImportError: cannot import name 'get_rss_feeds' from 'app.news_fetcher' (/home/rcasteen/kraken-ai-bot/src/app/news_fetcher.py)
+FAILED tests/test_no_json_files.py::TestNOJsonFiles::test_config_json_is_only_allowed_json_file - Failed: Found operational JSON files that should be in database: [PosixPath('src/app/logs/errors.json'), PosixPath('src/app/logs/bot_status.json')]
+FAILED tests/test_paper_trader.py::TestFilePersistence::test_trades_persisted_to_file - assert 0 == 1
+ +  where 0 = len([])
+FAILED tests/test_paper_trader.py::TestFilePersistence::test_multiple_trades_appended - assert 0 == 4
+ +  where 0 = len([])
+FAILED tests/test_paper_trader.py::TestFilePersistence::test_corrupted_file_recovery - json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 3 (char 2)
+FAILED tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_sell_entire_position_removes_holding - AssertionError: assert 'ETHUSD' not in {'ETHUSD': {'amount': 1.0, 'avg_price': 3000.0, 'current_price': 3000.0, 'market_value': 3000.0, 'cost_basis': 3000.0, 'unrealized_pnl': 0.0}}
+FAILED tests/test_paper_trader.py::TestHoldingsUpdateOnTrade::test_holdings_persisted_to_file - AssertionError: assert 'BTCUSD' in {}
+FAILED tests/test_paper_trader_database.py::TestPaperTraderDatabaseIntegration::test_symbol_normalization_in_database - sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+[SQL: DELETE FROM trades]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+FAILED tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_hold_does_not_execute_trade - AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+FAILED tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_hold_does_not_modify_holdings - AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+FAILED tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_buy_executes_correctly - AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+FAILED tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_sell_executes_correctly - AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+FAILED tests/test_paper_trader_hold.py::TestPaperTraderHoldActions::test_action_case_insensitive - AttributeError: <module 'app.logic.paper_trader' from '/home/rcasteen/kraken-ai-bot/src/app/logic/paper_trader.py'> does not have the attribute 'TRADES_FILE'
+FAILED tests/test_partial_endpoint.py::TestPartialEndpoint::test_partial_filters_out_hold_signals - AssertionError: Should NOT include HOLD signal
+assert {'id': 1, 'symbol': 'DOGEUSD', 'signal': 'HOLD', 'confidence': 0.15, 'price': 0.2, 'timestamp': '2025-10-28T18:34:27.185306Z', 'executed': False} is None
+FAILED tests/test_partial_endpoint.py::TestPartialEndpoint::test_partial_returns_recent_signals_only - AssertionError: Should return at most 20 recent signals
+assert 25 <= 20
+ +  where 25 = len([{'id': 25, 'symbol': 'TEST24USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.219219Z', 'executed': False}, {'id': 24, 'symbol': 'TEST23USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.218768Z', 'executed': False}, {'id': 23, 'symbol': 'TEST22USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.218265Z', 'executed': False}, {'id': 22, 'symbol': 'TEST21USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.217850Z', 'executed': False}, {'id': 21, 'symbol': 'TEST20USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.217401Z', 'executed': False}, {'id': 20, 'symbol': 'TEST19USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.216971Z', 'executed': False}, {'id': 19, 'symbol': 'TEST18USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.216523Z', 'executed': False}, {'id': 18, 'symbol': 'TEST17USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.216092Z', 'executed': False}, {'id': 17, 'symbol': 'TEST16USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.215635Z', 'executed': False}, {'id': 16, 'symbol': 'TEST15USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.215200Z', 'executed': False}, {'id': 15, 'symbol': 'TEST14USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.214764Z', 'executed': False}, {'id': 14, 'symbol': 'TEST13USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.214295Z', 'executed': False}, {'id': 13, 'symbol': 'TEST12USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.213819Z', 'executed': False}, {'id': 12, 'symbol': 'TEST11USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.213334Z', 'executed': False}, {'id': 11, 'symbol': 'TEST10USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.212878Z', 'executed': False}, {'id': 10, 'symbol': 'TEST9USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.212401Z', 'executed': False}, {'id': 9, 'symbol': 'TEST8USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.211943Z', 'executed': False}, {'id': 8, 'symbol': 'TEST7USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.211377Z', 'executed': False}, {'id': 7, 'symbol': 'TEST6USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.210773Z', 'executed': False}, {'id': 6, 'symbol': 'TEST5USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.209853Z', 'executed': False}, {'id': 5, 'symbol': 'TEST4USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.208936Z', 'executed': False}, {'id': 4, 'symbol': 'TEST3USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.208334Z', 'executed': False}, {'id': 3, 'symbol': 'TEST2USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.207748Z', 'executed': False}, {'id': 2, 'symbol': 'TEST1USD', 'signal': 'SELL', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.207172Z', 'executed': False}, {'id': 1, 'symbol': 'TEST0USD', 'signal': 'BUY', 'confidence': 0.7, 'price': 100.0, 'timestamp': '2025-10-28T18:34:27.206224Z', 'executed': False}])
+FAILED tests/test_sell_validation.py::test_can_sell_existing_position - AssertionError: assert 'SELL' == 'sell'
+  
+  - sell
+  + SELL
+FAILED tests/test_sell_validation.py::test_sell_validation_uses_canonical_symbol - AssertionError: assert 'SELL' == 'sell'
+  
+  - sell
+  + SELL
+FAILED tests/test_sentiment_strategy.py::TestSentimentStrategy::test_no_headlines - ValueError: not enough values to unpack (expected 4, got 3)
+FAILED tests/test_sentiment_strategy.py::TestSentimentStrategy::test_single_headline_buy - ValueError: not enough values to unpack (expected 4, got 3)
+FAILED tests/test_sentiment_strategy.py::TestSentimentStrategy::test_single_headline_sell - ValueError: not enough values to unpack (expected 4, got 3)
+FAILED tests/test_sentiment_strategy.py::TestSentimentStrategy::test_multiple_headlines - ValueError: not enough values to unpack (expected 4, got 3)
+FAILED tests/test_signal_to_trade_flow.py::TestSignalToTradeFlow::test_signal_gets_logged_to_jsonl - AttributeError: <module 'app.strategies.strategy_manager' from '/home/rcasteen/kraken-ai-bot/src/app/strategies/strategy_manager.py'> does not have the attribute 'LOGS_DIR'
+FAILED tests/test_signal_to_trade_flow.py::TestSignalToTradeFlow::test_paper_trader_executes_buy_signal - KeyError: 'success'
+FAILED tests/test_signal_to_trade_flow.py::TestSignalToTradeFlow::test_paper_trader_respects_confidence_threshold - KeyError: 'success'
+FAILED tests/test_signal_to_trade_flow.py::TestSignalConfidenceThresholds::test_threshold_is_configurable - AssertionError: assert (False or 'min_confidence' in {'strategy': 'gpt-sentiment', 'interval_minutes': 5, 'trading_fee_percent': 0.26, 'strategies': {'sentiment': {'enabled': True, 'weight': 1.5}, 'technical': {'enabled': True, 'weight': 1}, 'volume': {'enabled': True, 'weight': 0.8}}, 'aggregation': {'method': 'weighted_vote', 'min_confidence': 0.5}, 'risk_management': {'position_size_percent': 7, 'max_daily_loss_percent': 10, 'max_open_positions': None}, 'trading_mode': 'paper', 'paper_starting_capital': 200})
+ +  where False = hasattr({'strategy': 'gpt-sentiment', 'interval_minutes': 5, 'trading_fee_percent': 0.26, 'strategies': {'sentiment': {'enabled': True, 'weight': 1.5}, 'technical': {'enabled': True, 'weight': 1}, 'volume': {'enabled': True, 'weight': 0.8}}, 'aggregation': {'method': 'weighted_vote', 'min_confidence': 0.5}, 'risk_management': {'position_size_percent': 7, 'max_daily_loss_percent': 10, 'max_open_positions': None}, 'trading_mode': 'paper', 'paper_starting_capital': 200}, 'min_confidence')
+FAILED tests/test_signal_to_trade_flow.py::TestTradeExecution::test_buy_creates_new_position - AssertionError: assert 'BTCUSD' in {}
+FAILED tests/test_signal_to_trade_flow.py::TestTradeExecution::test_sell_reduces_position - assert 0.02 == 0.01
+FAILED tests/test_strategy_manager_logging.py::TestBackwardCompatibility::test_signals_unchanged_with_logging - ValueError: too many values to unpack (expected 3)
+FAILED tests/test_strategy_manager_logging.py::TestLoggingContent::test_logs_actual_strategy_outputs - ValueError: too many values to unpack (expected 3)
+FAILED tests/test_strategy_registry.py::TestStrategyManager::test_initialize_with_config - assert 3 == 2
+ +  where 3 = len([<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea7501f3b0>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea7501f800>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea7501e630>])
+ +    where [<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea7501f3b0>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea7501f800>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea7501e630>] = <app.strategies.strategy_manager.StrategyManager object at 0x7bea75026a20>.strategies
+FAILED tests/test_strategy_registry.py::TestStrategyManager::test_add_strategy_dynamically - TypeError: Can't instantiate abstract class CustomStrategy without an implementation for abstract method 'get_signal'
+FAILED tests/test_strategy_registry.py::TestStrategyManager::test_enable_disabled_strategy - assert 3 == 0
+ +  where 3 = len([<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea74bec680>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea74bee9c0>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea74befbf0>])
+ +    where [<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea74bec680>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea74bee9c0>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea74befbf0>] = <app.strategies.strategy_manager.StrategyManager object at 0x7bea74beff20>.strategies
+FAILED tests/test_strategy_registry.py::TestStrategyManager::test_disable_enabled_strategy - assert 3 == 1
+ +  where 3 = len([<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea74c875f0>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea763b7410>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea763b78f0>])
+ +    where [<app.strategies.sentiment_strategy.SentimentStrategy object at 0x7bea74c875f0>, <app.strategies.technical_strategy.TechnicalStrategy object at 0x7bea763b7410>, <app.strategies.volume_strategy.VolumeStrategy object at 0x7bea763b78f0>] = <app.strategies.strategy_manager.StrategyManager object at 0x7bea74c87710>.strategies
+FAILED tests/test_strategy_registry.py::TestStrategyManager::test_update_strategy_weight - AttributeError: 'StrategyManager' object has no attribute 'update_strategy_weight'
+FAILED tests/test_strategy_registry.py::TestStrategyManager::test_get_active_strategies_list - AttributeError: 'StrategyManager' object has no attribute 'get_active_strategies'
+FAILED tests/test_strategy_signal_logger.py::TestLogDecision::test_handles_write_errors_gracefully - AssertionError: assert 'Failed to log strategy signal' in ''
+ +  where '' = CaptureResult(out='', err='').out
+FAILED tests/test_technical_strategy.py::TestTechnicalStrategy::test_no_price_data - ValueError: not enough values to unpack (expected 4, got 3)
+FAILED tests/test_technical_strategy.py::TestTechnicalStrategy::test_insufficient_history - ValueError: not enough values to unpack (expected 4, got 3)
+FAILED tests/test_technical_strategy.py::TestTechnicalStrategy::test_bullish_sma_signal - ValueError: not enough values to unpack (expected 4, got 3)
+FAILED tests/test_technical_strategy.py::TestTechnicalStrategy::test_bearish_sma_signal - ValueError: not enough values to unpack (expected 4, got 3)
+FAILED tests/test_volume_strategy.py::TestVolumeStrategy::test_no_volume_data - ValueError: not enough values to unpack (expected 4, got 3)
+=========== 76 failed, 436 passed, 7 skipped, 725 warnings in 38.78s ===========

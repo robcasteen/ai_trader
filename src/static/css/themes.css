@@ -1,0 +1,401 @@
+/**
+ * Theme System for Kraken AI Trading Bot
+ * Supports light, dark, and auto themes with smooth transitions
+ */
+
+/* ===================================
+   CSS Variables for Theming
+   =================================== */
+
+:root {
+    /* Transition speeds */
+    --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark Theme (Default) */
+[data-theme="dark"] {
+    /* Background colors */
+    --bg-primary: #1a1d29;
+    --bg-secondary: #242938;
+    --bg-tertiary: #2d3142;
+    --bg-hover: #363b4e;
+    --bg-active: #404659;
+
+    /* Text colors */
+    --text-primary: #e4e6eb;
+    --text-secondary: #b0b3bb;
+    --text-tertiary: #8b8e96;
+    --text-muted: #6b6e76;
+
+    /* Border colors */
+    --border-primary: #3a3f51;
+    --border-secondary: #4a4f61;
+    --border-tertiary: #5a5f71;
+
+    /* Accent colors */
+    --accent-primary: #4c9aff;
+    --accent-secondary: #6ab0ff;
+    --accent-success: #00c853;
+    --accent-warning: #ff9800;
+    --accent-danger: #f44336;
+    --accent-info: #2196f3;
+
+    /* Chart colors */
+    --chart-bg: #1e2230;
+    --chart-grid: #2a2e3f;
+    --chart-line: #4c9aff;
+    --chart-fill: rgba(76, 154, 255, 0.1);
+
+    /* Card/Panel colors */
+    --card-bg: #242938;
+    --card-border: #3a3f51;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+
+    /* Status colors */
+    --status-online: #00c853;
+    --status-offline: #f44336;
+    --status-idle: #ff9800;
+
+    /* Trade colors */
+    --trade-buy: #00c853;
+    --trade-sell: #f44336;
+    --trade-hold: #ff9800;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+    /* Background colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f6fa;
+    --bg-tertiary: #e8eaf0;
+    --bg-hover: #dfe1e6;
+    --bg-active: #d0d3db;
+
+    /* Text colors */
+    --text-primary: #172b4d;
+    --text-secondary: #42526e;
+    --text-tertiary: #6b778c;
+    --text-muted: #97a0af;
+
+    /* Border colors */
+    --border-primary: #dfe1e6;
+    --border-secondary: #c1c7d0;
+    --border-tertiary: #a5adba;
+
+    /* Accent colors */
+    --accent-primary: #0052cc;
+    --accent-secondary: #0065ff;
+    --accent-success: #00875a;
+    --accent-warning: #ff8b00;
+    --accent-danger: #de350b;
+    --accent-info: #0747a6;
+
+    /* Chart colors */
+    --chart-bg: #f5f6fa;
+    --chart-grid: #e8eaf0;
+    --chart-line: #0052cc;
+    --chart-fill: rgba(0, 82, 204, 0.1);
+
+    /* Card/Panel colors */
+    --card-bg: #ffffff;
+    --card-border: #dfe1e6;
+    --card-shadow: rgba(23, 43, 77, 0.1);
+
+    /* Status colors */
+    --status-online: #00875a;
+    --status-offline: #de350b;
+    --status-idle: #ff8b00;
+
+    /* Trade colors */
+    --trade-buy: #00875a;
+    --trade-sell: #de350b;
+    --trade-hold: #ff8b00;
+}
+
+/* Auto theme uses system preference */
+@media (prefers-color-scheme: dark) {
+    [data-theme="auto"] {
+        --bg-primary: #1a1d29;
+        --bg-secondary: #242938;
+        --bg-tertiary: #2d3142;
+        --bg-hover: #363b4e;
+        --bg-active: #404659;
+        --text-primary: #e4e6eb;
+        --text-secondary: #b0b3bb;
+        --text-tertiary: #8b8e96;
+        --text-muted: #6b6e76;
+        --border-primary: #3a3f51;
+        --border-secondary: #4a4f61;
+        --border-tertiary: #5a5f71;
+        --accent-primary: #4c9aff;
+        --accent-secondary: #6ab0ff;
+        --accent-success: #00c853;
+        --accent-warning: #ff9800;
+        --accent-danger: #f44336;
+        --accent-info: #2196f3;
+        --chart-bg: #1e2230;
+        --chart-grid: #2a2e3f;
+        --chart-line: #4c9aff;
+        --chart-fill: rgba(76, 154, 255, 0.1);
+        --card-bg: #242938;
+        --card-border: #3a3f51;
+        --card-shadow: rgba(0, 0, 0, 0.3);
+        --status-online: #00c853;
+        --status-offline: #f44336;
+        --status-idle: #ff9800;
+        --trade-buy: #00c853;
+        --trade-sell: #f44336;
+        --trade-hold: #ff9800;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    [data-theme="auto"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f6fa;
+        --bg-tertiary: #e8eaf0;
+        --bg-hover: #dfe1e6;
+        --bg-active: #d0d3db;
+        --text-primary: #172b4d;
+        --text-secondary: #42526e;
+        --text-tertiary: #6b778c;
+        --text-muted: #97a0af;
+        --border-primary: #dfe1e6;
+        --border-secondary: #c1c7d0;
+        --border-tertiary: #a5adba;
+        --accent-primary: #0052cc;
+        --accent-secondary: #0065ff;
+        --accent-success: #00875a;
+        --accent-warning: #ff8b00;
+        --accent-danger: #de350b;
+        --accent-info: #0747a6;
+        --chart-bg: #f5f6fa;
+        --chart-grid: #e8eaf0;
+        --chart-line: #0052cc;
+        --chart-fill: rgba(0, 82, 204, 0.1);
+        --card-bg: #ffffff;
+        --card-border: #dfe1e6;
+        --card-shadow: rgba(23, 43, 77, 0.1);
+        --status-online: #00875a;
+        --status-offline: #de350b;
+        --status-idle: #ff8b00;
+        --trade-buy: #00875a;
+        --trade-sell: #de350b;
+        --trade-hold: #ff8b00;
+    }
+}
+
+/* ===================================
+   Base Styles with Theme Variables
+   =================================== */
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: var(--theme-transition);
+}
+
+/* Cards and Panels */
+.card,
+.panel,
+.tab-content,
+.metric-card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    box-shadow: 0 2px 8px var(--card-shadow);
+    transition: var(--theme-transition);
+}
+
+.card:hover,
+.panel:hover,
+.metric-card:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Borders */
+.border,
+hr {
+    border-color: var(--border-primary);
+}
+
+/* Text */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+}
+
+p, span, div {
+    color: var(--text-secondary);
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Links */
+a {
+    color: var(--accent-primary);
+    transition: var(--theme-transition);
+}
+
+a:hover {
+    color: var(--accent-secondary);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-secondary);
+    border-color: var(--accent-secondary);
+}
+
+.btn-success {
+    background-color: var(--accent-success);
+    border-color: var(--accent-success);
+}
+
+.btn-danger {
+    background-color: var(--accent-danger);
+    border-color: var(--accent-danger);
+}
+
+.btn-warning {
+    background-color: var(--accent-warning);
+    border-color: var(--accent-warning);
+}
+
+/* Tables */
+table {
+    color: var(--text-primary);
+}
+
+thead {
+    background-color: var(--bg-secondary);
+    border-bottom: 2px solid var(--border-primary);
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--border-primary);
+    transition: var(--theme-transition);
+}
+
+/* Alternating row colors for better readability */
+tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+tbody tr:nth-child(odd) {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+tbody tr:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+/* Add padding to table cells for better spacing */
+tbody td {
+    padding: 12px 8px;
+}
+
+/* Status indicators */
+.status-online {
+    color: var(--status-online);
+}
+
+.status-offline {
+    color: var(--status-offline);
+}
+
+.status-idle {
+    color: var(--status-idle);
+}
+
+/* Trade action colors */
+.trade-buy,
+.action-buy {
+    color: var(--trade-buy);
+}
+
+.trade-sell,
+.action-sell {
+    color: var(--trade-sell);
+}
+
+.trade-hold,
+.action-hold {
+    color: var(--trade-hold);
+}
+
+/* Theme Switcher Button */
+#theme-switcher {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    transition: var(--theme-transition), transform 0.2s ease;
+}
+
+#theme-switcher:hover {
+    transform: scale(1.1);
+    background-color: var(--bg-hover);
+}
+
+#theme-switcher svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--text-primary);
+}
+
+/* Theme switcher dropdown */
+#theme-menu {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 999;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    display: none;
+}
+
+#theme-menu.show {
+    display: block;
+}
+
+#theme-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    margin: 4px 0;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: var(--theme-transition);
+}
+
+#theme-menu button:hover {
+    background-color: var(--bg-hover);
+}
+
+#theme-menu button.active {
+    background-color: var(--accent-primary);
+    color: white;
+}

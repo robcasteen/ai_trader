@@ -1,62 +1,18 @@
 """
 RSS news fetcher for crypto headlines.
 Fetches from multiple sources, deduplicates, extracts symbols.
+ALL DATA STORED IN DATABASE.
 """
 
 import feedparser
 import hashlib
-import json
 import logging
-from pathlib import Path
 from typing import List, Dict, Optional
+from datetime import datetime, timezone
 from app.utils.symbol_normalizer import normalize_symbol
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-LOGS_DIR = PROJECT_ROOT / "logs"
-NEWS_FILE = LOGS_DIR / "seen_news.json"
-
-
-# RSS FEEDS
-def get_rss_feeds():
-    """
-    Return list of RSS feed objects from rss_feeds.json.
-    Only returns active feeds.
-    """
-    import json
-    from pathlib import Path
-    
-    feeds_file = Path(__file__).parent / "logs" / "rss_feeds.json"
-    
-    try:
-        if not feeds_file.exists():
-            logging.warning(f"[RSS] Feed file not found: {feeds_file}")
-            # Fallback to hardcoded feeds
-            return [
-                {"url": "https://cointelegraph.com/rss", "name": "CoinTelegraph", "active": True},
-                {"url": "https://www.coindesk.com/arc/outboundfeeds/rss/", "name": "CoinDesk", "active": True},
-                {"url": "https://decrypt.co/feed", "name": "Decrypt", "active": True},
-            ]
-        
-        with open(feeds_file) as f:
-            all_feeds = json.load(f)
-        
-        # Filter to only active feeds
-        active_feeds = [feed for feed in all_feeds if feed.get("active") == True]
-        
-        logging.info(f"[RSS] Loaded {len(active_feeds)} active feeds from {len(all_feeds)} total")
-        
-        return active_feeds
-        
-    except Exception as e:
-        logging.error(f"[RSS] Error loading feeds: {e}")
-        # Fallback to hardcoded feeds
-        return [
-            {"url": "https://cointelegraph.com/rss", "name": "CoinTelegraph", "active": True},
-            {"url": "https://www.coindesk.com/arc/outboundfeeds/rss/", "name": "CoinDesk", "active": True},
-            {"url": "https://decrypt.co/feed", "name": "Decrypt", "active": True},
-        ]
-
-
+from app.database.connection import get_db
+from app.database.repositories import RSSFeedRepository, SeenNewsRepository
+from app.database.models import SeenNews
 
 
 # SYMBOL EXTRACTION
@@ -66,7 +22,7 @@ def extract_symbol_from_headline(headline: str) -> Optional[str]:
     Returns canonical normalized symbol (e.g., BTCUSD, ETHUSD).
     """
     headline_lower = headline.lower()
-    
+
     # Keywords to search for in headlines
     keywords = [
         "bitcoin", "btc",
@@ -86,7 +42,7 @@ def extract_symbol_from_headline(headline: str) -> Optional[str]:
         "aave",
         "shiba", "shib",
     ]
-    
+
     for keyword in keywords:
         if keyword in headline_lower:
             try:
@@ -94,139 +50,119 @@ def extract_symbol_from_headline(headline: str) -> Optional[str]:
             except ValueError:
                 # Symbol not recognized by normalizer, skip
                 continue
-    
+
     return None
 
 
 # HEADLINE HASHING
-def get_headline_hash(headline: str) -> str:
-    """Generate SHA256 hash of headline for deduplication."""
-    return hashlib.sha256(headline.encode()).hexdigest()
-
-
-# PERSISTENCE
-def load_seen() -> Dict[str, List[str]]:
-    """Load seen headline hashes from file."""
-    if not NEWS_FILE.exists():
-        return {}
-    
-    try:
-        with open(NEWS_FILE, 'r') as f:
-            return json.load(f)
-    except:
-        return {}
-
-
-def save_seen(seen_data: Dict[str, List[str]]):
-    """Save seen headlines to file."""
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(NEWS_FILE, 'w') as f:
-        json.dump(seen_data, f, indent=2)
-
-
-def mark_as_seen(symbol: str, headlines: List[str]):
-    """Mark headlines as seen for a symbol."""
-    seen = load_seen()
-    
-    if symbol not in seen:
-        seen[symbol] = []
-    
-    for headline in headlines:
-        h = get_headline_hash(headline)
-        if h not in seen[symbol]:
-            seen[symbol].append(h)
-    
-    # Keep only last 50 hashes per symbol
-    seen[symbol] = seen[symbol][-50:]
-    
-    save_seen(seen)
+def get_headline_hash(headline: str, url: str = "") -> str:
+    """Generate SHA256 hash of headline+url for deduplication."""
+    combined = f"{headline}|{url}"
+    return hashlib.sha256(combined.encode()).hexdigest()[:16]
 
 
 # MAIN FETCH FUNCTION
-def get_unseen_headlines() -> Dict[str, List[str]]:
+def get_unseen_headlines() -> Dict[str, List[Dict[str, str]]]:
     """
-    Fetch unseen headlines from RSS feeds.
-    
+    Fetch unseen headlines from RSS feeds stored in database.
+
     Returns:
-        Dict mapping symbol -> list of unseen headlines
+        Dict mapping symbol -> list of unseen headline dicts
+        Each headline dict contains: {title, url, feed_name, feed_id}
     """
-    seen = load_seen()
     unseen = {}
-    
-    feeds = get_rss_feeds()
-    
-    for feed in feeds:
-        # Handle both dict feeds (new) and string URLs (backward compatibility)
-        if isinstance(feed, dict):
-            feed_url = feed.get("url")
-            feed_name = feed.get("name", "Unknown")
-        else:
-            # Backward compatibility with old string-based feeds
-            feed_url = feed
-            feed_name = feed_url
-        
-        try:
-            parsed_feed = feedparser.parse(feed_url)
-            
-            for entry in parsed_feed.entries:
-                headline = entry.title
-                symbol = extract_symbol_from_headline(headline)
-                
-                if not symbol:
-                    continue
-                
-                # Check if seen
-                h = get_headline_hash(headline)
-                if symbol in seen and h in seen[symbol]:
-                    continue
-                
-                # Add to unseen
-                if symbol not in unseen:
-                    unseen[symbol] = []
-                unseen[symbol].append(headline)
-            
-            logging.info(f"[NewsFetcher] Processed {feed_name} ({feed_url})")
-        
-        except Exception as e:
-            logging.error(f"[NewsFetcher] Error fetching {feed_name}: {e}")
-    
-    logging.info(f"[NewsFetcher] Found unseen headlines for {len(unseen)} symbols")
+
+    with get_db() as db:
+        feed_repo = RSSFeedRepository(db)
+        seen_repo = SeenNewsRepository(db)
+
+        # Get all enabled feeds from database
+        feeds = feed_repo.get_all(enabled_only=True)
+
+        if not feeds:
+            logging.warning("[NewsFetcher] No enabled RSS feeds found in database")
+            return unseen
+
+        logging.info(f"[NewsFetcher] Fetching from {len(feeds)} enabled feeds")
+
+        for feed in feeds:
+            try:
+                logging.info(f"[NewsFetcher] Fetching {feed.name} ({feed.url})")
+                parsed_feed = feedparser.parse(feed.url)
+
+                headlines_processed = 0
+                headlines_new = 0
+
+                for entry in parsed_feed.entries:
+                    headlines_processed += 1
+
+                    headline = entry.title
+                    entry_url = entry.get('link', '')
+
+                    # Check if already seen by URL (most reliable)
+                    if seen_repo.is_seen_by_url(entry_url):
+                        continue
+
+                    # Extract symbol
+                    symbol = extract_symbol_from_headline(headline)
+
+                    if not symbol:
+                        continue
+
+                    # Add to unseen
+                    if symbol not in unseen:
+                        unseen[symbol] = []
+
+                    unseen[symbol].append({
+                        'title': headline,
+                        'url': entry_url,
+                        'feed_name': feed.name,
+                        'feed_id': feed.id
+                    })
+
+                    headlines_new += 1
+
+                # Update feed stats
+                feed_repo.update_fetch_stats(
+                    feed_id=feed.id,
+                    items_fetched=headlines_processed,
+                    error=None
+                )
+
+                logging.info(f"[NewsFetcher] {feed.name}: {headlines_processed} processed, {headlines_new} new")
+
+            except Exception as e:
+                logging.error(f"[NewsFetcher] Error fetching {feed.name}: {e}")
+                feed_repo.update_fetch_stats(
+                    feed_id=feed.id,
+                    items_fetched=0,
+                    error=str(e)
+                )
+
+    total_headlines = sum(len(h) for h in unseen.values())
+    logging.info(f"[NewsFetcher] Found {total_headlines} unseen headlines for {len(unseen)} symbols")
     return unseen
 
+
+def mark_as_seen(headlines: List[Dict[str, any]], triggered_signal: bool = False, signal_id: int = None):
     """
-    Fetch unseen headlines from RSS feeds.
-    
-    Returns:
-        Dict mapping symbol -> list of unseen headlines
+    Mark headlines as seen in database.
+
+    Args:
+        headlines: List of headline dicts with {title, url, feed_name, feed_id, symbol}
+        triggered_signal: Whether these headlines triggered a trading signal
+        signal_id: Optional ID of the signal that was triggered
     """
-    seen = load_seen()
-    unseen = {}
-    
-    for feed_url in get_rss_feeds():
-        try:
-            feed = feedparser.parse(feed_url)
-            
-            for entry in feed.entries:
-                headline = entry.title
-                symbol = extract_symbol_from_headline(headline)
-                
-                if not symbol:
-                    continue
-                
-                # Check if seen
-                h = get_headline_hash(headline)
-                if symbol in seen and h in seen[symbol]:
-                    continue
-                
-                # Add to unseen
-                if symbol not in unseen:
-                    unseen[symbol] = []
-                unseen[symbol].append(headline)
-            
-            logging.info(f"[NewsFetcher] Processed {feed_url}")
-        
-        except Exception as e:
-            logging.error(f"[NewsFetcher] Error fetching {feed_url}: {e}")
-    
-    logging.info(f"[NewsFetcher] Found unseen headlines for {len(unseen)} symbols")
-    return unseen
+    with get_db() as db:
+        seen_repo = SeenNewsRepository(db)
+
+        for headline in headlines:
+            seen_repo.mark_seen(
+                headline=headline['title'],
+                url=headline['url'],
+                feed_id=headline['feed_id'],
+                triggered_signal=triggered_signal,
+                signal_id=signal_id
+            )
+
+        logging.info(f"[NewsFetcher] Marked {len(headlines)} headlines as seen (triggered_signal={triggered_signal})")

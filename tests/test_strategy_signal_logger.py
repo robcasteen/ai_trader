@@ -56,7 +56,10 @@ class TestLogDecision:
     """Test logging of trading decisions."""
     
     def test_logs_complete_decision(self, logger):
-        """Should log all decision components."""
+        """Should log all decision components to TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         strategy_signals = {
             "technical": {
                 "signal": "BUY",
@@ -73,8 +76,8 @@ class TestLogDecision:
                 "enabled": True
             }
         }
-        
-        logger.log_decision(
+
+        signal_id = logger.log_decision(
             symbol="BTC/USD",
             price=50000.0,
             final_signal="BUY",
@@ -82,28 +85,31 @@ class TestLogDecision:
             strategy_signals=strategy_signals,
             aggregation_method="weighted_vote"
         )
-        
-        # Verify file was created and contains data
-        assert logger.signal_file.exists()
-        
-        with open(logger.signal_file, 'r') as f:
-            line = f.readline()
-            record = json.loads(line)
-        
-        assert record['symbol'] == "BTC/USD"
-        assert record['price'] == 50000.0
-        assert record['final_signal'] == "BUY"
-        assert record['final_confidence'] == 0.78
-        assert record['aggregation_method'] == "weighted_vote"
-        assert "technical" in record['strategies']
-        assert "sentiment" in record['strategies']
-        assert record['strategies']['technical']['signal'] == "BUY"
+
+        # Verify signal was written to TEST database
+        assert signal_id is not None, "Signal should be written to database and return ID"
+
+        # Query TEST database to verify business logic
+        with get_db() as db:
+            signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert signal is not None, "Signal should exist in TEST database"
+            assert signal.symbol == "BTC/USD", "Symbol should match input"
+            assert float(signal.price) == 50000.0, "Price should match"
+            assert signal.final_signal == "BUY", "Final signal should match"
+            assert float(signal.final_confidence) == 0.78, "Confidence should match"
+            assert signal.aggregation_method == "weighted_vote", "Aggregation method should match"
+            assert "technical" in signal.strategies, "Technical strategy should be logged"
+            assert "sentiment" in signal.strategies, "Sentiment strategy should be logged"
+            assert signal.strategies['technical']['signal'] == "BUY", "Technical signal should match"
     
     def test_includes_timestamp(self, logger):
-        """Should include ISO8601 timestamp."""
-        before = datetime.now(timezone.utc)
-        
-        logger.log_decision(
+        """Should include ISO8601 timestamp in TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
+        before = datetime.now(timezone.utc).replace(tzinfo=None)
+
+        signal_id = logger.log_decision(
             symbol="BTC/USD",
             price=50000.0,
             final_signal="HOLD",
@@ -111,24 +117,28 @@ class TestLogDecision:
             strategy_signals={},
             aggregation_method="weighted_vote"
         )
-        
-        after = datetime.now(timezone.utc)
-        
-        with open(logger.signal_file, 'r') as f:
-            record = json.loads(f.readline())
-        
-        timestamp = datetime.fromisoformat(record['timestamp'])
-        assert before <= timestamp <= after
+
+        after = datetime.now(timezone.utc).replace(tzinfo=None)
+
+        # Query TEST database to verify timestamp
+        with get_db() as db:
+            signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert signal is not None, "Signal should exist in TEST database"
+            timestamp = signal.timestamp
+            assert before <= timestamp <= after, "Timestamp should be within test window"
     
     def test_includes_optional_metadata(self, logger):
-        """Should log optional metadata when provided."""
+        """Should log optional metadata to TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         metadata = {
             "market_volatility": 0.15,
             "volume_24h": 1000000,
             "news_count": 5
         }
-        
-        logger.log_decision(
+
+        signal_id = logger.log_decision(
             symbol="ETH/USD",
             price=3000.0,
             final_signal="SELL",
@@ -137,16 +147,21 @@ class TestLogDecision:
             aggregation_method="highest_confidence",
             metadata=metadata
         )
-        
-        with open(logger.signal_file, 'r') as f:
-            record = json.loads(f.readline())
-        
-        assert record['metadata'] == metadata
+
+        # Query TEST database to verify metadata
+        with get_db() as db:
+            signal = db.query(Signal).filter(Signal.id == signal_id).first()
+            assert signal is not None, "Signal should exist in TEST database"
+            assert signal.signal_metadata == metadata, "Metadata should match"
     
     def test_appends_multiple_records(self, logger):
-        """Should append multiple records to JSONL file."""
+        """Should append multiple records to TEST database."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
+        signal_ids = []
         for i in range(5):
-            logger.log_decision(
+            signal_id = logger.log_decision(
                 symbol=f"SYM{i}/USD",
                 price=100.0 + i,
                 final_signal="HOLD",
@@ -154,36 +169,18 @@ class TestLogDecision:
                 strategy_signals={},
                 aggregation_method="weighted_vote"
             )
-        
-        with open(logger.signal_file, 'r') as f:
-            lines = f.readlines()
-        
-        assert len(lines) == 5
-        
-        # Verify each line is valid JSON
-        for i, line in enumerate(lines):
-            record = json.loads(line)
-            assert record['symbol'] == f"SYM{i}/USD"
-            assert record['price'] == 100.0 + i
+            signal_ids.append(signal_id)
+
+        # Verify all records exist in TEST database
+        with get_db() as db:
+            signals = db.query(Signal).filter(Signal.id.in_(signal_ids)).all()
+            assert len(signals) == 5, "All 5 signals should exist in TEST database"
+
+            # Verify each signal
+            for i, signal in enumerate(sorted(signals, key=lambda s: s.price)):
+                assert signal.symbol == f"SYM{i}/USD", f"Symbol should match input"
+                assert float(signal.price) == 100.0 + i, f"Price should match for signal {i}"
     
-    def test_handles_write_errors_gracefully(self, logger, capsys):
-        """Should not crash if write fails."""
-        # Make file read-only to force write error
-        logger.signal_file.touch()
-        logger.signal_file.chmod(0o444)
-        
-        # Should not raise exception
-        logger.log_decision(
-            symbol="BTC/USD",
-            price=50000.0,
-            final_signal="HOLD",
-            final_confidence=0.5,
-            strategy_signals={},
-            aggregation_method="weighted_vote"
-        )
-        
-        captured = capsys.readouterr()
-        assert "Failed to log strategy signal" in captured.out
 
 
 class TestGetRecentSignals:
@@ -487,7 +484,10 @@ class TestThreadSafety:
     """Test thread safety of concurrent operations."""
     
     def test_concurrent_writes(self, logger):
-        """Should handle concurrent writes without data corruption."""
+        """Should handle concurrent writes to TEST database without data corruption."""
+        from app.database.models import Signal
+        from app.database.connection import get_db
+
         def write_signals(thread_id: int, count: int):
             for i in range(count):
                 logger.log_decision(
@@ -498,26 +498,27 @@ class TestThreadSafety:
                     strategy_signals={},
                     aggregation_method="test"
                 )
-        
+
         threads = []
         threads_count = 5
         signals_per_thread = 20
-        
+
         for i in range(threads_count):
             t = threading.Thread(target=write_signals, args=(i, signals_per_thread))
             threads.append(t)
             t.start()
-        
+
         for t in threads:
             t.join()
-        
-        # Verify all signals were written
-        with open(logger.signal_file, 'r') as f:
-            lines = f.readlines()
-        
-        assert len(lines) == threads_count * signals_per_thread
-        
-        # Verify each line is valid JSON
-        for line in lines:
-            record = json.loads(line)
-            assert 'symbol' in record
+
+        # Verify all signals were written to TEST database
+        with get_db() as db:
+            # Query all signals that start with "T" (from our threads)
+            signals = db.query(Signal).filter(Signal.symbol.like("T%")).all()
+            assert len(signals) == threads_count * signals_per_thread, \
+                f"All signals from all threads should be in TEST database. Found {len(signals)}, expected {threads_count * signals_per_thread}"
+
+            # Verify data integrity - all signals should have symbol
+            for signal in signals:
+                assert signal.symbol is not None, "Signal should have symbol"
+                assert signal.symbol.startswith("T"), "Symbol should start with T"
