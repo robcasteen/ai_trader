@@ -227,6 +227,53 @@ class PaperTrader:
                 trade_id = trade_model.id
                 db.commit()
                 logging.info(f"[PaperTrader] Saved trade to database: ID={trade_id}, {action} {canonical_symbol} | signal_id={signal_id}")
+
+                # Emit TRADE_EXECUTED event to event bus for SSE
+                try:
+                    import asyncio
+                    from app.events.event_bus import event_bus, EventType
+
+                    # Run emit in background if there's an event loop, otherwise skip
+                    try:
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            asyncio.ensure_future(event_bus.emit(EventType.TRADE_EXECUTED, {
+                                "trade_id": trade_id,
+                                "symbol": canonical_symbol,
+                                "action": action.lower(),
+                                "price": price,
+                                "amount": amount,
+                                "net_value": net_value,
+                                "signal_id": signal_id,
+                                "timestamp": datetime.now(timezone.utc).isoformat()
+                            }))
+                        else:
+                            # No running loop, run it synchronously
+                            loop.run_until_complete(event_bus.emit(EventType.TRADE_EXECUTED, {
+                                "trade_id": trade_id,
+                                "symbol": canonical_symbol,
+                                "action": action.lower(),
+                                "price": price,
+                                "amount": amount,
+                                "net_value": net_value,
+                                "signal_id": signal_id,
+                                "timestamp": datetime.now(timezone.utc).isoformat()
+                            }))
+                    except RuntimeError:
+                        # No event loop exists, create one
+                        asyncio.run(event_bus.emit(EventType.TRADE_EXECUTED, {
+                            "trade_id": trade_id,
+                            "symbol": canonical_symbol,
+                            "action": action.lower(),
+                            "price": price,
+                            "amount": amount,
+                            "net_value": net_value,
+                            "signal_id": signal_id,
+                            "timestamp": datetime.now(timezone.utc).isoformat()
+                        }))
+                except Exception as e:
+                    logging.error(f"[PaperTrader] Failed to emit TRADE_EXECUTED event: {e}")
+
         except Exception as e:
             logging.error(f"[PaperTrader] Failed to save trade to database: {e}")
 

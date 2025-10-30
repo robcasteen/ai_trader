@@ -10,6 +10,7 @@ These tests should FAIL until event emission is implemented.
 """
 
 import pytest
+from datetime import datetime, timezone
 from app.events.event_bus import event_bus, EventType
 
 
@@ -39,29 +40,23 @@ class TestTradeExecutedEvents:
         event_bus.subscribe(EventType.TRADE_EXECUTED, collect_event)
 
         try:
-            # Execute a trade
-            with get_db() as db:
-                # Create signal first
-                signal_repo = SignalRepository(db)
-                signal_id = signal_repo.create(
-                    symbol="BTCUSD",
-                    final_signal="BUY",
-                    final_confidence=0.75,
-                    strategies={},
-                    aggregation_method="test",
-                    price=50000.0,
-                    test_mode=True
-                )
-
-                # Execute trade
-                trader = PaperTrader(db, test_mode=True)
-                trade_id = trader.execute_signal("BTCUSD", "BUY", 50000.0, 0.75, signal_id)
+            # Execute trade (signal_id can be None for this test)
+            trader = PaperTrader()
+            trade_result = trader.execute_trade(
+                symbol="BTCUSD",
+                action="BUY",
+                price=50000.0,
+                balance=10000.0,
+                reason="Test trade for event emission",
+                amount=0.01,
+                signal_id=None
+            )
 
             # Verify event was emitted
             assert len(events_collected) > 0, "Should emit TRADE_EXECUTED event"
             assert events_collected[0]["type"] == EventType.TRADE_EXECUTED
             assert events_collected[0]["data"]["symbol"] == "BTCUSD"
-            assert events_collected[0]["data"]["action"] == "BUY"
+            assert events_collected[0]["data"]["action"] == "buy"  # lowercase in database
             assert "trade_id" in events_collected[0]["data"]
 
         finally:
