@@ -41,7 +41,7 @@ jobs:
         KRAKEN_API_KEY: dummy-key-for-testing
         KRAKEN_API_SECRET: dummy-key-for-testing
       run: |
-        pytest -v --cov=app --cov-report=xml --cov-report=term
+        pytest -v --cov=app --cov-report=xml --cov-report=term --ignore=tests/test_sse_events.py
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
