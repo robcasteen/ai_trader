@@ -31,6 +31,7 @@ def load_signals_and_trades():
             # Convert to dict format for compatibility
             for s in signal_models:
                 signals.append({
+                    'id': s.id,  # Include signal ID for proper correlation
                     'timestamp': s.timestamp.isoformat() + 'Z' if s.timestamp else None,
                     'symbol': s.symbol,
                     'final_signal': s.final_signal,
@@ -59,8 +60,14 @@ def load_signals_and_trades():
 
 
 def correlate_signals_to_trades(signals: List[Dict], trades: List[Dict], window_minutes: int = 10) -> List[Dict]:
-    """Correlate signals to trades that happened within a time window."""
+    """Correlate signals to trades using signal_id, with fallback to time-window matching."""
     correlations = []
+
+    # Create mapping of signal_id -> trade for fast lookup
+    trades_by_signal_id = {}
+    for trade in trades:
+        if trade.get('signal_id'):
+            trades_by_signal_id[trade['signal_id']] = trade
 
     for signal in signals:
         sig_time = datetime.fromisoformat(signal['timestamp'].replace('Z', '+00:00'))
@@ -68,6 +75,7 @@ def correlate_signals_to_trades(signals: List[Dict], trades: List[Dict], window_
         if sig_time.tzinfo is not None:
             sig_time = sig_time.replace(tzinfo=None)
 
+        sig_id = signal.get('id')
         sig_symbol = signal['symbol']
         sig_action = signal['final_signal']
         sig_conf = signal.get('final_confidence', 0)
@@ -76,28 +84,35 @@ def correlate_signals_to_trades(signals: List[Dict], trades: List[Dict], window_
         if sig_action == 'HOLD':
             continue
 
-        # Find matching trade within time window
+        # PRIORITY 1: Match by signal_id (most accurate)
         matched_trade = None
-        for trade in trades:
-            try:
-                trade_time = datetime.fromisoformat(trade['timestamp'])
-            except:
-                trade_time = datetime.fromisoformat(trade['timestamp'].replace('Z', '+00:00'))
+        if sig_id and sig_id in trades_by_signal_id:
+            matched_trade = trades_by_signal_id[sig_id]
+        else:
+            # FALLBACK: Match by time window (less accurate, only if signal happened BEFORE trade)
+            for trade in trades:
+                try:
+                    trade_time = datetime.fromisoformat(trade['timestamp'])
+                except:
+                    trade_time = datetime.fromisoformat(trade['timestamp'].replace('Z', '+00:00'))
 
-            # Make timezone-naive for comparison
-            if trade_time.tzinfo is not None:
-                trade_time = trade_time.replace(tzinfo=None)
+                # Make timezone-naive for comparison
+                if trade_time.tzinfo is not None:
+                    trade_time = trade_time.replace(tzinfo=None)
 
-            trade_symbol = trade['symbol']
-            trade_action = trade['action'].upper()
+                trade_symbol = trade['symbol']
+                trade_action = trade['action'].upper()
 
-            # Check if trade matches signal
-            time_diff = abs((trade_time - sig_time).total_seconds() / 60)
-            if (trade_symbol == sig_symbol and
-                trade_action == sig_action and
-                time_diff <= window_minutes):
-                matched_trade = trade
-                break
+                # Check if trade matches signal
+                # IMPORTANT: Signal must come BEFORE or at same time as trade (not after!)
+                time_diff_seconds = (trade_time - sig_time).total_seconds()
+                time_diff_minutes = time_diff_seconds / 60
+
+                if (trade_symbol == sig_symbol and
+                    trade_action == sig_action and
+                    0 <= time_diff_seconds <= window_minutes * 60):  # Signal must be before trade
+                    matched_trade = trade
+                    break
         
         correlations.append({
             'signal': {

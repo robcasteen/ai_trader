@@ -200,6 +200,48 @@ class StrategyManager:
                         "num_strategies": len(strategy_results),
                     },
                 )
+
+                # Emit SIGNAL_GENERATED event
+                try:
+                    import asyncio
+                    from app.events.event_bus import event_bus, EventType
+                    from datetime import datetime, timezone
+
+                    try:
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            asyncio.ensure_future(event_bus.emit(EventType.SIGNAL_GENERATED, {
+                                "signal_id": signal_id,
+                                "symbol": symbol,
+                                "signal": final_signal,
+                                "confidence": final_confidence,
+                                "price": current_price,
+                                "num_strategies": len(strategy_results),
+                                "timestamp": datetime.now(timezone.utc).isoformat()
+                            }))
+                        else:
+                            loop.run_until_complete(event_bus.emit(EventType.SIGNAL_GENERATED, {
+                                "signal_id": signal_id,
+                                "symbol": symbol,
+                                "signal": final_signal,
+                                "confidence": final_confidence,
+                                "price": current_price,
+                                "num_strategies": len(strategy_results),
+                                "timestamp": datetime.now(timezone.utc).isoformat()
+                            }))
+                    except RuntimeError:
+                        asyncio.run(event_bus.emit(EventType.SIGNAL_GENERATED, {
+                            "signal_id": signal_id,
+                            "symbol": symbol,
+                            "signal": final_signal,
+                            "confidence": final_confidence,
+                            "price": current_price,
+                            "num_strategies": len(strategy_results),
+                            "timestamp": datetime.now(timezone.utc).isoformat()
+                        }))
+                except Exception as emit_error:
+                    logging.error(f"[StrategyManager] Failed to emit SIGNAL_GENERATED event: {emit_error}")
+
             except Exception as e:
                 # Never let logging errors crash trading
                 logging.warning(f"⚠️  Signal logging failed: {e}")

@@ -117,6 +117,10 @@ class EventManager {
                 this.handleBalanceUpdated(event.data);
                 break;
 
+            case 'config_changed':
+                this.handleConfigChanged(event.data);
+                break;
+
             case 'holdings_updated':
                 this.handleHoldingsUpdated(event.data);
                 break;
@@ -199,6 +203,14 @@ class EventManager {
         // Update balance display
         if (typeof window.refreshBalance === 'function') {
             window.refreshBalance();
+        }
+    }
+
+    handleConfigChanged(data) {
+        console.log('[Events] Config changed:', data);
+        // Refresh status display
+        if (typeof window.refreshStatus === 'function') {
+            window.refreshStatus();
         }
     }
 
