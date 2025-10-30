@@ -1,134 +1,151 @@
 #!/usr/bin/env python3
 """
-Backfill historical market data for the DataCollector.
-Run this to populate price/volume history for technical analysis.
+Backfill Historical Market Data for Backtesting
+
+Fetches historical OHLCV data from Kraken for all tracked symbols
+and caches it in the database for backtesting.
+
+Usage:
+    python scripts/backfill_market_data.py --days 90 --interval 5m
+    python scripts/backfill_market_data.py --verify-only
 """
+
 import sys
-from pathlib import Path
+import os
+import logging
+from datetime import datetime
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-import logging
-from collections import deque
-from app.client.kraken import KrakenClient
+from app.database.connection import get_db
+from app.backtesting.historical_data import HistoricalDataFetcher
+from app.database.repositories import HistoricalOHLCVRepository
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
-def backfill_history():
-    """Backfill historical OHLC data from exchange for common symbols."""
-    client = KrakenClient()
-    max_history = 100
+# Symbols to fetch (normalized format)
+SYMBOLS = [
+    "BTCUSD",   # Bitcoin
+    "ETHUSD",   # Ethereum
+    "XRPUSD",   # Ripple
+    "ADAUSD",   # Cardano
+    "SOLUSD",   # Solana
+    "DOTUSD",   # Polkadot
+    "LINKUSD",  # Chainlink
+    "UNIUSD",   # Uniswap
+    "DOGEUSD",  # Dogecoin
+    "SHIBUSD",  # Shiba Inu
+]
 
-    # Common trading pairs to backfill
-    symbols_to_backfill = [
-        "XXBTZUSD",  # Bitcoin
-        "XETHZUSD",  # Ethereum
-        "SOLUSD",    # Solana
-        "ADAUSD",    # Cardano
-        "DOTUSD",    # Polkadot
-    ]
 
-    results = {}
+def backfill_historical_data(days_back=90, interval="5m"):
+    """
+    Fetch historical data for all tracked symbols.
 
-    for symbol in symbols_to_backfill:
-        try:
-            logging.info(f"Fetching OHLC data for {symbol}...")
+    Args:
+        days_back: How many days of history to fetch
+        interval: Candle interval ("5m", "1h", "1d")
+    """
+    logging.info("=" * 70)
+    logging.info(f"BACKFILLING HISTORICAL DATA")
+    logging.info(f"Days back: {days_back} | Interval: {interval}")
+    logging.info("=" * 70)
 
-            # Fetch 1-minute candles
-            ohlc_data = client.get_ohlc(symbol, interval=1)
+    total_candles = 0
+    successful = 0
+    failed = 0
 
-            if not ohlc_data:
-                logging.warning(f"No OHLC data returned for {symbol}")
-                results[symbol] = {"success": False, "count": 0}
-                continue
+    with get_db() as db:
+        fetcher = HistoricalDataFetcher(db)
 
-            # Extract prices and volumes from OHLC data
-            # Format: [timestamp, open, high, low, close, vwap, volume, count]
-            prices = []
-            volumes = []
+        for i, symbol in enumerate(SYMBOLS, 1):
+            try:
+                logging.info(f"\n[{i}/{len(SYMBOLS)}] Fetching {symbol}...")
 
-            for candle in ohlc_data[-max_history:]:  # Get last max_history candles
-                close_price = float(candle[4])  # Close price
-                volume = float(candle[6])       # Volume
-                prices.append(close_price)
-                volumes.append(volume)
+                candles_count = fetcher.fetch_and_cache(
+                    symbol=symbol,
+                    interval=interval,
+                    days_back=days_back
+                )
 
-            results[symbol] = {
-                "success": True,
-                "count": len(prices),
-                "sample_price": prices[-1] if prices else None,
-                "sample_volume": volumes[-1] if volumes else None
-            }
+                if candles_count > 0:
+                    logging.info(f"✅ {symbol}: Fetched {candles_count} candles")
+                    total_candles += candles_count
+                    successful += 1
+                else:
+                    logging.warning(f"⚠️  {symbol}: No data fetched")
+                    failed += 1
 
-            logging.info(
-                f"✅ {symbol}: Fetched {len(prices)} data points. "
-                f"Latest price: ${prices[-1]:,.2f}, Volume: {volumes[-1]:,.2f}"
-            )
-
-        except Exception as e:
-            logging.error(f"❌ Failed to backfill {symbol}: {e}")
-            results[symbol] = {"success": False, "error": str(e)}
+            except Exception as e:
+                logging.error(f"❌ {symbol}: Error - {e}")
+                failed += 1
 
     # Summary
-    logging.info("\n" + "=" * 60)
-    logging.info("BACKFILL SUMMARY")
-    logging.info("=" * 60)
+    logging.info("\n" + "=" * 70)
+    logging.info("BACKFILL COMPLETE")
+    logging.info("=" * 70)
+    logging.info(f"Successful: {successful}/{len(SYMBOLS)} symbols")
+    logging.info(f"Failed: {failed}/{len(SYMBOLS)} symbols")
+    logging.info(f"Total candles fetched: {total_candles:,}")
+    logging.info(f"Completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info("=" * 70)
 
-    successful = sum(1 for r in results.values() if r.get("success"))
-    failed = len(results) - successful
 
-    logging.info(f"✅ Successful: {successful}")
-    logging.info(f"❌ Failed: {failed}")
+def verify_data():
+    """Verify what data we have in the database."""
+    logging.info("\n" + "=" * 70)
+    logging.info("DATABASE VERIFICATION")
+    logging.info("=" * 70)
 
-    for symbol, result in results.items():
-        if result.get("success"):
-            logging.info(f"  {symbol}: {result['count']} data points")
-        else:
-            error = result.get("error", "No data")
-            logging.error(f"  {symbol}: FAILED - {error}")
+    with get_db() as db:
+        repo = HistoricalOHLCVRepository(db)
 
-    return results
+        for symbol in SYMBOLS:
+            try:
+                count = repo.count_candles(symbol, "5m")
+                if count > 0:
+                    latest = repo.get_latest_timestamp(symbol, "5m")
+                    logging.info(f"{symbol:10} {count:6,} candles | Latest: {latest}")
+                else:
+                    logging.info(f"{symbol:10} No data")
+            except Exception as e:
+                logging.error(f"{symbol:10} Error: {e}")
+
+    logging.info("=" * 70)
 
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("MARKET DATA BACKFILL UTILITY")
-    print("=" * 60)
-    print()
-    print("This script fetches historical OHLC data from Kraken")
-    print("to populate the DataCollector with price/volume history.")
-    print()
-    print("Note: This backfills the data temporarily for verification.")
-    print("The actual DataCollector will backfill automatically on startup")
-    print("once the server is restarted.")
-    print()
-    print("=" * 60)
-    print()
+    import argparse
 
-    results = backfill_history()
+    parser = argparse.ArgumentParser(description="Backfill historical market data")
+    parser.add_argument(
+        "--days",
+        type=int,
+        default=90,
+        help="Number of days of history to fetch (default: 90)"
+    )
+    parser.add_argument(
+        "--interval",
+        type=str,
+        default="5m",
+        choices=["1m", "5m", "15m", "30m", "1h", "4h", "1d"],
+        help="Candle interval (default: 5m)"
+    )
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help="Only verify existing data, don't fetch new data"
+    )
 
-    print()
-    print("=" * 60)
-    print("DATA VERIFICATION")
-    print("=" * 60)
+    args = parser.parse_args()
 
-    any_success = any(r.get("success") for r in results.values())
-
-    if any_success:
-        print("✅ Backfill successful!")
-        print()
-        print("The data has been fetched successfully.")
-        print("To apply this to the running bot, restart the server:")
-        print()
-        print("  1. Stop the current server (Ctrl+C)")
-        print("  2. Restart: ./run.sh")
-        print()
-        print("The DataCollector will automatically backfill on startup.")
+    if args.verify_only:
+        verify_data()
     else:
-        print("❌ Backfill failed for all symbols.")
-        print()
-        print("Please check:")
-        print("  - Kraken API connectivity")
-        print("  - Symbol names are correct")
-        print("  - API rate limits")
+        backfill_historical_data(days_back=args.days, interval=args.interval)
+        verify_data()
