@@ -314,3 +314,36 @@ class BotStatus(Base):
 
     def __repr__(self):
         return f"<BotStatus(running={self.is_running}, mode={self.mode}, balance={self.balance})>"
+
+
+class HistoricalOHLCV(Base):
+    """Historical OHLCV (candlestick) data for backtesting."""
+    __tablename__ = "historical_ohlcv"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    symbol = Column(String(20), nullable=False, index=True)
+    timestamp = Column(DateTime, nullable=False, index=True)
+
+    # OHLCV data
+    open = Column(SQLDecimal(20, 8), nullable=False)
+    high = Column(SQLDecimal(20, 8), nullable=False)
+    low = Column(SQLDecimal(20, 8), nullable=False)
+    close = Column(SQLDecimal(20, 8), nullable=False)
+    volume = Column(SQLDecimal(20, 8), nullable=False)
+
+    # Candle interval
+    interval = Column(String(10), nullable=False, index=True)  # '5m', '1h', '1d'
+
+    # Data source metadata
+    source = Column(String(50), default="kraken")
+    fetched_at = Column(DateTime, default=datetime.utcnow)
+
+    # Composite indexes for efficient querying
+    __table_args__ = (
+        Index('idx_ohlcv_symbol_interval_timestamp', 'symbol', 'interval', 'timestamp'),
+        # Ensure uniqueness: one candle per symbol/interval/timestamp
+        Index('idx_ohlcv_unique', 'symbol', 'interval', 'timestamp', unique=True),
+    )
+
+    def __repr__(self):
+        return f"<HistoricalOHLCV(symbol={self.symbol}, timestamp={self.timestamp}, interval={self.interval}, close={self.close})>"

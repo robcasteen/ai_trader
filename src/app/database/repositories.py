@@ -11,7 +11,8 @@ from sqlalchemy import and_, or_, func
 
 from app.database.models import (
     Signal, Trade, Holding, StrategyPerformance,
-    StrategyDefinition, ErrorLog, RSSFeed, SeenNews, BotStatus
+    StrategyDefinition, ErrorLog, RSSFeed, SeenNews, BotStatus,
+    HistoricalOHLCV
 )
 
 
@@ -629,6 +630,167 @@ class BotConfigRepository:
         }
 
 
+class HistoricalOHLCVRepository:
+    """Repository for Historical OHLCV data (backtesting)."""
+
+    def __init__(self, session: Session):
+        self.session = session
+
+    def upsert(
+        self,
+        symbol: str,
+        timestamp: datetime,
+        open: Decimal,
+        high: Decimal,
+        low: Decimal,
+        close: Decimal,
+        volume: Decimal,
+        interval: str,
+        source: str = "kraken"
+    ) -> HistoricalOHLCV:
+        """
+        Upsert (insert or update) a candle.
+        If a candle with same symbol/interval/timestamp exists, update it.
+        Otherwise, create new.
+        """
+        # Try to find existing candle
+        existing = self.session.query(HistoricalOHLCV).filter(
+            and_(
+                HistoricalOHLCV.symbol == symbol,
+                HistoricalOHLCV.timestamp == timestamp,
+                HistoricalOHLCV.interval == interval
+            )
+        ).first()
+
+        if existing:
+            # Update existing
+            existing.open = open
+            existing.high = high
+            existing.low = low
+            existing.close = close
+            existing.volume = volume
+            existing.source = source
+            existing.fetched_at = datetime.utcnow()
+            self.session.flush()
+            return existing
+        else:
+            # Create new
+            candle = HistoricalOHLCV(
+                symbol=symbol,
+                timestamp=timestamp,
+                open=open,
+                high=high,
+                low=low,
+                close=close,
+                volume=volume,
+                interval=interval,
+                source=source
+            )
+            self.session.add(candle)
+            self.session.flush()
+            return candle
+
+    def get_by_symbol_and_time(
+        self,
+        symbol: str,
+        timestamp: datetime,
+        interval: str
+    ) -> Optional[HistoricalOHLCV]:
+        """Get a specific candle by symbol, timestamp, and interval."""
+        return self.session.query(HistoricalOHLCV).filter(
+            and_(
+                HistoricalOHLCV.symbol == symbol,
+                HistoricalOHLCV.timestamp == timestamp,
+                HistoricalOHLCV.interval == interval
+            )
+        ).first()
+
+    def get_by_symbol(
+        self,
+        symbol: str,
+        interval: str = "5m",
+        limit: Optional[int] = None
+    ) -> List[HistoricalOHLCV]:
+        """Get all candles for a symbol."""
+        query = self.session.query(HistoricalOHLCV).filter(
+            and_(
+                HistoricalOHLCV.symbol == symbol,
+                HistoricalOHLCV.interval == interval
+            )
+        ).order_by(HistoricalOHLCV.timestamp)
+
+        if limit:
+            query = query.limit(limit)
+
+        return query.all()
+
+    def get_range(
+        self,
+        symbol: str,
+        start_time: datetime,
+        end_time: datetime,
+        interval: str = "5m"
+    ) -> List[HistoricalOHLCV]:
+        """Get candles for a symbol within a date range."""
+        return self.session.query(HistoricalOHLCV).filter(
+            and_(
+                HistoricalOHLCV.symbol == symbol,
+                HistoricalOHLCV.timestamp >= start_time,
+                HistoricalOHLCV.timestamp <= end_time,
+                HistoricalOHLCV.interval == interval
+            )
+        ).order_by(HistoricalOHLCV.timestamp).all()
+
+    def bulk_upsert(self, candles_data: List[Dict]) -> int:
+        """
+        Efficiently upsert multiple candles.
+        Returns number of candles processed.
+        """
+        count = 0
+        for candle_dict in candles_data:
+            self.upsert(
+                symbol=candle_dict["symbol"],
+                timestamp=candle_dict["timestamp"],
+                open=candle_dict["open"],
+                high=candle_dict["high"],
+                low=candle_dict["low"],
+                close=candle_dict["close"],
+                volume=candle_dict["volume"],
+                interval=candle_dict["interval"],
+                source=candle_dict.get("source", "kraken")
+            )
+            count += 1
+
+        return count
+
+    def get_latest_timestamp(
+        self,
+        symbol: str,
+        interval: str = "5m"
+    ) -> Optional[datetime]:
+        """Get the timestamp of the most recent candle for a symbol."""
+        latest = self.session.query(func.max(HistoricalOHLCV.timestamp)).filter(
+            and_(
+                HistoricalOHLCV.symbol == symbol,
+                HistoricalOHLCV.interval == interval
+            )
+        ).scalar()
+        return latest
+
+    def count_candles(
+        self,
+        symbol: str,
+        interval: str = "5m"
+    ) -> int:
+        """Count total candles for a symbol."""
+        return self.session.query(HistoricalOHLCV).filter(
+            and_(
+                HistoricalOHLCV.symbol == symbol,
+                HistoricalOHLCV.interval == interval
+            )
+        ).count()
+
+
 def get_repositories(session: Session) -> Dict:
     """
     Get all repositories for a session.
@@ -644,5 +806,6 @@ def get_repositories(session: Session) -> Dict:
         "holdings": HoldingRepository(session),
         "performance": PerformanceRepository(session),
         "feeds": RSSFeedRepository(session),
-        "config": BotConfigRepository(session)
+        "config": BotConfigRepository(session),
+        "historical": HistoricalOHLCVRepository(session)
     }
