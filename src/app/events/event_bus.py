@@ -15,6 +15,7 @@ class EventType(str, Enum):
     TRADE_EXECUTED = "trade_executed"
     SIGNAL_GENERATED = "signal_generated"
     BALANCE_UPDATED = "balance_updated"
+    CONFIG_CHANGED = "config_changed"
     HOLDINGS_UPDATED = "holdings_updated"
     NEWS_FETCHED = "news_fetched"
     STRATEGY_UPDATED = "strategy_updated"
