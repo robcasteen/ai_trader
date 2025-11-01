@@ -111,11 +111,43 @@ class BacktestEngine:
         Initialize backtest engine.
 
         Args:
-            config: Configuration dict
+            config: Configuration dict (can include 'enabled_strategies' list)
         """
         self.config = config or {}
         self.client = KrakenClient()
         self.strategy_manager = StrategyManager(config.get("strategy_config", {}))
+
+        # If specific strategies are selected, disable the others
+        enabled_strategies = config.get("enabled_strategies")
+        if enabled_strategies:
+            # Get all strategy names
+            all_strategies = ["sentiment", "technical", "volume"]
+
+            # Disable strategies not in the enabled list
+            for strategy_name in all_strategies:
+                if strategy_name not in enabled_strategies:
+                    self.strategy_manager.disable_strategy(strategy_name)
+                else:
+                    self.strategy_manager.enable_strategy(strategy_name)
+
+    def _interval_minutes_to_string(self, interval_minutes: int) -> str:
+        """
+        Convert interval in minutes to string format for database lookup.
+
+        Args:
+            interval_minutes: Interval in minutes (1, 5, 15, 30, 60, 240, 1440, etc.)
+
+        Returns:
+            Interval string (e.g., "5m", "1h", "1d")
+        """
+        if interval_minutes < 60:
+            return f"{interval_minutes}m"
+        elif interval_minutes < 1440:
+            hours = interval_minutes // 60
+            return f"{hours}h"
+        else:
+            days = interval_minutes // 1440
+            return f"{days}d"
 
     def fetch_historical_data(
         self,
@@ -124,56 +156,57 @@ class BacktestEngine:
         days_back: int = 30
     ) -> List[Dict[str, Any]]:
         """
-        Fetch historical OHLC data from Kraken.
+        Fetch historical OHLC data from database.
 
         Args:
-            symbol: Trading pair (e.g., "XXBTZUSD")
+            symbol: Trading pair (e.g., "BTCUSD")
             interval_minutes: Candle interval in minutes (1, 5, 15, 30, 60, 240, 1440)
             days_back: How many days of history to fetch
 
         Returns:
             List of candle dicts with keys: timestamp, open, high, low, close, volume
         """
-        logging.info(f"[Backtest] Fetching {days_back} days of {interval_minutes}min data for {symbol}")
+        from app.database.connection import get_db
+        from app.database.repositories import HistoricalOHLCVRepository
 
-        # Kraken returns max 720 candles per request
-        # Calculate how many requests we need
-        candles_per_day = (24 * 60) // interval_minutes
-        total_candles_needed = candles_per_day * days_back
-        max_candles_per_request = 720
+        logging.info(f"[Backtest] Loading {days_back} days of {interval_minutes}min data for {symbol} from database")
 
+        # Calculate date range
+        end_time = datetime.now()
+        start_time = end_time - timedelta(days=days_back)
+
+        # Convert interval to string format
+        interval_str = self._interval_minutes_to_string(interval_minutes)
+
+        # Load from database
         all_candles = []
-        since = None
+        try:
+            with get_db() as db:
+                repo = HistoricalOHLCVRepository(db)
+                candles = repo.get_range(
+                    symbol=symbol,
+                    start_time=start_time,
+                    end_time=end_time,
+                    interval=interval_str
+                )
 
-        # Fetch in chunks
-        while len(all_candles) < total_candles_needed:
-            ohlc_data = self.client.get_ohlc(symbol, interval=interval_minutes, since=since)
+                # Convert database models to dict format expected by backtest
+                for candle in candles:
+                    all_candles.append({
+                        "timestamp": candle.timestamp,
+                        "open": float(candle.open),
+                        "high": float(candle.high),
+                        "low": float(candle.low),
+                        "close": float(candle.close),
+                        "volume": float(candle.volume)
+                    })
 
-            if not ohlc_data:
-                break
+        except Exception as e:
+            logging.error(f"[Backtest] Error loading data from database: {e}")
+            return []
 
-            for candle in ohlc_data:
-                # Format: [timestamp, open, high, low, close, vwap, volume, count]
-                all_candles.append({
-                    "timestamp": datetime.fromtimestamp(int(candle[0])),
-                    "open": float(candle[1]),
-                    "high": float(candle[2]),
-                    "low": float(candle[3]),
-                    "close": float(candle[4]),
-                    "vwap": float(candle[5]),
-                    "volume": float(candle[6])
-                })
-
-            # Update 'since' for next request
-            if ohlc_data:
-                since = int(ohlc_data[-1][0]) + 1
-
-            # Stop if we got less than max candles (means we hit the limit)
-            if len(ohlc_data) < max_candles_per_request:
-                break
-
-        logging.info(f"[Backtest] Fetched {len(all_candles)} candles for {symbol}")
-        return all_candles[-total_candles_needed:]  # Return most recent N candles
+        logging.info(f"[Backtest] Loaded {len(all_candles)} candles for {symbol} from database")
+        return all_candles
 
     def run_backtest(
         self,
@@ -223,6 +256,9 @@ class BacktestEngine:
 
         logging.info(f"[Backtest] Simulating {len(all_timestamps)} time steps")
 
+        # Initialize current_prices in case we have no data
+        current_prices = {}
+
         # Replay history
         for i, timestamp in enumerate(all_timestamps):
             # Get current prices
@@ -265,22 +301,27 @@ class BacktestEngine:
 
                 # Generate signal from strategies
                 try:
-                    signal_result = self.strategy_manager.generate_signal(
-                        symbol=normalized_symbol,
-                        price=price,
-                        price_history=price_history,
-                        volume_history=volume_history,
-                        news_headlines=[]  # No news in backtest for now
-                    )
+                    context = {
+                        "headlines": [],  # No news in backtest for now
+                        "price": price,
+                        "volume": current_volumes.get(symbol, 0),
+                        "price_history": price_history,
+                        "volume_history": volume_history
+                    }
 
-                    signal = signal_result.get("final_signal")
-                    confidence = signal_result.get("final_confidence", 0)
+                    signal, confidence, reason, signal_id = self.strategy_manager.get_signal(
+                        symbol=normalized_symbol,
+                        context=context
+                    )
 
                     # Execute trades based on signal
                     portfolio_value = portfolio.get_portfolio_value(current_prices)
                     position_size_usd = portfolio_value * position_size_pct
 
-                    if signal == "BUY" and confidence > 0.2:
+                    # Use min_confidence from config, default to 0.5
+                    min_confidence = self.config.get("min_confidence", 0.5)
+
+                    if signal == "BUY" and confidence > min_confidence:
                         amount = position_size_usd / price
                         portfolio.buy(symbol, price, amount, timestamp)
 

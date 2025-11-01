@@ -21,19 +21,21 @@ class StrategyManager:
     Manages multiple trading strategies and aggregates their signals.
     """
 
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: Dict[str, Any] = None, db_session=None):
         """
         Initialize strategy manager.
 
         Args:
             config: Configuration dict with strategy settings
+            db_session: Optional database session for loading strategy definitions
         """
         self.config = config or {}
+        self.db_session = db_session
         self.strategies: List[BaseStrategy] = []
         self.min_confidence = self.config.get("min_confidence", 0.5)
         self.aggregation_method = self.config.get("aggregation_method", "weighted_vote")
 
-        # Initialize default strategies
+        # Initialize strategies (from database if session provided, otherwise use defaults)
         self._initialize_strategies()
         # Initialize signal logger
         logs_dir = self.config.get("logs_dir", "data")
@@ -41,7 +43,69 @@ class StrategyManager:
         logging.info(f"[StrategyManager] Logging to {logs_dir}/strategy_signals.jsonl")
 
     def _initialize_strategies(self):
-        """Initialize and register all available strategies."""
+        """Initialize and register all available strategies from database or defaults."""
+        # If database session provided, load strategies from database
+        if self.db_session:
+            self._load_strategies_from_database()
+        else:
+            # Fallback to hardcoded strategies (for backward compatibility)
+            self._load_default_strategies()
+
+    def _load_strategies_from_database(self):
+        """Load strategies from database using StrategyDefinitionRepository."""
+        try:
+            from app.database.repositories import StrategyDefinitionRepository
+
+            repo = StrategyDefinitionRepository(self.db_session)
+            strategy_defs = repo.get_all_enabled()
+
+            if not strategy_defs:
+                logging.warning("[StrategyManager] No strategies found in database, using defaults")
+                self._load_default_strategies()
+                return
+
+            # Map strategy names to their class implementations
+            strategy_classes = {
+                "sentiment": SentimentStrategy,
+                "technical": TechnicalStrategy,
+                "volume": VolumeStrategy,
+            }
+
+            for strategy_def in strategy_defs:
+                strategy_class = strategy_classes.get(strategy_def.name)
+
+                if not strategy_class:
+                    logging.warning(
+                        f"[StrategyManager] Unknown strategy '{strategy_def.name}', skipping"
+                    )
+                    continue
+
+                # Instantiate strategy
+                strategy = strategy_class()
+
+                # Apply database configuration
+                strategy.weight = float(strategy_def.weight)
+                strategy.enabled = strategy_def.enabled
+
+                # Apply strategy-specific parameters if provided
+                if strategy_def.parameters:
+                    for param_name, param_value in strategy_def.parameters.items():
+                        if hasattr(strategy, param_name):
+                            setattr(strategy, param_name, param_value)
+
+                self.strategies.append(strategy)
+                logging.info(
+                    f"[StrategyManager] Loaded {strategy.name} from database "
+                    f"(weight={strategy.weight}, enabled={strategy.enabled})"
+                )
+
+        except Exception as e:
+            logging.error(f"[StrategyManager] Failed to load strategies from database: {e}")
+            logging.info("[StrategyManager] Falling back to default strategies")
+            self._load_default_strategies()
+
+    def _load_default_strategies(self):
+        """Load hardcoded default strategies (backward compatibility)."""
         # Sentiment strategy (always enabled)
         sentiment = SentimentStrategy()
         self.strategies.append(sentiment)
@@ -56,11 +120,13 @@ class StrategyManager:
             volume = VolumeStrategy()
             self.strategies.append(volume)
 
-        # Apply custom weights if provided
+        # Apply custom weights if provided in config
         custom_weights = self.config.get("strategy_weights", {})
         for strategy in self.strategies:
             if strategy.name in custom_weights:
                 strategy.weight = custom_weights[strategy.name]
+
+        logging.info(f"[StrategyManager] Loaded {len(self.strategies)} default strategies")
 
     def add_strategy(self, strategy: BaseStrategy):
         """Add a custom strategy to the manager."""
@@ -255,6 +321,254 @@ class StrategyManager:
 
         return final_signal, final_confidence, final_reason, signal_id
 
+    def get_signal_with_telemetry(
+        self, symbol: str, context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Get aggregated trading signal with comprehensive telemetry.
+
+        This method provides the same signal as get_signal() but returns
+        detailed telemetry for analysis and debugging.
+
+        Args:
+            symbol: Trading pair (e.g., "BTC/USD")
+            context: Context data (same as get_signal)
+
+        Returns:
+            Dict containing:
+                - final_signal: "BUY", "SELL", or "HOLD"
+                - final_confidence: 0.0 to 1.0
+                - final_reason: Detailed explanation
+                - signal_id: Database ID of logged signal (or None)
+                - telemetry: Detailed breakdown dict
+        """
+        from datetime import datetime
+
+        # Normalize symbol
+        try:
+            symbol = normalize_symbol(symbol)
+        except ValueError:
+            logging.warning(f"[StrategyManager] Unknown symbol format: {symbol}, using as-is")
+
+        # Early exit if no strategies
+        if not self.strategies:
+            return {
+                "final_signal": "HOLD",
+                "final_confidence": 0.0,
+                "final_reason": "No strategies available",
+                "signal_id": None,
+                "telemetry": {
+                    "strategy_votes": [],
+                    "aggregation": {},
+                    "execution": {"would_execute": False, "reason": "No strategies"},
+                    "context": {"symbol": symbol, "timestamp": datetime.now()},
+                    "attribution": {}
+                }
+            }
+
+        # Collect signals from all strategies
+        strategy_results = []
+        for strategy in self.strategies:
+            if not strategy.enabled:
+                continue
+
+            try:
+                signal, confidence, reason = strategy.get_signal(symbol, context)
+                strategy_results.append({
+                    "strategy": strategy.name,
+                    "signal": signal,
+                    "confidence": confidence,
+                    "reason": reason,
+                    "weight": strategy.weight,
+                })
+                logging.info(
+                    f"[{strategy.name}] {symbol}: {signal} (conf: {confidence:.2f}) - {reason}"
+                )
+            except Exception as e:
+                logging.error(
+                    f"[{strategy.name}] Error getting signal for {symbol}: {e}"
+                )
+                continue
+
+        if not strategy_results:
+            return {
+                "final_signal": "HOLD",
+                "final_confidence": 0.0,
+                "final_reason": "No strategies produced signals",
+                "signal_id": None,
+                "telemetry": {
+                    "strategy_votes": [],
+                    "aggregation": {},
+                    "execution": {"would_execute": False, "reason": "No signals produced"},
+                    "context": {"symbol": symbol, "timestamp": datetime.now()},
+                    "attribution": {}
+                }
+            }
+
+        # Aggregate signals
+        if self.aggregation_method == "weighted_vote":
+            final_signal, final_confidence, final_reason = (
+                self._weighted_vote_aggregation(strategy_results)
+            )
+        elif self.aggregation_method == "highest_confidence":
+            final_signal, final_confidence, final_reason = (
+                self._highest_confidence_aggregation(strategy_results)
+            )
+        elif self.aggregation_method == "unanimous":
+            final_signal, final_confidence, final_reason = self._unanimous_aggregation(
+                strategy_results
+            )
+        else:
+            final_signal, final_confidence, final_reason = (
+                self._weighted_vote_aggregation(strategy_results)
+            )
+
+        logging.info(
+            f"[StrategyManager] Final signal for {symbol}: {final_signal} (conf: {final_confidence:.2f})"
+        )
+
+        # Build telemetry
+        telemetry = self._build_telemetry(
+            symbol=symbol,
+            context=context,
+            strategy_results=strategy_results,
+            final_signal=final_signal,
+            final_confidence=final_confidence,
+            final_reason=final_reason
+        )
+
+        # Log signal to database
+        current_price = context.get("price", 0.0)
+        signal_id = None
+        if current_price > 0 and strategy_results:
+            try:
+                strategy_details = {}
+                for result in strategy_results:
+                    strategy_details[result["strategy"]] = {
+                        "signal": result["signal"],
+                        "confidence": result["confidence"],
+                        "reason": result["reason"],
+                        "weight": result["weight"],
+                        "enabled": True,
+                    }
+
+                signal_id = self.signal_logger.log_decision(
+                    symbol=symbol,
+                    price=current_price,
+                    final_signal=final_signal,
+                    final_confidence=final_confidence,
+                    strategy_signals=strategy_details,
+                    aggregation_method=self.aggregation_method,
+                    metadata={
+                        "min_confidence": self.min_confidence,
+                        "num_strategies": len(strategy_results),
+                        "telemetry": telemetry  # Store telemetry in metadata
+                    },
+                )
+            except Exception as e:
+                logging.warning(f"⚠️  Signal logging failed: {e}")
+
+        # Check if would execute
+        would_execute = final_confidence >= self.min_confidence
+        if not would_execute:
+            logging.info(
+                f"[StrategyManager] Confidence {final_confidence:.2f} below threshold {self.min_confidence}"
+            )
+
+        return {
+            "final_signal": final_signal,
+            "final_confidence": final_confidence,
+            "final_reason": final_reason,
+            "signal_id": signal_id,
+            "telemetry": telemetry
+        }
+
+    def _build_telemetry(
+        self,
+        symbol: str,
+        context: Dict[str, Any],
+        strategy_results: List[Dict],
+        final_signal: str,
+        final_confidence: float,
+        final_reason: str
+    ) -> Dict[str, Any]:
+        """Build comprehensive telemetry data."""
+        from datetime import datetime
+
+        # 1. Strategy votes
+        strategy_votes = []
+        for result in strategy_results:
+            strategy_votes.append({
+                "strategy_name": result["strategy"],
+                "signal": result["signal"],
+                "confidence": result["confidence"],
+                "reason": result["reason"],
+                "weight": result["weight"],
+                "enabled": True
+            })
+
+        # 2. Aggregation breakdown
+        buy_score = sum(r["confidence"] * r["weight"] for r in strategy_results if r["signal"] == "BUY")
+        sell_score = sum(r["confidence"] * r["weight"] for r in strategy_results if r["signal"] == "SELL")
+        hold_score = sum(r["confidence"] * r["weight"] for r in strategy_results if r["signal"] == "HOLD")
+        total_weight = sum(r["weight"] for r in strategy_results)
+
+        aggregation = {
+            "method": self.aggregation_method,
+            "buy_score": float(buy_score),
+            "sell_score": float(sell_score),
+            "hold_score": float(hold_score),
+            "total_weight": float(total_weight)
+        }
+
+        # 3. Execution decision
+        would_execute = final_confidence >= self.min_confidence
+        confidence_gap = self.min_confidence - final_confidence if not would_execute else 0.0
+        near_miss = abs(confidence_gap) < 0.1 and not would_execute
+
+        execution = {
+            "would_execute": would_execute,
+            "min_confidence_threshold": self.min_confidence,
+            "actual_confidence": final_confidence,
+            "reason": f"Meets threshold of {self.min_confidence}" if would_execute else f"Below threshold by {confidence_gap:.3f}",
+            "confidence_gap": confidence_gap,
+            "near_miss": near_miss
+        }
+
+        # 4. Market context
+        context_data = {
+            "symbol": symbol,
+            "price": context.get("price", 0.0),
+            "volume": context.get("volume", 0.0),
+            "num_headlines": len(context.get("headlines", [])),
+            "timestamp": datetime.now()
+        }
+
+        # 5. Strategy attribution
+        agreeing = [r["strategy"] for r in strategy_results if r["signal"] == final_signal]
+        disagreeing = [r["strategy"] for r in strategy_results if r["signal"] != final_signal]
+
+        # Calculate contribution percentages
+        contributions = {}
+        for result in strategy_results:
+            if result["signal"] == final_signal:
+                contribution_pct = (result["confidence"] * result["weight"] / total_weight * 100) if total_weight > 0 else 0.0
+                contributions[result["strategy"]] = float(contribution_pct)
+
+        attribution = {
+            "agreeing_strategies": agreeing,
+            "disagreeing_strategies": disagreeing,
+            "contribution_by_strategy": contributions
+        }
+
+        return {
+            "strategy_votes": strategy_votes,
+            "aggregation": aggregation,
+            "execution": execution,
+            "context": context_data,
+            "attribution": attribution
+        }
+
     def _weighted_vote_aggregation(self, results: List[Dict]) -> Tuple[str, float, str]:
         """
         Aggregate signals using weighted voting.
@@ -291,20 +605,14 @@ class StrategyManager:
         raw_score = winning_signal[1]
         
         # Calculate confidence based on signal type
-       # Calculate confidence based on signal type
-        print(f"🔍 PRE-CALC: signal={signal}, actionable_weight={actionable_weight}, hold_weight={hold_weight}, raw_score={raw_score}")
-        logging.info(f"[StrategyManager] DEBUG: signal={signal}, actionable_weight={actionable_weight}, hold_weight={hold_weight}, raw_score={raw_score}")
         if signal in ["BUY", "SELL"] and actionable_weight > 0:
             # For actionable signals, only divide by actionable weight
             confidence = min(raw_score / actionable_weight, 1.0)
-            print(f"✅ CALC BUY/SELL: {raw_score} / {actionable_weight} = {confidence}")
         elif actionable_weight + hold_weight > 0:
             # For HOLD, use total weight
             confidence = min(raw_score / (actionable_weight + hold_weight), 1.0)
-            print(f"⚠️ CALC HOLD: {raw_score} / {actionable_weight + hold_weight} = {confidence}")
         else:
             confidence = 0.0
-            print(f"❌ NO WEIGHT")
         
         # Build reason
         reason = (

@@ -185,6 +185,12 @@ class StrategyDefinition(Base):
     class_name = Column(String(100))
     module_path = Column(String(200))
 
+    # Template system
+    is_template = Column(Boolean, nullable=False, default=False, index=True)
+    description = Column(Text)  # User-friendly description
+    category = Column(String(50), index=True)  # technical, sentiment, volume, etc.
+    parent_template_id = Column(Integer, ForeignKey('strategy_definitions.id'))  # Lineage tracking
+
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -197,8 +203,12 @@ class StrategyDefinition(Base):
     # A/B Testing
     ab_test_group = Column(String(20))
 
+    # Relationships
+    parent_template = relationship("StrategyDefinition", remote_side=[id], backref="clones")
+
     __table_args__ = (
         Index('idx_name_version', 'name', 'version'),
+        Index('idx_category_template', 'category', 'is_template'),
     )
 
     def __repr__(self):
